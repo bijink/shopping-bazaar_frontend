@@ -1,3 +1,6 @@
 *.lock
 *-lock.json
 *-lock.yaml
+
+# tanstack-router
+src/routeTree.gen.ts
