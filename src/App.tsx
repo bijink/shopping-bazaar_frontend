@@ -1,5 +1,5 @@
 import { RouterProvider, createRouter } from '@tanstack/react-router';
-// Import the generated route tree
+import ContextProviders from './contexts';
 import { routeTree } from './routeTree.gen';
 
 // Create a new router instance
@@ -13,5 +13,9 @@ declare module '@tanstack/react-router' {
 }
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <ContextProviders>
+      <RouterProvider router={router} />
+    </ContextProviders>
+  );
 }

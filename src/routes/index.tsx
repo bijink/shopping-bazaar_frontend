@@ -1,4 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
+import ProductList from '../components/ProductList';
+import ProductQuickview from '../components/ProductQuickview';
 
 export const Route = createFileRoute('/')({
   component: Home,
@@ -7,7 +9,8 @@ export const Route = createFileRoute('/')({
 function Home() {
   return (
     <div className="p-2">
-      <h3>Welcome Home!</h3>
+      <ProductList />
+      <ProductQuickview />
     </div>
   );
 }

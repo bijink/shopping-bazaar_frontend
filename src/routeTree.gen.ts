@@ -11,15 +11,14 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AboutImport } from './routes/about'
+import { Route as CartImport } from './routes/cart'
 import { Route as IndexImport } from './routes/index'
-import { Route as PostsIndexImport } from './routes/posts/index'
-import { Route as PostsPostIdImport } from './routes/posts/$postId'
+import { Route as ProductProductIdImport } from './routes/product_.$productId'
 
 // Create/Update Routes
 
-const AboutRoute = AboutImport.update({
-  path: '/about',
+const CartRoute = CartImport.update({
+  path: '/cart',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -28,13 +27,8 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const PostsIndexRoute = PostsIndexImport.update({
-  path: '/posts/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const PostsPostIdRoute = PostsPostIdImport.update({
-  path: '/posts/$postId',
+const ProductProductIdRoute = ProductProductIdImport.update({
+  path: '/product/$productId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -49,25 +43,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartImport
       parentRoute: typeof rootRoute
     }
-    '/posts/$postId': {
-      id: '/posts/$postId'
-      path: '/posts/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof PostsPostIdImport
-      parentRoute: typeof rootRoute
-    }
-    '/posts/': {
-      id: '/posts/'
-      path: '/posts'
-      fullPath: '/posts'
-      preLoaderRoute: typeof PostsIndexImport
+    '/product/$productId': {
+      id: '/product/$productId'
+      path: '/product/$productId'
+      fullPath: '/product/$productId'
+      preLoaderRoute: typeof ProductProductIdImport
       parentRoute: typeof rootRoute
     }
   }
@@ -77,9 +64,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
-  AboutRoute,
-  PostsPostIdRoute,
-  PostsIndexRoute,
+  CartRoute,
+  ProductProductIdRoute,
 })
 
 /* prettier-ignore-end */
@@ -91,22 +77,18 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/about",
-        "/posts/$postId",
-        "/posts/"
+        "/cart",
+        "/product/$productId"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/about": {
-      "filePath": "about.tsx"
+    "/cart": {
+      "filePath": "cart.tsx"
     },
-    "/posts/$postId": {
-      "filePath": "posts/$postId.tsx"
-    },
-    "/posts/": {
-      "filePath": "posts/index.tsx"
+    "/product/$productId": {
+      "filePath": "product_.$productId.tsx"
     }
   }
 }
