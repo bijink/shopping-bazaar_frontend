@@ -438,13 +438,16 @@ export default function Header() {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-900">
                     Sign in
                   </a>
                   <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                  <Link
+                    to="/signup"
+                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                  >
                     Create account
-                  </a>
+                  </Link>
                 </div>
 
                 {/* <div className="hidden lg:ml-8 lg:flex">

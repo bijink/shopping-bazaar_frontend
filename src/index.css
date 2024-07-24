@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* !: for stylesheet debugging */
+/* * {
+  box-sizing: border-box;
+  background: rgb(0 100 1 / 0.1) !important;
+} */
+/* !: for stylesheet debugging */

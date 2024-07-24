@@ -1,6 +1,7 @@
+import { Link } from '@tanstack/react-router';
 import { useContext } from 'react';
 import { ProductQuickviewOpenContext } from '../contexts';
-import { Link } from '@tanstack/react-router';
+import Pagination from './Pagination';
 
 /*
   This example requires some changes to your config:
@@ -97,10 +98,8 @@ export default function ProductList() {
 
   return (
     <div className="bg-white">
-      <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-20 lg:max-w-7xl lg:px-8">
-        <h2 className="sr-only">Products</h2>
-
-        <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-10 py-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
           {products.map((product) => (
             <div key={product.id} className="group">
               <Link to="/product/$productId" params={{ productId: product.id.toString() }}>
@@ -135,6 +134,7 @@ export default function ProductList() {
             </div>
           ))}
         </div>
+        <Pagination />
       </div>
     </div>
   );
