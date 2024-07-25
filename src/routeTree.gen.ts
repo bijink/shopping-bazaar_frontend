@@ -11,64 +11,168 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as SignupImport } from './routes/signup'
-import { Route as CartImport } from './routes/cart'
-import { Route as IndexImport } from './routes/index'
-import { Route as ProductProductIdImport } from './routes/product_.$productId'
+import { Route as AdminImport } from './routes/admin'
+import { Route as UserImport } from './routes/_user'
+import { Route as AuthImport } from './routes/_auth'
+import { Route as AdminIndexImport } from './routes/admin/index'
+import { Route as UserIndexImport } from './routes/_user/index'
+import { Route as AdminOrdersImport } from './routes/admin/orders'
+import { Route as UserCartImport } from './routes/_user/cart'
+import { Route as AuthSignupImport } from './routes/_auth/signup'
+import { Route as AuthSigninImport } from './routes/_auth/signin'
+import { Route as AdminProductAddImport } from './routes/admin/product_/add'
+import { Route as UserProductProductIdImport } from './routes/_user/product_.$productId'
+import { Route as AdminProductEditProductIdImport } from './routes/admin/product_/edit.$productId'
 
 // Create/Update Routes
 
-const SignupRoute = SignupImport.update({
-  path: '/signup',
+const AdminRoute = AdminImport.update({
+  path: '/admin',
   getParentRoute: () => rootRoute,
 } as any)
 
-const CartRoute = CartImport.update({
-  path: '/cart',
+const UserRoute = UserImport.update({
+  id: '/_user',
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexRoute = IndexImport.update({
+const AuthRoute = AuthImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AdminIndexRoute = AdminIndexImport.update({
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => AdminRoute,
 } as any)
 
-const ProductProductIdRoute = ProductProductIdImport.update({
+const UserIndexRoute = UserIndexImport.update({
+  path: '/',
+  getParentRoute: () => UserRoute,
+} as any)
+
+const AdminOrdersRoute = AdminOrdersImport.update({
+  path: '/orders',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const UserCartRoute = UserCartImport.update({
+  path: '/cart',
+  getParentRoute: () => UserRoute,
+} as any)
+
+const AuthSignupRoute = AuthSignupImport.update({
+  path: '/signup',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthSigninRoute = AuthSigninImport.update({
+  path: '/signin',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AdminProductAddRoute = AdminProductAddImport.update({
+  path: '/product/add',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const UserProductProductIdRoute = UserProductProductIdImport.update({
   path: '/product/$productId',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => UserRoute,
+} as any)
+
+const AdminProductEditProductIdRoute = AdminProductEditProductIdImport.update({
+  path: '/product/edit/$productId',
+  getParentRoute: () => AdminRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
-    '/cart': {
-      id: '/cart'
-      path: '/cart'
-      fullPath: '/cart'
-      preLoaderRoute: typeof CartImport
+    '/_user': {
+      id: '/_user'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof UserImport
       parentRoute: typeof rootRoute
     }
-    '/signup': {
-      id: '/signup'
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminImport
+      parentRoute: typeof rootRoute
+    }
+    '/_auth/signin': {
+      id: '/_auth/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof AuthSigninImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/signup': {
+      id: '/_auth/signup'
       path: '/signup'
       fullPath: '/signup'
-      preLoaderRoute: typeof SignupImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthSignupImport
+      parentRoute: typeof AuthImport
     }
-    '/product/$productId': {
-      id: '/product/$productId'
+    '/_user/cart': {
+      id: '/_user/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof UserCartImport
+      parentRoute: typeof UserImport
+    }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersImport
+      parentRoute: typeof AdminImport
+    }
+    '/_user/': {
+      id: '/_user/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof UserIndexImport
+      parentRoute: typeof UserImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexImport
+      parentRoute: typeof AdminImport
+    }
+    '/_user/product/$productId': {
+      id: '/_user/product/$productId'
       path: '/product/$productId'
       fullPath: '/product/$productId'
-      preLoaderRoute: typeof ProductProductIdImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof UserProductProductIdImport
+      parentRoute: typeof UserImport
+    }
+    '/admin/product/add': {
+      id: '/admin/product/add'
+      path: '/product/add'
+      fullPath: '/admin/product/add'
+      preLoaderRoute: typeof AdminProductAddImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/product/edit/$productId': {
+      id: '/admin/product/edit/$productId'
+      path: '/product/edit/$productId'
+      fullPath: '/admin/product/edit/$productId'
+      preLoaderRoute: typeof AdminProductEditProductIdImport
+      parentRoute: typeof AdminImport
     }
   }
 }
@@ -76,10 +180,18 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren({
-  IndexRoute,
-  CartRoute,
-  SignupRoute,
-  ProductProductIdRoute,
+  AuthRoute: AuthRoute.addChildren({ AuthSigninRoute, AuthSignupRoute }),
+  UserRoute: UserRoute.addChildren({
+    UserCartRoute,
+    UserIndexRoute,
+    UserProductProductIdRoute,
+  }),
+  AdminRoute: AdminRoute.addChildren({
+    AdminOrdersRoute,
+    AdminIndexRoute,
+    AdminProductAddRoute,
+    AdminProductEditProductIdRoute,
+  }),
 })
 
 /* prettier-ignore-end */
@@ -90,23 +202,70 @@ export const routeTree = rootRoute.addChildren({
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/cart",
-        "/signup",
-        "/product/$productId"
+        "/_auth",
+        "/_user",
+        "/admin"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
+    "/_auth": {
+      "filePath": "_auth.tsx",
+      "children": [
+        "/_auth/signin",
+        "/_auth/signup"
+      ]
     },
-    "/cart": {
-      "filePath": "cart.tsx"
+    "/_user": {
+      "filePath": "_user.tsx",
+      "children": [
+        "/_user/cart",
+        "/_user/",
+        "/_user/product/$productId"
+      ]
     },
-    "/signup": {
-      "filePath": "signup.tsx"
+    "/admin": {
+      "filePath": "admin.tsx",
+      "children": [
+        "/admin/orders",
+        "/admin/",
+        "/admin/product/add",
+        "/admin/product/edit/$productId"
+      ]
     },
-    "/product/$productId": {
-      "filePath": "product_.$productId.tsx"
+    "/_auth/signin": {
+      "filePath": "_auth/signin.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/signup": {
+      "filePath": "_auth/signup.tsx",
+      "parent": "/_auth"
+    },
+    "/_user/cart": {
+      "filePath": "_user/cart.tsx",
+      "parent": "/_user"
+    },
+    "/admin/orders": {
+      "filePath": "admin/orders.tsx",
+      "parent": "/admin"
+    },
+    "/_user/": {
+      "filePath": "_user/index.tsx",
+      "parent": "/_user"
+    },
+    "/admin/": {
+      "filePath": "admin/index.tsx",
+      "parent": "/admin"
+    },
+    "/_user/product/$productId": {
+      "filePath": "_user/product_.$productId.tsx",
+      "parent": "/_user"
+    },
+    "/admin/product/add": {
+      "filePath": "admin/product_/add.tsx",
+      "parent": "/admin"
+    },
+    "/admin/product/edit/$productId": {
+      "filePath": "admin/product_/edit.$productId.tsx",
+      "parent": "/admin"
     }
   }
 }

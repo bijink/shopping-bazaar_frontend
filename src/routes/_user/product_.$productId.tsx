@@ -1,17 +1,17 @@
 import { createFileRoute, notFound } from '@tanstack/react-router';
-import ProductOverview from '../components/ProductOverview';
+import ProductOverview from '../../components/ProductOverview';
 
-export const Route = createFileRoute('/product/$productId')({
+export const Route = createFileRoute('/_user/product/$productId')({
   loader: ({ params: { productId } }) => {
     if (isNaN(Number(productId))) throw notFound();
   },
-  component: PostComponent,
+  component: ProductComponent,
   notFoundComponent: () => {
     return <p>Product doesn't exist!</p>;
   },
 });
 
-function PostComponent() {
+function ProductComponent() {
   // const { productId } = Route.useParams();
 
   return <ProductOverview />;

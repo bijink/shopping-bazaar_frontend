@@ -30,6 +30,7 @@ import {
 } from '@headlessui/react';
 import {
   Bars3Icon,
+  KeyIcon,
   MagnifyingGlassIcon,
   ShoppingCartIcon,
   XMarkIcon,
@@ -301,7 +302,7 @@ const MobileMenuDialog = ({
   </Dialog>
 );
 
-export default function Header() {
+export default function Header({ noSearch }: { noSearch?: boolean }) {
   const [open, setOpen] = useState(false);
   const { setOpen: cartSideDrawerSetOpen } = useContext(CartSideDrawerOpenContext)!;
 
@@ -438,9 +439,12 @@ export default function Header() {
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  <Link
+                    to="/signin"
+                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                  >
                     Sign in
-                  </a>
+                  </Link>
                   <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
                   <Link
                     to="/signup"
@@ -462,28 +466,42 @@ export default function Header() {
                   </a>
                 </div> */}
 
-                {/* Search */}
-                <div className="flex lg:ml-6">
-                  <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
-                    <span className="sr-only">Search</span>
-                    <MagnifyingGlassIcon aria-hidden="true" className="h-6 w-6" />
-                  </a>
-                </div>
+                <div className="ml-auto flex items-center lg:ml-4">
+                  {/* Search */}
+                  {!noSearch && (
+                    <div className="ml-2 flex">
+                      <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
+                        <span className="sr-only">Search</span>
+                        <MagnifyingGlassIcon aria-hidden="true" className="h-6 w-6" />
+                      </a>
+                    </div>
+                  )}
 
-                {/* Cart */}
-                <div className="ml-4 flow-root lg:ml-6">
-                  <div
-                    onClick={() => cartSideDrawerSetOpen(true)}
-                    className="group -m-2 flex cursor-pointer items-center p-2"
-                  >
-                    <ShoppingCartIcon
-                      aria-hidden="true"
-                      className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                    />
-                    <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                      0
-                    </span>
-                    <span className="sr-only">items in cart, view bag</span>
+                  {/* Admin */}
+                  {!noSearch && (
+                    <div className="ml-2 flex">
+                      <Link to="/admin" className="p-2 text-gray-400 hover:text-gray-500">
+                        <span className="sr-only">Admin</span>
+                        <KeyIcon aria-hidden="true" className="h-6 w-6 rotate-90" />
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* Cart */}
+                  <div className="ml-4 flow-root">
+                    <div
+                      onClick={() => cartSideDrawerSetOpen(true)}
+                      className="group -m-2 flex cursor-pointer items-center p-2"
+                    >
+                      <ShoppingCartIcon
+                        aria-hidden="true"
+                        className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                      />
+                      <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
+                        0
+                      </span>
+                      <span className="sr-only">items in cart, view bag</span>
+                    </div>
                   </div>
                 </div>
               </div>
