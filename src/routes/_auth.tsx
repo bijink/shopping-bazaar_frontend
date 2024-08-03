@@ -4,7 +4,7 @@ import Header from '../components/Header';
 export const Route = createFileRoute('/_auth')({
   component: () => (
     <>
-      <Header noSearch />
+      <Header noSearch noAdminKey noCart />
       <Outlet />
     </>
   ),

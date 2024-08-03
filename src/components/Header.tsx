@@ -38,6 +38,7 @@ import {
 import { ShoppingBagIcon } from '@heroicons/react/24/solid';
 import { Link } from '@tanstack/react-router';
 import { Fragment, useContext, useState } from 'react';
+import { twMerge as tm } from 'tailwind-merge';
 import { CartSideDrawerOpenContext } from '../contexts';
 
 const navigation = {
@@ -302,7 +303,15 @@ const MobileMenuDialog = ({
   </Dialog>
 );
 
-export default function Header({ noSearch }: { noSearch?: boolean }) {
+export default function Header({
+  noSearch,
+  noAdminKey,
+  noCart,
+}: {
+  noSearch?: boolean;
+  noAdminKey?: boolean;
+  noCart?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const { setOpen: cartSideDrawerSetOpen } = useContext(CartSideDrawerOpenContext)!;
 
@@ -312,10 +321,6 @@ export default function Header({ noSearch }: { noSearch?: boolean }) {
       <MobileMenuDialog open={open} setOpen={setOpen} />
 
       <header className="relative bg-white">
-        {/* <p className="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8">
-          Get free delivery on orders over $100
-        </p> */}
-
         <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200">
             <div className="flex h-16 items-center">
@@ -332,12 +337,7 @@ export default function Header({ noSearch }: { noSearch?: boolean }) {
               {/* Logo */}
               <div className="logo ml-4 flex lg:ml-0">
                 <Link to="/">
-                  {/* <span className="sr-only">Your Company</span> */}
-                  {/* <img
-                    alt=""
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                    className="h-8 w-auto"
-                  /> */}
+                  <span className="sr-only">Shopping Bazaar</span>
                   <ShoppingBagIcon className="h-8 w-8 flex-shrink-0 text-indigo-600 group-hover:text-gray-500" />
                 </Link>
               </div>
@@ -454,54 +454,52 @@ export default function Header({ noSearch }: { noSearch?: boolean }) {
                   </Link>
                 </div>
 
-                {/* <div className="hidden lg:ml-8 lg:flex">
-                  <a href="#" className="flex items-center text-gray-700 hover:text-gray-800">
-                    <img
-                      alt=""
-                      src="https://tailwindui.com/img/flags/flag-canada.svg"
-                      className="block h-auto w-5 flex-shrink-0"
-                    />
-                    <span className="ml-3 block text-sm font-medium">CAD</span>
-                    <span className="sr-only">, change currency</span>
-                  </a>
-                </div> */}
-
                 <div className="ml-auto flex items-center lg:ml-4">
                   {/* Search */}
-                  {!noSearch && (
-                    <div className="ml-2 flex">
-                      <a href="#" className="p-2 text-gray-400 hover:text-gray-500">
-                        <span className="sr-only">Search</span>
-                        <MagnifyingGlassIcon aria-hidden="true" className="h-6 w-6" />
-                      </a>
-                    </div>
-                  )}
-
-                  {/* Admin */}
-                  {!noSearch && (
-                    <div className="ml-2 flex">
-                      <Link to="/admin" className="p-2 text-gray-400 hover:text-gray-500">
-                        <span className="sr-only">Admin</span>
-                        <KeyIcon aria-hidden="true" className="h-6 w-6 rotate-90" />
-                      </Link>
-                    </div>
-                  )}
-
-                  {/* Cart */}
-                  <div className="ml-4 flow-root">
-                    <div
-                      onClick={() => cartSideDrawerSetOpen(true)}
-                      className="group -m-2 flex cursor-pointer items-center p-2"
+                  <div className="ml-2 flex">
+                    <button
+                      className={tm(
+                        'p-2 text-gray-400 hover:text-gray-500',
+                        noSearch && 'text-gray-200 hover:text-gray-200',
+                      )}
+                      disabled={noSearch}
                     >
-                      <ShoppingCartIcon
-                        aria-hidden="true"
-                        className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                      />
-                      <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                        0
-                      </span>
-                      <span className="sr-only">items in cart, view bag</span>
-                    </div>
+                      <span className="sr-only">Search</span>
+                      <MagnifyingGlassIcon aria-hidden="true" className="h-6 w-6" />
+                    </button>
+                  </div>
+                  {/* Button for navigating to admin section */}
+                  <div className="ml-2 flex">
+                    <Link
+                      to="/admin"
+                      className={tm(
+                        'p-2 text-gray-400 hover:text-gray-500',
+                        noAdminKey && 'text-gray-200 hover:text-gray-200',
+                      )}
+                      disabled={noAdminKey}
+                    >
+                      <span className="sr-only">Admin</span>
+                      <KeyIcon aria-hidden="true" className="h-6 w-6 rotate-90" />
+                    </Link>
+                  </div>
+                  {/* Cart */}
+                  <div className="ml-2 flow-root">
+                    <button
+                      onClick={() => cartSideDrawerSetOpen(true)}
+                      className={tm(
+                        'relative inline-flex items-center p-2 text-gray-400 hover:text-gray-500',
+                        noCart && 'text-gray-200 hover:text-gray-200',
+                      )}
+                      disabled={noCart}
+                    >
+                      <span className="sr-only">Cart</span>
+                      <ShoppingCartIcon aria-hidden="true" className="h-6 w-6 flex-shrink-0" />
+                      {!noCart && (
+                        <div className="absolute -end-[0px] top-[3px] inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                          20
+                        </div>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
