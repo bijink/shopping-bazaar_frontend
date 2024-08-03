@@ -30,12 +30,12 @@ import {
 } from '@headlessui/react';
 import {
   Bars3Icon,
-  KeyIcon,
+  BuildingStorefrontIcon,
   MagnifyingGlassIcon,
   ShoppingCartIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import { ShoppingBagIcon } from '@heroicons/react/24/solid';
+import { ShoppingBagIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { Link } from '@tanstack/react-router';
 import { Fragment, useContext, useState } from 'react';
 import { twMerge as tm } from 'tailwind-merge';
@@ -307,10 +307,12 @@ export default function Header({
   noSearch,
   noAdminKey,
   noCart,
+  noAccount,
 }: {
   noSearch?: boolean;
   noAdminKey?: boolean;
   noCart?: boolean;
+  noAccount?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const { setOpen: cartSideDrawerSetOpen } = useContext(CartSideDrawerOpenContext)!;
@@ -439,6 +441,9 @@ export default function Header({
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
+                  <button className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                    Sign out
+                  </button>
                   <Link
                     to="/signin"
                     className="text-sm font-medium text-gray-700 hover:text-gray-900"
@@ -468,7 +473,7 @@ export default function Header({
                       <MagnifyingGlassIcon aria-hidden="true" className="h-6 w-6" />
                     </button>
                   </div>
-                  {/* Button for navigating to admin section */}
+                  {/* Button for navigating to admin/seller section */}
                   <div className="ml-2 flex">
                     <Link
                       to="/admin"
@@ -479,7 +484,7 @@ export default function Header({
                       disabled={noAdminKey}
                     >
                       <span className="sr-only">Admin</span>
-                      <KeyIcon aria-hidden="true" className="h-6 w-6 rotate-90" />
+                      <BuildingStorefrontIcon aria-hidden="true" className="h-6 w-6" />
                     </Link>
                   </div>
                   {/* Cart */}
@@ -495,12 +500,24 @@ export default function Header({
                       <span className="sr-only">Cart</span>
                       <ShoppingCartIcon aria-hidden="true" className="h-6 w-6 flex-shrink-0" />
                       {!noCart && (
-                        <div className="absolute -end-[0px] top-[3px] inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                        <div className="absolute -end-[0px] top-[3px] inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white dark:text-black">
                           20
                         </div>
                       )}
                     </button>
                   </div>
+                  {/* Account */}
+                  {!noAccount && (
+                    <div className="ml-2 flow-root">
+                      <Link
+                        to="/account"
+                        className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-500"
+                      >
+                        <span className="sr-only">User Account</span>
+                        <UserCircleIcon aria-hidden="true" className="h-6 w-6 flex-shrink-0" />
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

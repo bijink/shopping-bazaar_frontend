@@ -18,6 +18,7 @@ import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as UserIndexImport } from './routes/_user/index'
 import { Route as AdminOrdersImport } from './routes/admin/orders'
 import { Route as UserCartImport } from './routes/_user/cart'
+import { Route as UserAccountImport } from './routes/_user/account'
 import { Route as AuthSignupImport } from './routes/_auth/signup'
 import { Route as AuthSigninImport } from './routes/_auth/signin'
 import { Route as AdminProductAddImport } from './routes/admin/product_/add'
@@ -58,6 +59,11 @@ const AdminOrdersRoute = AdminOrdersImport.update({
 
 const UserCartRoute = UserCartImport.update({
   path: '/cart',
+  getParentRoute: () => UserRoute,
+} as any)
+
+const UserAccountRoute = UserAccountImport.update({
+  path: '/account',
   getParentRoute: () => UserRoute,
 } as any)
 
@@ -125,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignupImport
       parentRoute: typeof AuthImport
     }
+    '/_user/account': {
+      id: '/_user/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof UserAccountImport
+      parentRoute: typeof UserImport
+    }
     '/_user/cart': {
       id: '/_user/cart'
       path: '/cart'
@@ -182,6 +195,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   AuthRoute: AuthRoute.addChildren({ AuthSigninRoute, AuthSignupRoute }),
   UserRoute: UserRoute.addChildren({
+    UserAccountRoute,
     UserCartRoute,
     UserIndexRoute,
     UserProductProductIdRoute,
@@ -217,6 +231,7 @@ export const routeTree = rootRoute.addChildren({
     "/_user": {
       "filePath": "_user.tsx",
       "children": [
+        "/_user/account",
         "/_user/cart",
         "/_user/",
         "/_user/product/$productId"
@@ -238,6 +253,10 @@ export const routeTree = rootRoute.addChildren({
     "/_auth/signup": {
       "filePath": "_auth/signup.tsx",
       "parent": "/_auth"
+    },
+    "/_user/account": {
+      "filePath": "_user/account.tsx",
+      "parent": "/_user"
     },
     "/_user/cart": {
       "filePath": "_user/cart.tsx",
