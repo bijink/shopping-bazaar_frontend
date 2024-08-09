@@ -1,7 +1,7 @@
 import { createFileRoute, notFound } from '@tanstack/react-router';
 import ProductOverview from '../../components/ProductOverview';
 
-export const Route = createFileRoute('/_user/product/$productId')({
+export const Route = createFileRoute('/_customer/product/$productId')({
   loader: ({ params: { productId } }) => {
     if (isNaN(Number(productId))) throw notFound();
   },

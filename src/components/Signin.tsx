@@ -1,8 +1,11 @@
 import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import Cookies from 'js-cookie';
 import { axiosInstance } from '../utils/axios';
 
 export default function Signin() {
+  const navigate = useNavigate({ from: '/signin' });
   // ?:
   // const { isPending, error, data } = useQuery({
   //   queryKey: ['repoData'],
@@ -13,8 +16,22 @@ export default function Signin() {
 
   const mutation = useMutation({
     mutationFn: (formData: { email: string; password: string }) => {
-      return axiosInstance.post('/user/login', formData);
+      return axiosInstance.post('/auth/signin', formData);
     },
+    onError: (error, variables, context) => {
+      // An error happened!
+      console.log({ error, variables, context });
+    },
+    onSuccess: (data, variables, context) => {
+      // Boom baby!
+      console.log({ data, variables, context });
+      Cookies.set('token', data.data.token, { expires: 7, secure: true });
+      if (data.data.user.type === 'admin') navigate({ to: '/admin' });
+      else navigate({ to: '/' });
+    },
+    // onSettled: (data, error, variables, context) => {
+    //   // Error or success... doesn't matter!
+    // },
   });
   const form = useForm({
     defaultValues: {
@@ -108,8 +125,11 @@ export default function Signin() {
               type="submit"
               className="mt-8 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              Sign in
+              {mutation.isPending ? 'Loading...' : 'Sign in'}
             </button>
+            {mutation.isError ? (
+              <p className="text-sm text-red-500">{mutation.error.message}</p>
+            ) : null}
           </div>
         </form>
       </div>

@@ -27,8 +27,11 @@ export default function ProductTable() {
           </tr>
         </thead>
         <tbody>
-          {[...Array(3)].map(() => (
-            <tr className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
+          {[...Array(3)].map((_, i) => (
+            <tr
+              key={i}
+              className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+            >
               <th
                 scope="row"
                 className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"

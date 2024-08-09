@@ -12,17 +12,17 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as AdminImport } from './routes/admin'
-import { Route as UserImport } from './routes/_user'
+import { Route as CustomerImport } from './routes/_customer'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as AdminIndexImport } from './routes/admin/index'
-import { Route as UserIndexImport } from './routes/_user/index'
+import { Route as CustomerIndexImport } from './routes/_customer/index'
 import { Route as AdminOrdersImport } from './routes/admin/orders'
-import { Route as UserCartImport } from './routes/_user/cart'
-import { Route as UserAccountImport } from './routes/_user/account'
+import { Route as CustomerCartImport } from './routes/_customer/cart'
+import { Route as CustomerAccountImport } from './routes/_customer/account'
 import { Route as AuthSignupImport } from './routes/_auth/signup'
 import { Route as AuthSigninImport } from './routes/_auth/signin'
 import { Route as AdminProductAddImport } from './routes/admin/product_/add'
-import { Route as UserProductProductIdImport } from './routes/_user/product_.$productId'
+import { Route as CustomerProductProductIdImport } from './routes/_customer/product_.$productId'
 import { Route as AdminProductEditProductIdImport } from './routes/admin/product_/edit.$productId'
 
 // Create/Update Routes
@@ -32,8 +32,8 @@ const AdminRoute = AdminImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const UserRoute = UserImport.update({
-  id: '/_user',
+const CustomerRoute = CustomerImport.update({
+  id: '/_customer',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -47,9 +47,9 @@ const AdminIndexRoute = AdminIndexImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 
-const UserIndexRoute = UserIndexImport.update({
+const CustomerIndexRoute = CustomerIndexImport.update({
   path: '/',
-  getParentRoute: () => UserRoute,
+  getParentRoute: () => CustomerRoute,
 } as any)
 
 const AdminOrdersRoute = AdminOrdersImport.update({
@@ -57,14 +57,14 @@ const AdminOrdersRoute = AdminOrdersImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 
-const UserCartRoute = UserCartImport.update({
+const CustomerCartRoute = CustomerCartImport.update({
   path: '/cart',
-  getParentRoute: () => UserRoute,
+  getParentRoute: () => CustomerRoute,
 } as any)
 
-const UserAccountRoute = UserAccountImport.update({
+const CustomerAccountRoute = CustomerAccountImport.update({
   path: '/account',
-  getParentRoute: () => UserRoute,
+  getParentRoute: () => CustomerRoute,
 } as any)
 
 const AuthSignupRoute = AuthSignupImport.update({
@@ -82,9 +82,9 @@ const AdminProductAddRoute = AdminProductAddImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 
-const UserProductProductIdRoute = UserProductProductIdImport.update({
+const CustomerProductProductIdRoute = CustomerProductProductIdImport.update({
   path: '/product/$productId',
-  getParentRoute: () => UserRoute,
+  getParentRoute: () => CustomerRoute,
 } as any)
 
 const AdminProductEditProductIdRoute = AdminProductEditProductIdImport.update({
@@ -103,11 +103,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
-    '/_user': {
-      id: '/_user'
+    '/_customer': {
+      id: '/_customer'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof UserImport
+      preLoaderRoute: typeof CustomerImport
       parentRoute: typeof rootRoute
     }
     '/admin': {
@@ -131,19 +131,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignupImport
       parentRoute: typeof AuthImport
     }
-    '/_user/account': {
-      id: '/_user/account'
+    '/_customer/account': {
+      id: '/_customer/account'
       path: '/account'
       fullPath: '/account'
-      preLoaderRoute: typeof UserAccountImport
-      parentRoute: typeof UserImport
+      preLoaderRoute: typeof CustomerAccountImport
+      parentRoute: typeof CustomerImport
     }
-    '/_user/cart': {
-      id: '/_user/cart'
+    '/_customer/cart': {
+      id: '/_customer/cart'
       path: '/cart'
       fullPath: '/cart'
-      preLoaderRoute: typeof UserCartImport
-      parentRoute: typeof UserImport
+      preLoaderRoute: typeof CustomerCartImport
+      parentRoute: typeof CustomerImport
     }
     '/admin/orders': {
       id: '/admin/orders'
@@ -152,12 +152,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOrdersImport
       parentRoute: typeof AdminImport
     }
-    '/_user/': {
-      id: '/_user/'
+    '/_customer/': {
+      id: '/_customer/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof UserIndexImport
-      parentRoute: typeof UserImport
+      preLoaderRoute: typeof CustomerIndexImport
+      parentRoute: typeof CustomerImport
     }
     '/admin/': {
       id: '/admin/'
@@ -166,12 +166,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexImport
       parentRoute: typeof AdminImport
     }
-    '/_user/product/$productId': {
-      id: '/_user/product/$productId'
+    '/_customer/product/$productId': {
+      id: '/_customer/product/$productId'
       path: '/product/$productId'
       fullPath: '/product/$productId'
-      preLoaderRoute: typeof UserProductProductIdImport
-      parentRoute: typeof UserImport
+      preLoaderRoute: typeof CustomerProductProductIdImport
+      parentRoute: typeof CustomerImport
     }
     '/admin/product/add': {
       id: '/admin/product/add'
@@ -194,11 +194,11 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   AuthRoute: AuthRoute.addChildren({ AuthSigninRoute, AuthSignupRoute }),
-  UserRoute: UserRoute.addChildren({
-    UserAccountRoute,
-    UserCartRoute,
-    UserIndexRoute,
-    UserProductProductIdRoute,
+  CustomerRoute: CustomerRoute.addChildren({
+    CustomerAccountRoute,
+    CustomerCartRoute,
+    CustomerIndexRoute,
+    CustomerProductProductIdRoute,
   }),
   AdminRoute: AdminRoute.addChildren({
     AdminOrdersRoute,
@@ -217,7 +217,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/_auth",
-        "/_user",
+        "/_customer",
         "/admin"
       ]
     },
@@ -228,13 +228,13 @@ export const routeTree = rootRoute.addChildren({
         "/_auth/signup"
       ]
     },
-    "/_user": {
-      "filePath": "_user.tsx",
+    "/_customer": {
+      "filePath": "_customer.tsx",
       "children": [
-        "/_user/account",
-        "/_user/cart",
-        "/_user/",
-        "/_user/product/$productId"
+        "/_customer/account",
+        "/_customer/cart",
+        "/_customer/",
+        "/_customer/product/$productId"
       ]
     },
     "/admin": {
@@ -254,29 +254,29 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "_auth/signup.tsx",
       "parent": "/_auth"
     },
-    "/_user/account": {
-      "filePath": "_user/account.tsx",
-      "parent": "/_user"
+    "/_customer/account": {
+      "filePath": "_customer/account.tsx",
+      "parent": "/_customer"
     },
-    "/_user/cart": {
-      "filePath": "_user/cart.tsx",
-      "parent": "/_user"
+    "/_customer/cart": {
+      "filePath": "_customer/cart.tsx",
+      "parent": "/_customer"
     },
     "/admin/orders": {
       "filePath": "admin/orders.tsx",
       "parent": "/admin"
     },
-    "/_user/": {
-      "filePath": "_user/index.tsx",
-      "parent": "/_user"
+    "/_customer/": {
+      "filePath": "_customer/index.tsx",
+      "parent": "/_customer"
     },
     "/admin/": {
       "filePath": "admin/index.tsx",
       "parent": "/admin"
     },
-    "/_user/product/$productId": {
-      "filePath": "_user/product_.$productId.tsx",
-      "parent": "/_user"
+    "/_customer/product/$productId": {
+      "filePath": "_customer/product_.$productId.tsx",
+      "parent": "/_customer"
     },
     "/admin/product/add": {
       "filePath": "admin/product_/add.tsx",
