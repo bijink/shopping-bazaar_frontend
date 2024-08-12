@@ -6,13 +6,6 @@ import { axiosInstance } from '../utils/axios';
 
 export default function Signin() {
   const navigate = useNavigate({ from: '/signin' });
-  // ?:
-  // const { isPending, error, data } = useQuery({
-  //   queryKey: ['repoData'],
-  //   queryFn: () => axiosInstance.get('/admin/product-get-all').then((res) => res.data),
-  // });
-  // console.log({ isPending, error, data });
-  // ?:
 
   const mutation = useMutation({
     mutationFn: (formData: { email: string; password: string }) => {
