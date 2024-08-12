@@ -18,20 +18,16 @@ export default function Signin() {
     mutationFn: (formData: { email: string; password: string }) => {
       return axiosInstance.post('/auth/signin', formData);
     },
-    onError: (error, variables, context) => {
-      // An error happened!
-      console.log({ error, variables, context });
+    onError: (error) => {
+      // console.log({ error, variables, context });
+      error.message = error.response.data.message || error.message;
     },
-    onSuccess: (data, variables, context) => {
-      // Boom baby!
-      console.log({ data, variables, context });
+    onSuccess: (data) => {
+      // console.log({ data, variables, context });
       Cookies.set('token', data.data.token, { expires: 7, secure: true });
       if (data.data.user.type === 'admin') navigate({ to: '/admin' });
       else navigate({ to: '/' });
     },
-    // onSettled: (data, error, variables, context) => {
-    //   // Error or success... doesn't matter!
-    // },
   });
   const form = useForm({
     defaultValues: {
@@ -42,10 +38,6 @@ export default function Signin() {
       mutation.mutate(value);
     },
   });
-
-  // useEffect(() => {
-  //   console.log('mutation:: ', mutation);
-  // }, [mutation]);
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
