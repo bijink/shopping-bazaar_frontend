@@ -1,5 +1,5 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
-import PageNotFound from '../components/PageNotFound';
+import NotFoundPage from '../components/NotFoundPage';
 
 export const Route = createRootRoute({
   component: () => (
@@ -7,5 +7,5 @@ export const Route = createRootRoute({
       <Outlet />
     </>
   ),
-  notFoundComponent: () => <PageNotFound />,
+  notFoundComponent: () => <NotFoundPage />,
 });

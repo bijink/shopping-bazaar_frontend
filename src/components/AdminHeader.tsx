@@ -15,14 +15,10 @@
 'use client';
 
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
-import {
-  Bars3Icon,
-  MagnifyingGlassIcon,
-  UserGroupIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+import { Bars3Icon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ShoppingBagIcon } from '@heroicons/react/24/solid';
-import { Link } from '@tanstack/react-router';
+import { Link, useLocation, useNavigate } from '@tanstack/react-router';
+import Cookies from 'js-cookie';
 import { useState } from 'react';
 import { twMerge as tm } from 'tailwind-merge';
 
@@ -296,7 +292,17 @@ export default function AdminHeader({
   noAdminKey?: boolean;
   noCart?: boolean;
 }) {
+  const pathname = useLocation({
+    select: (location) => location.pathname,
+  });
+  const navigate = useNavigate({ from: pathname });
+
   const [open, setOpen] = useState(false);
+
+  const handleSignout = () => {
+    Cookies.remove('token');
+    navigate({ to: '/' });
+  };
 
   return (
     <>
@@ -329,12 +335,12 @@ export default function AdminHeader({
 
               <div className="ml-auto flex items-center">
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <Link
-                    to="/signin"
+                  <button
                     className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                    onClick={handleSignout}
                   >
                     Sign out
-                  </Link>
+                  </button>
                 </div>
                 <div className="ml-auto flex items-center lg:ml-4">
                   {/* Search */}
@@ -351,7 +357,7 @@ export default function AdminHeader({
                     </button>
                   </div>
                   {/* Button for navigating to user section */}
-                  <div className="ml-2 flex">
+                  {/* <div className="ml-2 flex">
                     <Link
                       to="/"
                       className={tm(
@@ -363,7 +369,7 @@ export default function AdminHeader({
                       <span className="sr-only">Admin</span>
                       <UserGroupIcon aria-hidden="true" className="h-6 w-6" />
                     </Link>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

@@ -1,17 +1,3 @@
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/aspect-ratio'),
-    ],
-  }
-  ```
-*/
 'use client';
 
 import {
@@ -30,16 +16,17 @@ import {
 } from '@headlessui/react';
 import {
   Bars3Icon,
-  BuildingStorefrontIcon,
   MagnifyingGlassIcon,
   ShoppingCartIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { ShoppingBagIcon, UserCircleIcon } from '@heroicons/react/24/solid';
-import { Link } from '@tanstack/react-router';
+import { Link, useLocation, useNavigate } from '@tanstack/react-router';
+import Cookies from 'js-cookie';
 import { Fragment, useContext, useState } from 'react';
 import { twMerge as tm } from 'tailwind-merge';
 import { CartSideDrawerOpenContext } from '../contexts';
+import useLocalUser from '../hooks/useLocalUser';
 
 const navigation = {
   categories: [
@@ -314,6 +301,19 @@ export default function Header({
 }) {
   const [open, setOpen] = useState(false);
   const { setOpen: cartSideDrawerSetOpen } = useContext(CartSideDrawerOpenContext)!;
+  const localUser = useLocalUser();
+  const pathname = useLocation({
+    select: (location) => location.pathname,
+  });
+
+  const navigate = useNavigate({ from: pathname });
+
+  const handleSignout = () => {
+    Cookies.remove('token');
+    navigate({ to: '/' }).then(() => {
+      window.location.reload();
+    });
+  };
 
   return (
     <>
@@ -438,24 +438,44 @@ export default function Header({
               </PopoverGroup>
 
               <div className="ml-auto flex items-center">
-                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <button className="text-sm font-medium text-gray-700 hover:text-gray-900">
-                    Sign out
-                  </button>
-                  <Link
-                    to="/signin"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                  >
-                    Sign in
-                  </Link>
-                  <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                  <Link
-                    to="/signup"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                  >
-                    Create account
-                  </Link>
-                </div>
+                {localUser?.role !== 'admin' && (
+                  <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
+                    {localUser ? (
+                      <button
+                        className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                        onClick={handleSignout}
+                      >
+                        Sign out
+                      </button>
+                    ) : (
+                      <>
+                        <Link
+                          to="/signin"
+                          className={tm(
+                            'text-sm font-medium text-gray-700 hover:text-gray-900',
+                            pathname === '/signin' &&
+                              'cursor-default text-gray-200 hover:text-gray-200',
+                          )}
+                          disabled={pathname === '/signin'}
+                        >
+                          Sign in
+                        </Link>
+                        <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
+                        <Link
+                          to="/signup"
+                          className={tm(
+                            'text-sm font-medium text-gray-700 hover:text-gray-900',
+                            pathname === '/signup' &&
+                              'cursor-default text-gray-200 hover:text-gray-200',
+                          )}
+                          disabled={pathname === '/signup'}
+                        >
+                          Create account
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                )}
 
                 <div className="ml-auto flex items-center lg:ml-4">
                   {/* Search */}
@@ -472,7 +492,7 @@ export default function Header({
                     </button>
                   </div>
                   {/* Button for navigating to admin/seller section */}
-                  <div className="ml-2 flex">
+                  {/* <div className="ml-2 flex">
                     <Link
                       to="/admin"
                       className={tm(
@@ -484,28 +504,30 @@ export default function Header({
                       <span className="sr-only">Admin</span>
                       <BuildingStorefrontIcon aria-hidden="true" className="h-6 w-6" />
                     </Link>
-                  </div>
+                  </div> */}
                   {/* Cart */}
-                  <div className="ml-2 flow-root">
-                    <button
-                      onClick={() => cartSideDrawerSetOpen(true)}
-                      className={tm(
-                        'relative inline-flex items-center p-2 text-gray-400 hover:text-gray-500',
-                        noCart && 'text-gray-200 hover:text-gray-200',
-                      )}
-                      disabled={noCart}
-                    >
-                      <span className="sr-only">Cart</span>
-                      <ShoppingCartIcon aria-hidden="true" className="h-6 w-6 flex-shrink-0" />
-                      {!noCart && (
-                        <div className="absolute -end-[0px] top-[3px] inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white dark:text-black">
-                          20
-                        </div>
-                      )}
-                    </button>
-                  </div>
+                  {localUser?.role !== 'admin' && (
+                    <div className="ml-2 flow-root">
+                      <button
+                        onClick={() => cartSideDrawerSetOpen(true)}
+                        className={tm(
+                          'relative inline-flex items-center p-2 text-gray-400 hover:text-gray-500',
+                          noCart && 'text-gray-200 hover:text-gray-200',
+                        )}
+                        disabled={noCart}
+                      >
+                        <span className="sr-only">Cart</span>
+                        <ShoppingCartIcon aria-hidden="true" className="h-6 w-6 flex-shrink-0" />
+                        {!noCart && (
+                          <div className="absolute -end-[0px] top-[3px] inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white dark:text-black">
+                            20
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  )}
                   {/* Account */}
-                  {!noAccount && (
+                  {!noAccount && localUser?.role === 'customer' && (
                     <div className="ml-2 flow-root">
                       <Link
                         to="/account"
