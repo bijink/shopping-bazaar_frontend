@@ -17,10 +17,10 @@
 import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react';
 import { Bars3Icon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ShoppingBagIcon } from '@heroicons/react/24/solid';
-import { Link, useLocation, useNavigate } from '@tanstack/react-router';
-import Cookies from 'js-cookie';
+import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { twMerge as tm } from 'tailwind-merge';
+import SignoutConfirmation from './SignoutConfirmation';
 
 // const navigation = {
 //   categories: [
@@ -292,23 +292,16 @@ export default function AdminHeader({
   noAdminKey?: boolean;
   noCart?: boolean;
 }) {
-  const pathname = useLocation({
-    select: (location) => location.pathname,
-  });
-  const navigate = useNavigate({ from: pathname });
-
   const [open, setOpen] = useState(false);
-
-  const handleSignout = () => {
-    Cookies.remove('token');
-    navigate({ to: '/' });
-  };
+  const [openSignoutDialog, setOpenSignoutDialog] = useState(false);
 
   return (
     <>
+      {/* Confirmation dialog for signout */}
+      <SignoutConfirmation open={openSignoutDialog} setOpen={setOpenSignoutDialog} />
+
       {/* Mobile menu */}
       <MobileMenuDialog open={open} setOpen={setOpen} />
-
       <header className="relative bg-white">
         <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200">
@@ -337,7 +330,7 @@ export default function AdminHeader({
                 <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                   <button
                     className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                    onClick={handleSignout}
+                    onClick={() => setOpenSignoutDialog(true)}
                   >
                     Sign out
                   </button>

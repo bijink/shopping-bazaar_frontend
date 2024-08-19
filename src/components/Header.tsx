@@ -21,12 +21,12 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { ShoppingBagIcon, UserCircleIcon } from '@heroicons/react/24/solid';
-import { Link, useLocation, useNavigate } from '@tanstack/react-router';
-import Cookies from 'js-cookie';
+import { Link, useLocation } from '@tanstack/react-router';
 import { Fragment, useContext, useState } from 'react';
 import { twMerge as tm } from 'tailwind-merge';
 import { CartSideDrawerOpenContext } from '../contexts';
 import useLocalUser from '../hooks/useLocalUser';
+import SignoutConfirmation from './SignoutConfirmation';
 
 const navigation = {
   categories: [
@@ -300,26 +300,21 @@ export default function Header({
   noAccount?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [openSignoutDialog, setOpenSignoutDialog] = useState(false);
+
   const { setOpen: cartSideDrawerSetOpen } = useContext(CartSideDrawerOpenContext)!;
   const localUser = useLocalUser();
   const pathname = useLocation({
     select: (location) => location.pathname,
   });
 
-  const navigate = useNavigate({ from: pathname });
-
-  const handleSignout = () => {
-    Cookies.remove('token');
-    navigate({ to: '/' }).then(() => {
-      window.location.reload();
-    });
-  };
-
   return (
     <>
+      {/* Confirmation dialog for signout */}
+      <SignoutConfirmation open={openSignoutDialog} setOpen={setOpenSignoutDialog} />
+
       {/* Mobile menu */}
       <MobileMenuDialog open={open} setOpen={setOpen} />
-
       <header className="relative bg-white">
         <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="border-b border-gray-200">
@@ -443,7 +438,7 @@ export default function Header({
                     {localUser ? (
                       <button
                         className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                        onClick={handleSignout}
+                        onClick={() => setOpenSignoutDialog(true)}
                       >
                         Sign out
                       </button>
