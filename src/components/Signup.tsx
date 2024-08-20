@@ -20,7 +20,14 @@ export default function Signup() {
     },
   });
   const formSubmitMutation = useMutation({
-    mutationFn: (formData: { email: string; password: string }) => {
+    mutationFn: (formData: {
+      fname: string;
+      lname: string;
+      email: string;
+      password: string;
+      passwordConfirmation: string;
+      otp: string;
+    }) => {
       return axiosInstance.post('/auth/signup', formData);
     },
     onError: (error) => {
@@ -37,6 +44,7 @@ export default function Signup() {
       lname: '',
       email: '',
       password: '',
+      passwordConfirmation: '',
       otp: '',
     },
     onSubmit: async ({ value }) => {
@@ -154,7 +162,7 @@ export default function Signup() {
                   <>
                     <div className="flex items-center justify-between">
                       <label
-                        htmlFor="password"
+                        htmlFor={field.name}
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
                         Password
@@ -165,7 +173,33 @@ export default function Signup() {
                       name={field.name}
                       type="password"
                       required
-                      autoComplete="current-password"
+                      className="mt-2 block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                  </>
+                )}
+              />
+            </div>
+            <div>
+              <form.Field
+                name="passwordConfirmation"
+                children={(field) => (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor={field.name}
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Confirm password
+                      </label>
+                    </div>
+                    <input
+                      id={field.name}
+                      name={field.name}
+                      type="password"
+                      required
                       className="mt-2 block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       value={field.state.value}
                       onBlur={field.handleBlur}
@@ -207,7 +241,9 @@ export default function Signup() {
                     className="mt-8 flex w-full justify-center rounded-md bg-green-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
                     onClick={(e) => {
                       e.preventDefault();
-                      otpSendMutation.mutate(emailInput);
+                      if (!otpSendMutation.isPending) {
+                        otpSendMutation.mutate(emailInput);
+                      }
                     }}
                   >
                     {otpSendMutation.isPending ? 'Sending...' : 'Email OTP'}

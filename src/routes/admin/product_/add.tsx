@@ -17,7 +17,7 @@ function ProductAddComponent() {
       price: number;
       description: string;
     }) => {
-      return axiosInstance.post('/admin/product-add', formData);
+      return axiosInstance.post('/admin/add-product', formData);
     },
     onError: (error) => {
       error.message = error.response.data.message || error.message;

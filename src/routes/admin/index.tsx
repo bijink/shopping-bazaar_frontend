@@ -18,7 +18,7 @@ export const Route = createFileRoute('/admin/')({
 function AdminHomeComponent() {
   const { isPending, data: products } = useQuery({
     queryKey: ['admin-products'],
-    queryFn: () => axiosInstance.get('/admin/product-get-all').then((res) => res.data),
+    queryFn: () => axiosInstance.get('/admin/get-all-product').then((res) => res.data),
   });
   // console.log({ isPending, error, data });
 
