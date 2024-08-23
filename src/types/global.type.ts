@@ -5,3 +5,7 @@ export type User = {
   lname: string;
   email: string;
 };
+
+export interface NamedBlob extends Blob {
+  name?: string;
+}

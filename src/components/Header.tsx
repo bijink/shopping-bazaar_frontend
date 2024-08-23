@@ -290,7 +290,6 @@ const MobileMenuDialog = ({
 
 export default function Header({
   noSearch,
-  noAdminKey,
   noCart,
   noAccount,
 }: {

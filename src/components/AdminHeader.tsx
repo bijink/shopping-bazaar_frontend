@@ -286,7 +286,6 @@ const MobileMenuDialog = ({
 
 export default function AdminHeader({
   noSearch,
-  noAdminKey,
 }: {
   noSearch?: boolean;
   noAdminKey?: boolean;

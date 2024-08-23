@@ -4,16 +4,34 @@ import { useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
 import { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { NamedBlob } from '../types/global.type';
 import { axiosInstance } from '../utils/axios';
+import ImageCrop from './ImageCrop';
 
 export default function Signup() {
   const navigate = useNavigate({ from: '/signup' });
 
   const [emailInput, setEmailInput] = useState('');
+  const [blob, setBlob] = useState<NamedBlob | null>(null);
 
   const otpSendMutation = useMutation({
     mutationFn: (email: string) => {
       return axiosInstance.post('/auth/send-otp', { email }, { timeout: 0 });
+    },
+    onError: (error) => {
+      error.message = error.response.data.message || error.message;
+    },
+  });
+  const uploadImgMutation = useMutation({
+    mutationFn: (imgFile: File) => {
+      const bodyFormData = new FormData();
+      bodyFormData.append('file', imgFile);
+      return axiosInstance({
+        method: 'post',
+        url: '/upload/image?for=user',
+        data: bodyFormData,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
     },
     onError: (error) => {
       error.message = error.response.data.message || error.message;
@@ -27,6 +45,7 @@ export default function Signup() {
       password: string;
       passwordConfirmation: string;
       otp: string;
+      imgFilename: string;
     }) => {
       return axiosInstance.post('/auth/signup', formData);
     },
@@ -38,6 +57,7 @@ export default function Signup() {
       navigate({ to: '/' });
     },
   });
+
   const form = useForm({
     defaultValues: {
       fname: '',
@@ -48,7 +68,13 @@ export default function Signup() {
       otp: '',
     },
     onSubmit: async ({ value }) => {
-      formSubmitMutation.mutate(value);
+      if (blob) {
+        const croppedImgFile = new File([blob], blob.name as string, { type: blob.type });
+        await uploadImgMutation.mutateAsync(croppedImgFile).then((res) => {
+          const imgFilename = res.data.file.filename;
+          formSubmitMutation.mutate({ ...value, imgFilename });
+        });
+      }
     },
   });
 
@@ -207,6 +233,17 @@ export default function Signup() {
                     />
                   </>
                 )}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium leading-6 text-gray-900">
+                Profile photo
+              </label>
+              <ImageCrop
+                getBlob={setBlob}
+                aspectValue={1 / 1}
+                enableCircularCrop
+                enableInputRequired
               />
             </div>
             <div>
