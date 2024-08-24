@@ -3,20 +3,6 @@ import { useContext } from 'react';
 import { ProductQuickviewOpenContext } from '../contexts';
 import Pagination from './Pagination';
 
-/*
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/aspect-ratio'),
-    ],
-  }
-  ```
-*/
 const products = [
   {
     id: 1,
