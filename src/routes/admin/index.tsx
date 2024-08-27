@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
+import Cookies from 'js-cookie';
 import { twMerge as tm } from 'tailwind-merge';
 import { axiosInstance } from '../../utils/axios';
 
@@ -18,7 +19,17 @@ export const Route = createFileRoute('/admin/')({
 function AdminHomeComponent() {
   const { isPending, data: products } = useQuery({
     queryKey: ['admin-products'],
-    queryFn: () => axiosInstance.get('/admin/get-all-product').then((res) => res.data),
+    queryFn: async () => {
+      const token = Cookies.get('token');
+      return axiosInstance
+        .get('/admin/get-all-product', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => res.data);
+    },
   });
   // console.log({ isPending, error, data });
 
