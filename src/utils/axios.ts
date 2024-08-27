@@ -9,7 +9,7 @@ const token = Cookies.get('token');
 
 export const axiosInstance = axios.create({
   baseURL,
-  timeout: 2000,
+  timeout: 3000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

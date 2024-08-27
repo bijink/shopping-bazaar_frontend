@@ -23,22 +23,7 @@ function SignupComponent() {
       return axiosInstance.post('/auth/send-otp', { email }, { timeout: 0 });
     },
     onError: (error) => {
-      error.message = error.response.data.message || error.message;
-    },
-  });
-  const uploadImgMutation = useMutation({
-    mutationFn: (imgFile: File) => {
-      const bodyFormData = new FormData();
-      bodyFormData.append('file', imgFile);
-      return axiosInstance({
-        method: 'post',
-        url: '/upload/image?for=user',
-        data: bodyFormData,
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-    },
-    onError: (error) => {
-      error.message = error.response.data.message || error.message;
+      error.message = error.response?.data?.message || error.message;
     },
   });
   const formSubmitMutation = useMutation({
@@ -49,16 +34,30 @@ function SignupComponent() {
       password: string;
       passwordConfirmation: string;
       otp: string;
-      imgFilename: string;
     }) => {
       return axiosInstance.post('/auth/signup', formData);
     },
-    onError: (error) => {
-      error.message = error.response.data.message || error.message;
+    onError: async (error) => {
+      error.message = error.response?.data?.message || error.message;
     },
-    onSuccess: (data) => {
-      Cookies.set('token', data.data.token, { expires: 7, secure: true });
-      navigate({ to: '/' });
+  });
+  const uploadImgMutation = useMutation({
+    mutationFn: ({ imgFile, token }: { imgFile: File; token: string }) => {
+      const bodyFormData = new FormData();
+      bodyFormData.append('file', imgFile);
+      return axiosInstance({
+        method: 'post',
+        url: '/upload-file/image?for=user',
+        data: bodyFormData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+        timeout: 0,
+      });
+    },
+    onError: (error) => {
+      error.message = error.response?.data?.message || error.message;
     },
   });
 
@@ -72,12 +71,37 @@ function SignupComponent() {
       otp: '',
     },
     onSubmit: async ({ value }) => {
-      if (blob) {
-        const croppedImgFile = new File([blob], blob.name as string, { type: blob.type });
-        await uploadImgMutation.mutateAsync(croppedImgFile).then((res) => {
-          const imgFilename = res.data.file.filename;
-          formSubmitMutation.mutate({ ...value, imgFilename });
-        });
+      const formSubmitted = await formSubmitMutation.mutateAsync(value);
+      if (formSubmitted && blob) {
+        const token = formSubmitted.data.token;
+        try {
+          // #upload image
+          const croppedImgFile = new File([blob], blob.name as string, { type: blob.type });
+          const imageUploaded = await uploadImgMutation.mutateAsync({
+            imgFile: croppedImgFile,
+            token,
+          });
+          // #insert img reference in user data
+          if (imageUploaded) {
+            const imgFilename = imageUploaded.data.file.filename;
+            if (imgFilename) {
+              const userId = formSubmitted.data.user._id;
+              await axiosInstance.patch(
+                `/user/update-details/${userId}`,
+                { imgFilename },
+                {
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                  },
+                },
+              );
+            }
+          }
+        } finally {
+          Cookies.set('token', token, { expires: 7, secure: true });
+          navigate({ to: '/' });
+        }
       }
     },
   });
@@ -310,14 +334,22 @@ function SignupComponent() {
             </div>
 
             <div className="pt-0">
-              <button
-                type="submit"
-                className="mt-8 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
-                {formSubmitMutation.isPending ? 'Loading...' : 'Sign up'}
-              </button>
-              {formSubmitMutation.isError && (
-                <p className="text-sm text-red-500">{formSubmitMutation.error.message}</p>
+              <form.Subscribe
+                selector={(state) => [state.canSubmit, state.isSubmitting]}
+                children={([canSubmit, isSubmitting]) => (
+                  <button
+                    type="submit"
+                    disabled={!canSubmit}
+                    className="mt-8 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  >
+                    {isSubmitting ? 'Loading...' : 'Sign up'}
+                  </button>
+                )}
+              />
+              {(formSubmitMutation.isError || uploadImgMutation.isError) && (
+                <p className="text-sm text-red-500">
+                  {formSubmitMutation?.error?.message || uploadImgMutation?.error?.message}
+                </p>
               )}
             </div>
           </form>
