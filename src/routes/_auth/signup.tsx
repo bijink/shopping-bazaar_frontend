@@ -41,26 +41,6 @@ function SignupComponent() {
       error.message = error.response?.data?.message || error.message;
     },
   });
-  const uploadImgMutation = useMutation({
-    mutationFn: ({ imgFile, token }: { imgFile: File; token: string }) => {
-      const bodyFormData = new FormData();
-      bodyFormData.append('file', imgFile);
-      return axiosInstance({
-        method: 'post',
-        url: '/upload-file/image?for=user',
-        data: bodyFormData,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
-        },
-        timeout: 0,
-      });
-    },
-    onError: (error) => {
-      error.message = error.response?.data?.message || error.message;
-    },
-  });
-
   const form = useForm({
     defaultValues: {
       fname: '',
@@ -77,25 +57,42 @@ function SignupComponent() {
         try {
           // #upload image
           const croppedImgFile = new File([blob], blob.name as string, { type: blob.type });
-          const imageUploaded = await uploadImgMutation.mutateAsync({
-            imgFile: croppedImgFile,
-            token,
+          const bodyFormData = new FormData();
+          bodyFormData.append('file', croppedImgFile);
+          const imageUploaded = await axiosInstance({
+            method: 'post',
+            url: '/upload-file/image?for=user',
+            data: bodyFormData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+            timeout: 0,
           });
           // #insert img reference in user data
           if (imageUploaded) {
             const imgFilename = imageUploaded.data.file.filename;
             if (imgFilename) {
               const userId = formSubmitted.data.user._id;
-              await axiosInstance.patch(
-                `/user/update-details/${userId}`,
-                { imgFilename },
-                {
+              try {
+                await axiosInstance.patch(
+                  `/user/update-details/${userId}`,
+                  { imgFilename },
+                  {
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`,
+                    },
+                  },
+                );
+              } catch (err) {
+                await axiosInstance.delete(`/delete-image/${imgFilename}`, {
                   headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                   },
-                },
-              );
+                });
+              }
             }
           }
         } finally {
@@ -346,10 +343,8 @@ function SignupComponent() {
                   </button>
                 )}
               />
-              {(formSubmitMutation.isError || uploadImgMutation.isError) && (
-                <p className="text-sm text-red-500">
-                  {formSubmitMutation?.error?.message || uploadImgMutation?.error?.message}
-                </p>
+              {formSubmitMutation.isError && (
+                <p className="text-sm text-red-500">{formSubmitMutation?.error?.message}</p>
               )}
             </div>
           </form>
