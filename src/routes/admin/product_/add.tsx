@@ -1,6 +1,10 @@
 import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import Cookies from 'js-cookie';
+import { useRef } from 'react';
+import ImageCrop from '../../../components/ImageCrop';
+import { NamedBlob } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
 
 export const Route = createFileRoute('/admin/product/add')({
@@ -10,7 +14,11 @@ export const Route = createFileRoute('/admin/product/add')({
 function ProductAddComponent() {
   const navigate = useNavigate({ from: '/admin/product/add' });
 
-  const mutation = useMutation({
+  const blobs = useRef([] as NamedBlob[]);
+
+  const token = Cookies.get('token');
+
+  const formSubmitMutation = useMutation({
     mutationFn: (formData: {
       name: string;
       category: string;
@@ -20,10 +28,7 @@ function ProductAddComponent() {
       return axiosInstance.post('/admin/add-product', formData);
     },
     onError: (error) => {
-      error.message = error.response.data.message || error.message;
-    },
-    onSuccess: () => {
-      navigate({ to: '/admin' });
+      error.message = error.response?.data?.message || error.message;
     },
   });
   const form = useForm({
@@ -34,7 +39,60 @@ function ProductAddComponent() {
       description: '',
     },
     onSubmit: async ({ value }) => {
-      mutation.mutate(value);
+      const formSubmitted = await formSubmitMutation.mutateAsync(value);
+      if (formSubmitted && blobs.current.length) {
+        const productId = formSubmitted.data._id;
+        try {
+          // #upload image
+          const bodyFormData = new FormData();
+          blobs.current.forEach((blob, index) => {
+            const croppedImgFile = new File([blob], blob.name || `image_${index}`, {
+              type: blob.type,
+            });
+            bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
+          });
+          const imageUploaded = await axiosInstance({
+            method: 'post',
+            url: `/upload-file/image?for=product&id=${productId}`,
+            data: bodyFormData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+            timeout: 0,
+          });
+          // #insert img reference in user data
+          if (imageUploaded) {
+            const imgFileNames = imageUploaded.data.filenames;
+            if (imgFileNames.length) {
+              try {
+                await axiosInstance.patch(
+                  `/admin/edit-product/${productId}`,
+                  {
+                    images: imgFileNames,
+                  },
+                  {
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`,
+                    },
+                  },
+                );
+              } catch (err) {
+                await axiosInstance.delete('/delete-image', {
+                  data: imgFileNames,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                  },
+                });
+              }
+            }
+          }
+        } finally {
+          navigate({ to: '/admin' });
+        }
+      }
     },
   });
 
@@ -158,15 +216,49 @@ function ProductAddComponent() {
               />
             </div>
           </div>
+          <div>
+            <label className="block text-sm font-medium leading-6 text-gray-900">
+              Profile photo
+            </label>
+            <ImageCrop
+              getBlob={(blob) => (blobs.current[0] = blob)}
+              aspectValue={3 / 4}
+              enableInputRequired
+            />
+            <ImageCrop
+              getBlob={(blob) => (blobs.current[1] = blob)}
+              aspectValue={3 / 2}
+              // enableInputRequired
+            />
+            <ImageCrop
+              getBlob={(blob) => (blobs.current[2] = blob)}
+              aspectValue={3 / 2}
+              // enableInputRequired
+            />
+            <ImageCrop
+              getBlob={(blob) => (blobs.current[3] = blob)}
+              aspectValue={3 / 4}
+              // enableInputRequired
+            />
+          </div>
         </div>
 
         <div className="mt-6 flex items-center justify-end gap-x-6">
-          <button
-            type="submit"
-            className="w-28 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            {mutation.isPending ? 'Loading...' : 'Save'}
-          </button>
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <button
+                type="submit"
+                disabled={!canSubmit}
+                className="w-28 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                {isSubmitting ? 'Loading...' : 'Save'}
+              </button>
+            )}
+          />
+          {formSubmitMutation.isError && (
+            <p className="text-sm text-red-500">{formSubmitMutation?.error?.message}</p>
+          )}
         </div>
       </form>
     </div>

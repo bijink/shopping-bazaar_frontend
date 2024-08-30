@@ -33,7 +33,7 @@ export default function ImageCrop({
   showPreview,
   enableInputRequired,
 }: {
-  getBlob: React.Dispatch<React.SetStateAction<NamedBlob | null>>;
+  getBlob: (blob: NamedBlob) => void;
   aspectValue?: number;
   enableCircularCrop?: boolean;
   enableScale?: boolean;

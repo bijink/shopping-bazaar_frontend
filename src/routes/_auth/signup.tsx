@@ -2,7 +2,7 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import ImageCrop from '../../components/ImageCrop';
 import { NamedBlob } from '../../types/global.type';
@@ -16,7 +16,7 @@ function SignupComponent() {
   const navigate = useNavigate({ from: '/signup' });
 
   const [emailInput, setEmailInput] = useState('');
-  const [blob, setBlob] = useState<NamedBlob | null>(null);
+  const blobs = useRef([] as NamedBlob[]);
 
   const otpSendMutation = useMutation({
     mutationFn: (email: string) => {
@@ -52,16 +52,20 @@ function SignupComponent() {
     },
     onSubmit: async ({ value }) => {
       const formSubmitted = await formSubmitMutation.mutateAsync(value);
-      if (formSubmitted && blob) {
+      if (formSubmitted && blobs.current.length) {
+        const userId = formSubmitted.data.user._id;
         const token = formSubmitted.data.token;
         try {
           // #upload image
-          const croppedImgFile = new File([blob], blob.name as string, { type: blob.type });
+          const blobFile = blobs.current[0];
           const bodyFormData = new FormData();
-          bodyFormData.append('file', croppedImgFile);
+          const croppedImgFile = new File([blobFile], blobFile.name || `image_${0}`, {
+            type: blobFile.type,
+          });
+          bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
           const imageUploaded = await axiosInstance({
             method: 'post',
-            url: '/upload-file/image?for=user',
+            url: `/upload-file/image?for=user&id=${userId}`,
             data: bodyFormData,
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -71,13 +75,12 @@ function SignupComponent() {
           });
           // #insert img reference in user data
           if (imageUploaded) {
-            const imgFilename = imageUploaded.data.file.filename;
-            if (imgFilename) {
-              const userId = formSubmitted.data.user._id;
+            const imgFileNames = imageUploaded.data.filenames;
+            if (imgFileNames.length) {
               try {
                 await axiosInstance.patch(
                   `/user/update-details/${userId}`,
-                  { imgFilename },
+                  { imgFilename: imgFileNames[0] },
                   {
                     headers: {
                       'Content-Type': 'application/json',
@@ -86,7 +89,8 @@ function SignupComponent() {
                   },
                 );
               } catch (err) {
-                await axiosInstance.delete(`/delete-image/${imgFilename}`, {
+                await axiosInstance.delete(`/delete-image`, {
+                  data: imgFileNames,
                   headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
@@ -265,7 +269,7 @@ function SignupComponent() {
                 Profile photo
               </label>
               <ImageCrop
-                getBlob={setBlob}
+                getBlob={(blob) => (blobs.current[0] = blob)}
                 aspectValue={1 / 1}
                 enableCircularCrop
                 enableInputRequired
