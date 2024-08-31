@@ -55,6 +55,16 @@ function SignupComponent() {
       if (formSubmitted && blobs.current.length) {
         const userId = formSubmitted.data.user._id;
         const token = formSubmitted.data.token;
+        // #set authorization (Bearer token) for axios requests
+        axiosInstance.interceptors.request.use(
+          function (config) {
+            if (token) config.headers.Authorization = `Bearer ${token}`;
+            return config;
+          },
+          function (error) {
+            return Promise.reject(error);
+          },
+        );
         try {
           // #upload image
           const blobFile = blobs.current[0];
@@ -69,7 +79,6 @@ function SignupComponent() {
             data: bodyFormData,
             headers: {
               'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
             },
             timeout: 0,
           });
@@ -78,23 +87,12 @@ function SignupComponent() {
             const imgFileNames = imageUploaded.data.filenames;
             if (imgFileNames.length) {
               try {
-                await axiosInstance.patch(
-                  `/user/update-details/${userId}`,
-                  { imgFilename: imgFileNames[0] },
-                  {
-                    headers: {
-                      'Content-Type': 'application/json',
-                      Authorization: `Bearer ${token}`,
-                    },
-                  },
-                );
+                await axiosInstance.patch(`/user/update-details/${userId}`, {
+                  image: imgFileNames[0],
+                });
               } catch (err) {
                 await axiosInstance.delete(`/delete-image`, {
                   data: imgFileNames,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                  },
                 });
               }
             }

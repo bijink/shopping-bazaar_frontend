@@ -1,7 +1,6 @@
 import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import Cookies from 'js-cookie';
 import { useRef } from 'react';
 import ImageCrop from '../../../components/ImageCrop';
 import { NamedBlob } from '../../../types/global.type';
@@ -15,8 +14,6 @@ function ProductAddComponent() {
   const navigate = useNavigate({ from: '/admin/product/add' });
 
   const blobs = useRef([] as NamedBlob[]);
-
-  const token = Cookies.get('token');
 
   const formSubmitMutation = useMutation({
     mutationFn: (formData: {
@@ -57,7 +54,6 @@ function ProductAddComponent() {
             data: bodyFormData,
             headers: {
               'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
             },
             timeout: 0,
           });
@@ -66,25 +62,12 @@ function ProductAddComponent() {
             const imgFileNames = imageUploaded.data.filenames;
             if (imgFileNames.length) {
               try {
-                await axiosInstance.patch(
-                  `/admin/edit-product/${productId}`,
-                  {
-                    images: imgFileNames,
-                  },
-                  {
-                    headers: {
-                      'Content-Type': 'application/json',
-                      Authorization: `Bearer ${token}`,
-                    },
-                  },
-                );
+                await axiosInstance.patch(`/admin/edit-product/${productId}`, {
+                  images: imgFileNames,
+                });
               } catch (err) {
                 await axiosInstance.delete('/delete-image', {
                   data: imgFileNames,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                  },
                 });
               }
             }
