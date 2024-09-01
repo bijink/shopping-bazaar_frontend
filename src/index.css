@@ -8,3 +8,9 @@
   background: rgb(0 100 1 / 0.1) !important;
 } */
 /* !: for stylesheet debugging */
+
+@layer components {
+  .hide-number-input-arrow {
+    @apply [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none;
+  }
+}

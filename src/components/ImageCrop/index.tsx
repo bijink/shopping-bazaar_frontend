@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { NamedBlob } from '../../types/global.type';
@@ -25,21 +25,21 @@ function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: numbe
 }
 
 export default function ImageCrop({
+  selectedFile,
   getBlob,
   aspectValue,
   enableCircularCrop,
   enableScale,
   enableRotate,
   showPreview,
-  enableInputRequired,
 }: {
+  selectedFile: File | null;
   getBlob: (blob: NamedBlob) => void;
   aspectValue?: number;
   enableCircularCrop?: boolean;
   enableScale?: boolean;
   enableRotate?: boolean;
   showPreview?: boolean;
-  enableInputRequired?: boolean;
 }) {
   const [imgSrc, setImgSrc] = useState('');
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -51,15 +51,17 @@ export default function ImageCrop({
   const [imgOriginalName, setImgOriginalName] = useState('');
   const [aspect] = useState<number | undefined>(aspectValue || 16 / 9);
 
-  function onSelectFile(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files && e.target.files.length > 0) {
-      setImgOriginalName(e.target.files[0].name);
+  useEffect(() => {
+    if (selectedFile) {
+      setImgOriginalName(selectedFile.name);
       setCrop(undefined); // Makes crop preview update between images.
       const reader = new FileReader();
       reader.addEventListener('load', () => setImgSrc(reader.result?.toString() || ''));
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(selectedFile);
+    } else {
+      setImgSrc('');
     }
-  }
+  }, [selectedFile]);
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     if (aspect) {
@@ -102,12 +104,6 @@ export default function ImageCrop({
   return (
     <div className="App space-y-3">
       <div className="Crop-Controls">
-        <input
-          type="file"
-          accept="image/*"
-          required={enableInputRequired}
-          onChange={onSelectFile}
-        />
         {enableScale && (
           <div>
             <label htmlFor="scale-input">Scale: </label>

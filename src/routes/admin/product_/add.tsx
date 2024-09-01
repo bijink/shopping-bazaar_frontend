@@ -1,7 +1,10 @@
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon } from '@heroicons/react/24/solid';
 import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import ImageCrop from '../../../components/ImageCrop';
 import { NamedBlob } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
@@ -13,7 +16,11 @@ export const Route = createFileRoute('/admin/product/add')({
 function ProductAddComponent() {
   const navigate = useNavigate({ from: '/admin/product/add' });
 
-  const blobs = useRef([null, null, null, null] as NamedBlob[] | null[]);
+  const blobs = useRef<NamedBlob[] | null[]>([null, null, null, null]);
+  const [selectedImageFile_0, setSelectedImageFile_0] = useState<File | null>(null);
+  const [selectedImageFile_1, setSelectedImageFile_1] = useState<File | null>(null);
+  const [selectedImageFile_2, setSelectedImageFile_2] = useState<File | null>(null);
+  const [selectedImageFile_3, setSelectedImageFile_3] = useState<File | null>(null);
 
   // #input chips fn
   const [colorInputValue, setColorInputValue] = useState('');
@@ -180,17 +187,18 @@ function ProductAddComponent() {
 
   return (
     <div className="py-0">
-      <h2 className="text-2xl font-bold tracking-tight text-black sm:text-3xl">Add Product</h2>
+      <h2 className="text-2xl font-bold tracking-tight text-black">Add Product</h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           form.handleSubmit();
         }}
       >
-        <div className="space-y-12">
-          <div className="mt-10 grid grid-cols-2 gap-x-10 gap-y-8 sm:grid-cols-6">
-            <div className="space-y-8 sm:col-span-3">
-              <div className="">
+        <div className="space-y-8">
+          <div className="mt-10 grid grid-cols-12 gap-y-8 border-b border-gray-900/5 pb-8 md:gap-x-6 lg:gap-x-8">
+            <div className="col-span-12 space-y-8 md:col-span-6">
+              {/* name */}
+              <div className="space-y-2">
                 <form.Field
                   name="name"
                   children={(field) => (
@@ -200,24 +208,24 @@ function ProductAddComponent() {
                         className="block text-sm font-medium leading-6 text-black"
                       >
                         Name
+                        <span className="text-red-400"> *</span>
                       </label>
-                      <div className="mt-2">
-                        <input
-                          id={field.name}
-                          name={field.name}
-                          type="text"
-                          required
-                          className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </div>
+                      <input
+                        id={field.name}
+                        name={field.name}
+                        type="text"
+                        required
+                        className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
                     </>
                   )}
                 />
               </div>
-              <div className="">
+              {/* category */}
+              <div className="space-y-2">
                 <form.Field
                   name="category"
                   children={(field) => (
@@ -227,24 +235,24 @@ function ProductAddComponent() {
                         className="block text-sm font-medium leading-6 text-black"
                       >
                         Category
+                        <span className="text-red-400"> *</span>
                       </label>
-                      <div className="mt-2">
-                        <input
-                          id={field.name}
-                          name={field.name}
-                          type="text"
-                          required
-                          className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </div>
+                      <input
+                        id={field.name}
+                        name={field.name}
+                        type="text"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
                     </>
                   )}
                 />
               </div>
-              <div className="">
+              {/* price */}
+              <div className="space-y-2">
                 <form.Field
                   name="price"
                   children={(field) => (
@@ -254,117 +262,33 @@ function ProductAddComponent() {
                         className="block text-sm font-medium leading-6 text-black"
                       >
                         Price
+                        <span className="text-red-400"> *</span>
                       </label>
-                      <div className="mt-2">
-                        <input
-                          id={field.name}
-                          name={field.name}
-                          type="number"
-                          required
-                          className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          value={field.state.value.toString().length > 0 ? field.state.value : ''}
-                          onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(
-                              e.target.value.length > 0 ? parseFloat(e.target.value) : '',
-                            )
-                          }
-                        />
-                      </div>
-                    </>
-                  )}
-                />
-              </div>
-              {/* colors */}
-              <div>
-                <label className="block text-sm font-medium leading-6 text-black">Colors</label>
-                <div className="mt-2 flex w-full flex-wrap gap-2 rounded-md px-2.5 py-1.5 text-sm text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600">
-                  {colors.map((topic, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center rounded-full bg-gray-200 px-3 py-[4px] font-light"
-                    >
-                      {topic}
-                      <button
-                        onClick={(e) => handleRemoveColor(e, topic)}
-                        className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))}
-                  <input
-                    type="text"
-                    value={colorInputValue}
-                    onChange={handleColorInputChange}
-                    onKeyDown={handleColorInputKeyDown}
-                    placeholder="Type a color and press space"
-                    className="w-full rounded-md border-0 py-0.5 text-black ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:w-1/2"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="space-y-8 sm:col-span-3">
-              <div className="">
-                <form.Field
-                  name="description"
-                  children={(field) => (
-                    <>
-                      <label
-                        htmlFor={field.name}
-                        className="block text-sm font-medium leading-6 text-black"
-                      >
-                        Description
-                      </label>
-                      <div className="mt-2">
-                        <textarea
-                          id={field.name}
-                          name={field.name}
-                          rows={5}
-                          required
-                          className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          // defaultValue={''}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </div>
-                    </>
-                  )}
-                />
-              </div>
-              <div className="">
-                <form.Field
-                  name="details"
-                  children={(field) => (
-                    <>
-                      <label
-                        htmlFor={field.name}
-                        className="block text-sm font-medium leading-6 text-black"
-                      >
-                        Details
-                      </label>
-                      <div className="mt-2">
-                        <textarea
-                          id={field.name}
-                          name={field.name}
-                          rows={5}
-                          required
-                          className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                          // defaultValue={''}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </div>
+                      <input
+                        id={field.name}
+                        name={field.name}
+                        type="number"
+                        required
+                        className="hide-number-input-arrow w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        value={field.state.value.toString().length > 0 ? field.state.value : ''}
+                        onBlur={field.handleBlur}
+                        onChange={(e) =>
+                          field.handleChange(
+                            e.target.value.length > 0 ? parseFloat(e.target.value) : '',
+                          )
+                        }
+                      />
                     </>
                   )}
                 />
               </div>
               {/* suitableFor */}
-              <fieldset>
-                <legend className="text-sm font-medium leading-6 text-black">Suitable for</legend>
-                <div className="mt-2 flex flex-wrap [&>*]:pr-8">
+              <fieldset className="space-y-2">
+                <label className="text-sm font-medium leading-6 text-black">
+                  Suitable for
+                  <span className="text-red-400"> *</span>
+                </label>
+                <div className="flex flex-wrap [&>*]:pr-8">
                   <div className="relative flex gap-x-3">
                     <div className="flex h-6 items-center">
                       <input
@@ -419,9 +343,12 @@ function ProductAddComponent() {
                 </div>
               </fieldset>
               {/* size */}
-              <fieldset>
-                <legend className="text-sm font-medium leading-6 text-black">Size</legend>
-                <div className="mt-2 flex flex-wrap [&>*]:pr-5">
+              <fieldset className="space-y-2">
+                <label className="text-sm font-medium leading-6 text-black">
+                  Size
+                  <span className="text-red-400"> *</span>
+                </label>
+                <div className="flex flex-wrap [&>*]:pr-5">
                   <div className="relative flex gap-x-3">
                     <div className="flex h-6 items-center">
                       <input
@@ -560,14 +487,117 @@ function ProductAddComponent() {
                   </div>
                 </div>
               </fieldset>
+            </div>
+
+            <div className="col-span-12 space-y-8 md:col-span-6">
+              {/* colors */}
+              <div className="space-y-2">
+                <label htmlFor="colors" className="block text-sm font-medium leading-6 text-black">
+                  Colors
+                  <span className="text-red-400"> *</span>
+                </label>
+                <div className="flex w-full flex-wrap gap-2 rounded-md px-1 py-1 text-sm text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600">
+                  {colors.map((topic, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center rounded-full bg-gray-200 px-3 py-[4px] font-light"
+                    >
+                      {topic}
+                      <button
+                        onClick={(e) => handleRemoveColor(e, topic)}
+                        className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                  <input
+                    id="colors"
+                    type="text"
+                    value={colorInputValue}
+                    onChange={handleColorInputChange}
+                    onKeyDown={handleColorInputKeyDown}
+                    placeholder="Type and press space/enter"
+                    className="w-5/6 rounded-md border-0 py-0.5 text-sm text-black ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:leading-6 lg:w-1/2 xl:w-2/5"
+                  />
+                </div>
+              </div>
+              {/* description */}
+              <div className="space-y-2">
+                <form.Field
+                  name="description"
+                  children={(field) => (
+                    <>
+                      <label
+                        htmlFor={field.name}
+                        className="block text-sm font-medium leading-6 text-black"
+                      >
+                        Description
+                        <span className="text-red-400"> *</span>
+                      </label>
+                      <textarea
+                        id={field.name}
+                        name={field.name}
+                        rows={3}
+                        required
+                        className="min-h-[100px] w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </>
+                  )}
+                />
+              </div>
+              {/* details */}
+              <div className="space-y-2">
+                <form.Field
+                  name="details"
+                  children={(field) => (
+                    <>
+                      <label
+                        htmlFor={field.name}
+                        className="block text-sm font-medium leading-6 text-black"
+                      >
+                        Details
+                        <span className="text-red-400"> *</span>
+                      </label>
+                      <textarea
+                        id={field.name}
+                        name={field.name}
+                        rows={3}
+                        required
+                        className="min-h-[100px] w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </>
+                  )}
+                />
+              </div>
               {/* highlights */}
-              <div>
-                <label className="block text-sm font-medium leading-6 text-black">Highlights</label>
-                <ul className="mt-4 list-disc space-y-1 pl-5">
+              <div className="space-y-2">
+                <label
+                  htmlFor="highlights"
+                  className="block text-sm font-medium leading-6 text-black"
+                >
+                  Highlights
+                </label>
+                <input
+                  id="highlights"
+                  type="text"
+                  value={highlightsInputValue}
+                  onChange={handleHighlightInputChange}
+                  onKeyDown={handleHighlightInputKeyDown}
+                  placeholder="Type and press Enter"
+                  className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+                <ul className="list-disc space-y-1 pl-5">
                   {highlights.map((item, index) => (
                     <li key={index} className="">
                       <div className="flex items-center justify-between">
-                        <span>{item}</span>
+                        <span className="break-all">{item}</span>
                         <button
                           onClick={(e) => handleRemoveHighlightItem(e, index)}
                           className="text-gray-500 hover:text-gray-700 focus:outline-none"
@@ -578,40 +608,242 @@ function ProductAddComponent() {
                     </li>
                   ))}
                 </ul>
-                <input
-                  type="text"
-                  value={highlightsInputValue}
-                  onChange={handleHighlightInputChange}
-                  onKeyDown={handleHighlightInputKeyDown}
-                  placeholder="Type and press Enter"
-                  className="mt-2 w-full max-w-sm rounded-md border border-gray-300 p-2 focus:border-blue-300 focus:outline-none focus:ring"
-                />
               </div>
             </div>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium leading-6 text-black">Profile photo</label>
-            <ImageCrop
-              getBlob={(blob) => (blobs.current[0] = blob)}
-              aspectValue={3 / 4}
-              enableInputRequired
-            />
-            <ImageCrop
-              getBlob={(blob) => (blobs.current[1] = blob)}
-              aspectValue={3 / 2}
-              // enableInputRequired
-            />
-            <ImageCrop
-              getBlob={(blob) => (blobs.current[2] = blob)}
-              aspectValue={3 / 2}
-              // enableInputRequired
-            />
-            <ImageCrop
-              getBlob={(blob) => (blobs.current[3] = blob)}
-              aspectValue={3 / 4}
-              // enableInputRequired
-            />
+          {/* images */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium leading-6 text-black">
+              Profile photo
+              <span className="text-red-400"> *</span>
+            </label>
+            <div className="grid grid-cols-12 gap-y-4 lg:gap-x-8 lg:gap-y-8">
+              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
+                {!selectedImageFile_0 && (
+                  <div className="flex h-full w-full items-center justify-center px-6 py-10">
+                    <div>
+                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="file-upload_0"
+                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="file-upload_0"
+                            name="file-upload_0"
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            required
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                setSelectedImageFile_0(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <>
+                  {selectedImageFile_0 && (
+                    <div className="relative">
+                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
+                        <XMarkIcon
+                          className="w-5 cursor-pointer text-black"
+                          onClick={() => {
+                            setSelectedImageFile_0(null);
+                            blobs.current[0] = null;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className={twMerge(
+                      'flex h-full items-center justify-center',
+                      selectedImageFile_0 ? 'flex' : 'hidden',
+                    )}
+                  >
+                    <ImageCrop
+                      getBlob={(blob) => (blobs.current[0] = blob)}
+                      aspectValue={3 / 4}
+                      selectedFile={selectedImageFile_0}
+                    />
+                  </div>
+                </>
+              </div>
+              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
+                {!selectedImageFile_1 && (
+                  <div className="flex h-full w-full items-center justify-center px-6 py-10">
+                    <div>
+                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="file-upload_1"
+                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="file-upload_1"
+                            name="file-upload_1"
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                setSelectedImageFile_1(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <>
+                  {selectedImageFile_1 && (
+                    <div className="relative">
+                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
+                        <XMarkIcon
+                          className="w-5 cursor-pointer text-black"
+                          onClick={() => {
+                            setSelectedImageFile_1(null);
+                            blobs.current[1] = null;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className={twMerge(
+                      'flex h-full items-center justify-center',
+                      selectedImageFile_1 ? 'flex' : 'hidden',
+                    )}
+                  >
+                    <ImageCrop
+                      getBlob={(blob) => (blobs.current[1] = blob)}
+                      aspectValue={3 / 2}
+                      selectedFile={selectedImageFile_1}
+                    />
+                  </div>
+                </>
+              </div>
+              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
+                {!selectedImageFile_2 && (
+                  <div className="flex h-full w-full items-center justify-center px-6 py-10">
+                    <div>
+                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="file-upload_2"
+                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="file-upload_2"
+                            name="file-upload_2"
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                setSelectedImageFile_2(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <>
+                  {selectedImageFile_2 && (
+                    <div className="relative">
+                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
+                        <XMarkIcon
+                          className="w-5 cursor-pointer text-black"
+                          onClick={() => {
+                            setSelectedImageFile_2(null);
+                            blobs.current[2] = null;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className={twMerge(
+                      'flex h-full items-center justify-center',
+                      selectedImageFile_2 ? 'flex' : 'hidden',
+                    )}
+                  >
+                    <ImageCrop
+                      getBlob={(blob) => (blobs.current[2] = blob)}
+                      aspectValue={3 / 2}
+                      selectedFile={selectedImageFile_2}
+                    />
+                  </div>
+                </>
+              </div>
+              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
+                {!selectedImageFile_3 && (
+                  <div className="flex h-full w-full items-center justify-center px-6 py-10">
+                    <div>
+                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="file-upload_3"
+                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="file-upload_3"
+                            name="file-upload_3"
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                setSelectedImageFile_3(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <>
+                  {selectedImageFile_3 && (
+                    <div className="relative">
+                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
+                        <XMarkIcon
+                          className="w-5 cursor-pointer text-black"
+                          onClick={() => {
+                            setSelectedImageFile_3(null);
+                            blobs.current[3] = null;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className={twMerge(
+                      'flex h-full items-center justify-center',
+                      selectedImageFile_3 ? 'flex' : 'hidden',
+                    )}
+                  >
+                    <ImageCrop
+                      getBlob={(blob) => (blobs.current[3] = blob)}
+                      aspectValue={3 / 4}
+                      selectedFile={selectedImageFile_3}
+                    />
+                  </div>
+                </>
+              </div>
+            </div>
           </div>
         </div>
 

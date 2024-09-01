@@ -1,3 +1,4 @@
+import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
@@ -16,7 +17,8 @@ function SignupComponent() {
   const navigate = useNavigate({ from: '/signup' });
 
   const [emailInput, setEmailInput] = useState('');
-  const blobs = useRef([] as NamedBlob[]);
+  const blobs = useRef<NamedBlob | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
   const otpSendMutation = useMutation({
     mutationFn: (email: string) => {
@@ -52,7 +54,7 @@ function SignupComponent() {
     },
     onSubmit: async ({ value }) => {
       const formSubmitted = await formSubmitMutation.mutateAsync(value);
-      if (formSubmitted && blobs.current.length) {
+      if (formSubmitted && blobs.current) {
         const userId = formSubmitted.data.user._id;
         const token = formSubmitted.data.token;
         // #set authorization (Bearer token) for axios requests
@@ -67,7 +69,7 @@ function SignupComponent() {
         );
         try {
           // #upload image
-          const blobFile = blobs.current[0];
+          const blobFile = blobs.current;
           const bodyFormData = new FormData();
           const croppedImgFile = new File([blobFile], blobFile.name || `image_${0}`, {
             type: blobFile.type,
@@ -262,16 +264,68 @@ function SignupComponent() {
                 )}
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <label className="block text-sm font-medium leading-6 text-gray-900">
                 Profile photo
               </label>
-              <ImageCrop
-                getBlob={(blob) => (blobs.current[0] = blob)}
-                aspectValue={1 / 1}
-                enableCircularCrop
-                enableInputRequired
-              />
+              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
+                {!selectedImageFile && (
+                  <div className="flex h-full w-full items-center justify-center px-6 py-5">
+                    <div>
+                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                        <label
+                          htmlFor="file-upload_3"
+                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                        >
+                          <span>Upload profile photo</span>
+                          <input
+                            id="file-upload_3"
+                            name="file-upload_3"
+                            type="file"
+                            accept="image/*"
+                            className="sr-only"
+                            required
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files.length > 0) {
+                                setSelectedImageFile(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <>
+                  {selectedImageFile && (
+                    <div className="relative">
+                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
+                        <XMarkIcon
+                          className="w-5 cursor-pointer text-black"
+                          onClick={() => {
+                            setSelectedImageFile(null);
+                            blobs.current = null;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className={twMerge(
+                      'flex h-full items-center justify-center',
+                      selectedImageFile ? 'flex' : 'hidden',
+                    )}
+                  >
+                    <ImageCrop
+                      getBlob={(blob) => (blobs.current = blob)}
+                      aspectValue={1 / 1}
+                      selectedFile={selectedImageFile}
+                      enableCircularCrop
+                    />
+                  </div>
+                </>
+              </div>
             </div>
             <div>
               <div className="flex w-full space-x-4">
