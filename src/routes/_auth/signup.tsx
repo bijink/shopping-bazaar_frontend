@@ -278,7 +278,7 @@ function SignupComponent() {
                           htmlFor="file-upload_3"
                           className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                         >
-                          <span>Upload profile photo</span>
+                          <span>Add profile photo</span>
                           <input
                             id="file-upload_3"
                             name="file-upload_3"

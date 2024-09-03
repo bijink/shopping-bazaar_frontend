@@ -1,3 +1,5 @@
+import { HistoryState } from '@tanstack/react-router';
+
 export type User = {
   _id: string;
   role: string;
@@ -8,4 +10,30 @@ export type User = {
 
 export interface NamedBlob extends Blob {
   name?: string;
+}
+
+export interface Product {
+  _id: string;
+  name: string;
+  suitableFor: string[];
+  category: string;
+  size: string[];
+  price: number;
+  color: string[];
+  description: string;
+  details: string;
+  highlights: string[];
+  images: string[];
+}
+interface Base64Image {
+  name: string;
+  data: string;
+  mimeType: string;
+}
+export interface ProductWithBase64Image extends Omit<Product, 'images'> {
+  images: Base64Image[];
+}
+
+export interface CustomHistoryState extends HistoryState {
+  product?: Product;
 }

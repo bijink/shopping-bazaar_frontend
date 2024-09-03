@@ -22,6 +22,7 @@ import { Route as CustomerAccountImport } from './routes/_customer/account'
 import { Route as AuthSignupImport } from './routes/_auth/signup'
 import { Route as AuthSigninImport } from './routes/_auth/signin'
 import { Route as AdminProductAddImport } from './routes/admin/product_/add'
+import { Route as AdminProductProductIdImport } from './routes/admin/product_/$productId'
 import { Route as CustomerProductProductIdImport } from './routes/_customer/product_.$productId'
 import { Route as AdminProductEditProductIdImport } from './routes/admin/product_/edit.$productId'
 
@@ -79,6 +80,11 @@ const AuthSigninRoute = AuthSigninImport.update({
 
 const AdminProductAddRoute = AdminProductAddImport.update({
   path: '/product/add',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminProductProductIdRoute = AdminProductProductIdImport.update({
+  path: '/product/$productId',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -173,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomerProductProductIdImport
       parentRoute: typeof CustomerImport
     }
+    '/admin/product/$productId': {
+      id: '/admin/product/$productId'
+      path: '/product/$productId'
+      fullPath: '/admin/product/$productId'
+      preLoaderRoute: typeof AdminProductProductIdImport
+      parentRoute: typeof AdminImport
+    }
     '/admin/product/add': {
       id: '/admin/product/add'
       path: '/product/add'
@@ -203,6 +216,7 @@ export const routeTree = rootRoute.addChildren({
   AdminRoute: AdminRoute.addChildren({
     AdminOrdersRoute,
     AdminIndexRoute,
+    AdminProductProductIdRoute,
     AdminProductAddRoute,
     AdminProductEditProductIdRoute,
   }),
@@ -242,6 +256,7 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/admin/orders",
         "/admin/",
+        "/admin/product/$productId",
         "/admin/product/add",
         "/admin/product/edit/$productId"
       ]
@@ -277,6 +292,10 @@ export const routeTree = rootRoute.addChildren({
     "/_customer/product/$productId": {
       "filePath": "_customer/product_.$productId.tsx",
       "parent": "/_customer"
+    },
+    "/admin/product/$productId": {
+      "filePath": "admin/product_/$productId.tsx",
+      "parent": "/admin"
     },
     "/admin/product/add": {
       "filePath": "admin/product_/add.tsx",

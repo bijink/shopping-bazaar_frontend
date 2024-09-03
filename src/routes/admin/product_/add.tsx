@@ -6,6 +6,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import ImageCrop from '../../../components/ImageCrop';
+import LoadingSpinner from '../../../components/LoadingSpinner';
 import { NamedBlob } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
 
@@ -187,15 +188,17 @@ function ProductAddComponent() {
 
   return (
     <div className="py-0">
-      <h2 className="text-2xl font-bold tracking-tight text-black">Add Product</h2>
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight text-black">Add Product</h2>
+      </div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           form.handleSubmit();
         }}
       >
-        <div className="space-y-8">
-          <div className="mt-10 grid grid-cols-12 gap-y-8 border-b border-gray-900/5 pb-8 md:gap-x-6 lg:gap-x-8">
+        <div className="mt-10">
+          <div className="grid grid-cols-12 gap-y-8 border-b border-gray-900/5 pb-8 md:gap-x-6 lg:gap-x-8">
             <div className="col-span-12 space-y-8 md:col-span-6">
               {/* name */}
               <div className="space-y-2">
@@ -612,9 +615,9 @@ function ProductAddComponent() {
             </div>
           </div>
           {/* images */}
-          <div className="space-y-2">
+          <div className="mt-6 space-y-2">
             <label className="block text-sm font-medium leading-6 text-black">
-              Profile photo
+              Images
               <span className="text-red-400"> *</span>
             </label>
             <div className="grid grid-cols-12 gap-y-4 lg:gap-x-8 lg:gap-y-8">
@@ -628,7 +631,10 @@ function ProductAddComponent() {
                           htmlFor="file-upload_0"
                           className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                         >
-                          <span>Upload a file</span>
+                          <span>
+                            Upload 1<sup>st</sup> image
+                            <span className="text-red-400"> *</span>
+                          </span>
                           <input
                             id="file-upload_0"
                             name="file-upload_0"
@@ -685,7 +691,9 @@ function ProductAddComponent() {
                           htmlFor="file-upload_1"
                           className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                         >
-                          <span>Upload a file</span>
+                          <span>
+                            Upload 2<sup>nd</sup> image
+                          </span>
                           <input
                             id="file-upload_1"
                             name="file-upload_1"
@@ -741,7 +749,9 @@ function ProductAddComponent() {
                           htmlFor="file-upload_2"
                           className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                         >
-                          <span>Upload a file</span>
+                          <span>
+                            Upload 3<sup>rd</sup> image
+                          </span>
                           <input
                             id="file-upload_2"
                             name="file-upload_2"
@@ -797,7 +807,9 @@ function ProductAddComponent() {
                           htmlFor="file-upload_3"
                           className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                         >
-                          <span>Upload a file</span>
+                          <span>
+                            Upload 4<sup>th</sup> image
+                          </span>
                           <input
                             id="file-upload_3"
                             name="file-upload_3"
@@ -847,16 +859,23 @@ function ProductAddComponent() {
           </div>
         </div>
 
-        <div className="mt-6 flex items-center justify-end gap-x-6">
+        <div className="mt-10 flex items-center justify-end gap-x-6">
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, isSubmitting]) => (
               <button
                 type="submit"
                 disabled={!canSubmit}
-                className="w-28 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="inline-flex min-w-28 items-center justify-center space-x-8 rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                {isSubmitting ? 'Loading...' : 'Save'}
+                {isSubmitting ? (
+                  <>
+                    <LoadingSpinner size={4} styles="mr-2" />
+                    Loading...
+                  </>
+                ) : (
+                  'Add'
+                )}
               </button>
             )}
           />
