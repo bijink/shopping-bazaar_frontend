@@ -28,7 +28,7 @@ export interface Product {
     '3xl': boolean;
   };
   price: number;
-  colors: string[];
+  colors: { name: string; hex: string }[];
   description: string;
   details: string;
   highlights: string[];

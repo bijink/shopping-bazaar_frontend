@@ -25,24 +25,31 @@ function ProductAddComponent() {
   const [selectedImageFile_3, setSelectedImageFile_3] = useState<File | null>(null);
 
   // #input colors fn
+  const [colors, setColors] = useState<{ name: string; hex: string }[]>([]);
   const [colorInputValue, setColorInputValue] = useState('#ffffff');
-  const [colors, setColors] = useState<string[]>([]);
-
-  // useEffect(() => {
-  //   console.log('COLORS:', colors);
-  // }, [colors]);
-
   const handleColorInput = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    if (!colors.includes(colorInputValue)) {
-      setColors([...colors, colorInputValue]);
-    }
+    setColors((prevState) => {
+      const newColor = { name: '', hex: colorInputValue };
+      // Check if the new hex value already exists in the array
+      const isDuplicate = prevState.some((item) => item.hex === newColor.hex);
+      if (isDuplicate) return prevState;
+      else return [...prevState, newColor];
+    });
     event.preventDefault();
   };
-  const handleRemoveColor = (
-    event: React.MouseEvent<SVGSVGElement, MouseEvent>,
-    topicToRemove: string,
-  ) => {
-    setColors(colors.filter((topic) => topic !== topicToRemove));
+  const handleColorInputName = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    setColors((prevState) => {
+      const updatedObject = { ...prevState[index], name: event.target.value };
+      // Check if the new hex value already exists in the array (excluding the current object at the index)
+      const isDuplicate = prevState.some(
+        (item, i) => item.hex === updatedObject.hex && i !== index,
+      );
+      if (isDuplicate) return prevState;
+      else return prevState.map((item, i) => (i === index ? updatedObject : item));
+    });
+  };
+  const handleRemoveColor = (event: React.MouseEvent<SVGSVGElement, MouseEvent>, index: number) => {
+    setColors(colors.filter((_, i) => i !== index));
     event.preventDefault();
   };
   // #/input colors fn
@@ -243,37 +250,6 @@ function ProductAddComponent() {
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                    </>
-                  )}
-                />
-              </div>
-              {/* price */}
-              <div className="space-y-2">
-                <form.Field
-                  name="price"
-                  children={(field) => (
-                    <>
-                      <label
-                        htmlFor={field.name}
-                        className="block text-sm font-medium leading-6 text-black"
-                      >
-                        Price
-                        <span className="text-red-400"> *</span>
-                      </label>
-                      <input
-                        id={field.name}
-                        name={field.name}
-                        type="number"
-                        required
-                        className="hide-number-input-arrow w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        value={field.state.value.toString().length > 0 ? field.state.value : ''}
-                        onBlur={field.handleBlur}
-                        onChange={(e) =>
-                          field.handleChange(
-                            e.target.value.length > 0 ? parseFloat(e.target.value) : '',
-                          )
-                        }
                       />
                     </>
                   )}
@@ -505,15 +481,28 @@ function ProductAddComponent() {
                       {colors.map((color, index) => (
                         <div
                           key={index}
-                          className="group flex h-10 w-10 items-center justify-center rounded-full border border-black border-opacity-10 font-light"
-                          style={{ backgroundColor: color }}
+                          className="flex w-16 flex-col items-center justify-center gap-1"
                         >
-                          <div className="hidden h-5 w-5 cursor-pointer rounded-full bg-black p-1 opacity-100 group-hover:block">
-                            <XMarkIcon
-                              onClick={(e) => handleRemoveColor(e, color)}
-                              className="text-white"
-                            />
+                          <div
+                            key={index}
+                            className="group flex h-10 w-10 items-center justify-center rounded-full border border-black border-opacity-10 font-light"
+                            style={{ backgroundColor: color.hex }}
+                          >
+                            <div className="hidden h-5 w-5 cursor-pointer rounded-full bg-black p-1 opacity-100 group-hover:block">
+                              <XMarkIcon
+                                onClick={(e) => handleRemoveColor(e, index)}
+                                className="text-white"
+                              />
+                            </div>
                           </div>
+                          <input
+                            type="text"
+                            className="w-16 rounded-md border-0 py-0 text-[12px] text-black ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:leading-6"
+                            placeholder="Name"
+                            value={color.name || ''}
+                            onChange={(e) => handleColorInputName(e, index)}
+                            required
+                          />
                         </div>
                       ))}
                     </div>
@@ -521,8 +510,38 @@ function ProductAddComponent() {
                 </div>
               </div>
             </div>
-
             <div className="col-span-12 space-y-8 md:col-span-6">
+              {/* price */}
+              <div className="space-y-2">
+                <form.Field
+                  name="price"
+                  children={(field) => (
+                    <>
+                      <label
+                        htmlFor={field.name}
+                        className="block text-sm font-medium leading-6 text-black"
+                      >
+                        Price
+                        <span className="text-red-400"> *</span>
+                      </label>
+                      <input
+                        id={field.name}
+                        name={field.name}
+                        type="number"
+                        required
+                        className="hide-number-input-arrow w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        value={field.state.value.toString().length > 0 ? field.state.value : ''}
+                        onBlur={field.handleBlur}
+                        onChange={(e) =>
+                          field.handleChange(
+                            e.target.value.length > 0 ? parseFloat(e.target.value) : '',
+                          )
+                        }
+                      />
+                    </>
+                  )}
+                />
+              </div>
               {/* description */}
               <div className="space-y-2">
                 <form.Field
@@ -856,7 +875,7 @@ function ProductAddComponent() {
             </div>
           </div>
         </div>
-
+        {/* submit button */}
         <div className="mt-10 flex items-center justify-end gap-x-6">
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
