@@ -4,10 +4,11 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
+import { HexColorPicker } from 'react-colorful';
 import { twMerge } from 'tailwind-merge';
 import ImageCrop from '../../../components/ImageCrop';
 import LoadingSpinner from '../../../components/LoadingSpinner';
-import { NamedBlob } from '../../../types/global.type';
+import { NamedBlob, Product } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
 
 export const Route = createFileRoute('/admin/product/add')({
@@ -23,36 +24,28 @@ function ProductAddComponent() {
   const [selectedImageFile_2, setSelectedImageFile_2] = useState<File | null>(null);
   const [selectedImageFile_3, setSelectedImageFile_3] = useState<File | null>(null);
 
-  // #input chips fn
-  const [colorInputValue, setColorInputValue] = useState('');
+  // #input colors fn
+  const [colorInputValue, setColorInputValue] = useState('#ffffff');
   const [colors, setColors] = useState<string[]>([]);
-  const handleColorInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setColorInputValue(event.target.value);
-  };
-  const removeLastColor = () => {
-    setColors(colors.slice(0, -1)); // Remove the last topic from the list
-  };
-  const handleColorInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === ' ' || event.key === 'Enter') {
-      const trimmedValue = colorInputValue.trim();
-      if (trimmedValue && !colors.includes(trimmedValue)) {
-        setColors([...colors, trimmedValue]);
-      }
-      setColorInputValue('');
-      event.preventDefault(); // Prevent space or Enter from being added to input field
-    } else if (event.key === 'Backspace' && colorInputValue === '') {
-      removeLastColor();
-      event.preventDefault(); // Prevent default backspace behavior
+
+  // useEffect(() => {
+  //   console.log('COLORS:', colors);
+  // }, [colors]);
+
+  const handleColorInput = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (!colors.includes(colorInputValue)) {
+      setColors([...colors, colorInputValue]);
     }
+    event.preventDefault();
   };
   const handleRemoveColor = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    event: React.MouseEvent<SVGSVGElement, MouseEvent>,
     topicToRemove: string,
   ) => {
     setColors(colors.filter((topic) => topic !== topicToRemove));
     event.preventDefault();
   };
-  // #/input chips fn
+  // #/input colors fn
   // #suitableFor select fn
   const [suitableForSelectedOptions, setSuitableForSelectedOptions] = useState<string[]>([]);
   const handleSuitableForCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,18 +62,19 @@ function ProductAddComponent() {
   };
   // #/suitableFor select fn
   // #size select fn
-  const [sizeSelectedOptions, setSizeSelectedOptions] = useState<string[]>([]);
+  const [sizesSelectedOptions, setSizesSelectedOptions] = useState<Product['sizes']>({
+    xxs: false,
+    xs: false,
+    s: false,
+    m: false,
+    l: false,
+    xl: false,
+    '2xl': false,
+    '3xl': false,
+  });
   const handleSizeCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
-    setSizeSelectedOptions((prevState) => {
-      if (checked) {
-        // Add the option if it's checked and not already in the array
-        return [...prevState, name];
-      } else {
-        // Remove the option if it's unchecked
-        return prevState.filter((option) => option !== name);
-      }
-    });
+    setSizesSelectedOptions((prevState) => ({ ...prevState, [name]: checked }));
   };
   // #/size select fn
   // #highlights list fn
@@ -109,15 +103,15 @@ function ProductAddComponent() {
 
   const formSubmitMutation = useMutation({
     mutationFn: (formData: {
-      name: string;
-      category: string;
-      price: string | number;
-      description: string;
-      details: string;
-      color: string[];
-      suitableFor: string[];
-      size: string[];
-      highlights: string[];
+      name: Product['name'];
+      category: Product['category'];
+      price: Product['price'] | string;
+      description: Product['description'];
+      details: Product['details'];
+      colors: Product['colors'];
+      suitableFor: Product['suitableFor'];
+      sizes: Product['sizes'];
+      highlights: Product['highlights'];
     }) => {
       return axiosInstance.post('/admin/add-product', formData);
     },
@@ -136,9 +130,9 @@ function ProductAddComponent() {
     onSubmit: async ({ value }) => {
       const formSubmitted = await formSubmitMutation.mutateAsync({
         ...value,
-        color: colors,
+        colors,
         suitableFor: suitableForSelectedOptions,
-        size: sizeSelectedOptions,
+        sizes: sizesSelectedOptions,
         highlights: highlights,
       });
       if (formSubmitted && blobs.current.length) {
@@ -358,7 +352,7 @@ function ProductAddComponent() {
                         id="xxs"
                         name="xxs"
                         type="checkbox"
-                        checked={sizeSelectedOptions.includes('xxs')}
+                        checked={sizesSelectedOptions['xxs']}
                         onChange={handleSizeCheckboxChange}
                         className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
@@ -375,7 +369,7 @@ function ProductAddComponent() {
                         id="xs"
                         name="xs"
                         type="checkbox"
-                        checked={sizeSelectedOptions.includes('xs')}
+                        checked={sizesSelectedOptions['xs']}
                         onChange={handleSizeCheckboxChange}
                         className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
@@ -392,7 +386,7 @@ function ProductAddComponent() {
                         id="s"
                         name="s"
                         type="checkbox"
-                        checked={sizeSelectedOptions.includes('s')}
+                        checked={sizesSelectedOptions['s']}
                         onChange={handleSizeCheckboxChange}
                         className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
@@ -409,7 +403,7 @@ function ProductAddComponent() {
                         id="m"
                         name="m"
                         type="checkbox"
-                        checked={sizeSelectedOptions.includes('m')}
+                        checked={sizesSelectedOptions['m']}
                         onChange={handleSizeCheckboxChange}
                         className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
@@ -426,7 +420,7 @@ function ProductAddComponent() {
                         id="l"
                         name="l"
                         type="checkbox"
-                        checked={sizeSelectedOptions.includes('l')}
+                        checked={sizesSelectedOptions['l']}
                         onChange={handleSizeCheckboxChange}
                         className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
@@ -443,7 +437,7 @@ function ProductAddComponent() {
                         id="xl"
                         name="xl"
                         type="checkbox"
-                        checked={sizeSelectedOptions.includes('xl')}
+                        checked={sizesSelectedOptions['xl']}
                         onChange={handleSizeCheckboxChange}
                         className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
@@ -460,7 +454,7 @@ function ProductAddComponent() {
                         id="2xl"
                         name="2xl"
                         type="checkbox"
-                        checked={sizeSelectedOptions.includes('2xl')}
+                        checked={sizesSelectedOptions['2xl']}
                         onChange={handleSizeCheckboxChange}
                         className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
@@ -477,7 +471,7 @@ function ProductAddComponent() {
                         id="3xl"
                         name="3xl"
                         type="checkbox"
-                        checked={sizeSelectedOptions.includes('3xl')}
+                        checked={sizesSelectedOptions['3xl']}
                         onChange={handleSizeCheckboxChange}
                         className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
@@ -490,41 +484,45 @@ function ProductAddComponent() {
                   </div>
                 </div>
               </fieldset>
-            </div>
-
-            <div className="col-span-12 space-y-8 md:col-span-6">
               {/* colors */}
               <div className="space-y-2">
                 <label htmlFor="colors" className="block text-sm font-medium leading-6 text-black">
                   Colors
                   <span className="text-red-400"> *</span>
                 </label>
-                <div className="flex w-full flex-wrap gap-2 rounded-md px-1 py-1 text-sm text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600">
-                  {colors.map((topic, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center rounded-full bg-gray-200 px-3 py-[4px] font-light"
+                <div className="flex flex-row space-x-4">
+                  <div className="space-y-1">
+                    <HexColorPicker color={colorInputValue} onChange={setColorInputValue} />
+                    <button
+                      className="inline-flex w-full items-center justify-center space-x-8 rounded-md bg-indigo-600 px-3 py-1 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      onClick={handleColorInput}
                     >
-                      {topic}
-                      <button
-                        onClick={(e) => handleRemoveColor(e, topic)}
-                        className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none"
-                      >
-                        &times;
-                      </button>
+                      Select
+                    </button>
+                  </div>
+                  <div className="w-full">
+                    <div className="flex min-h-10 flex-wrap gap-2 px-1 py-1">
+                      {colors.map((color, index) => (
+                        <div
+                          key={index}
+                          className="group flex h-10 w-10 items-center justify-center rounded-full border border-black border-opacity-10 font-light"
+                          style={{ backgroundColor: color }}
+                        >
+                          <div className="hidden h-5 w-5 cursor-pointer rounded-full bg-black p-1 opacity-100 group-hover:block">
+                            <XMarkIcon
+                              onClick={(e) => handleRemoveColor(e, color)}
+                              className="text-white"
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                  <input
-                    id="colors"
-                    type="text"
-                    value={colorInputValue}
-                    onChange={handleColorInputChange}
-                    onKeyDown={handleColorInputKeyDown}
-                    placeholder="Type and press space/enter"
-                    className="w-5/6 rounded-md border-0 py-0.5 text-sm text-black ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:leading-6 lg:w-1/2 xl:w-2/5"
-                  />
+                  </div>
                 </div>
               </div>
+            </div>
+
+            <div className="col-span-12 space-y-8 md:col-span-6">
               {/* description */}
               <div className="space-y-2">
                 <form.Field

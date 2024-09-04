@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-router';
+import LoadingSpinner from '../../../components/LoadingSpinner';
 import ProductOverview from '../../../components/ProductOverview';
 import { CustomHistoryState } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
@@ -48,7 +49,7 @@ function ProductComponent() {
 
   const isLoading = isProductFetchLoading || isImagesFetchLoading;
 
-  if (isLoading) return <h1>Loading...</h1>;
+  if (isLoading) return <LoadingSpinner size={8} />;
   if (isImagesFetchSuccess) return <ProductOverview product2={{ ...product, images }} />;
   if (isImagesFetchError)
     return (

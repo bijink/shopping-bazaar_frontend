@@ -1,7 +1,6 @@
 'use client';
 
 import { Radio, RadioGroup } from '@headlessui/react';
-import { StarIcon } from '@heroicons/react/20/solid';
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import { useState } from 'react';
 import { ProductWithBase64Image } from '../types/global.type';
@@ -59,7 +58,7 @@ const product = {
   details:
     'The 6-Pack includes two black, two white, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming "Charcoal Gray" limited release.',
 };
-const reviews = { href: '#', average: 4, totalCount: 117 };
+// const reviews = { href: '#', average: 4, totalCount: 117 };
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
@@ -221,10 +220,13 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
           {/* Options */}
           <div className="mt-4 lg:row-span-3 lg:mt-0">
             <h2 className="sr-only">Product information</h2>
-            <p className="text-3xl tracking-tight text-gray-900">{product.price}</p>
+            <p className="text-3xl tracking-tight text-gray-900">
+              <span>&#8377;</span>
+              {product2.price}
+            </p>
 
             {/* Reviews */}
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <h3 className="sr-only">Reviews</h3>
               <div className="flex items-center">
                 <div className="flex items-center">
@@ -247,7 +249,7 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
                   {reviews.totalCount} reviews
                 </a>
               </div>
-            </div>
+            </div> */}
 
             <form className="mt-10">
               {/* Colors */}
@@ -298,20 +300,20 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
                     onChange={setSelectedSize}
                     className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
                   >
-                    {product.sizes.map((size) => (
+                    {Object.entries(product2.sizes).map(([name, inStock]) => (
                       <Radio
-                        key={size.name}
-                        value={size}
-                        disabled={!size.inStock}
+                        key={name}
+                        value={name} //!:
+                        disabled={!inStock}
                         className={classNames(
-                          size.inStock
+                          inStock
                             ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
                             : 'cursor-not-allowed bg-gray-50 text-gray-200',
                           'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
                         )}
                       >
-                        <span>{size.name}</span>
-                        {size.inStock ? (
+                        <span>{name}</span>
+                        {inStock ? (
                           <span
                             aria-hidden="true"
                             className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-indigo-500"
@@ -358,7 +360,7 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
               <h3 className="sr-only">Description</h3>
 
               <div className="space-y-6">
-                <p className="text-base text-gray-900">{product.description}</p>
+                <p className="text-base text-gray-900">{product2.description}</p>
               </div>
             </div>
 
@@ -367,9 +369,11 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
 
               <div className="mt-4">
                 <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
-                  {product.highlights.map((highlight) => (
+                  {product2.highlights.map((highlight) => (
                     <li key={highlight} className="text-gray-400">
-                      <span className="text-gray-600">{highlight}</span>
+                      <span className="text-gray-600">
+                        {stringOps.capitalizeFirstWord(highlight)}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -380,7 +384,7 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
               <h2 className="text-sm font-medium text-gray-900">Details</h2>
 
               <div className="mt-4 space-y-6">
-                <p className="text-sm text-gray-600">{product.details}</p>
+                <p className="text-sm text-gray-600">{product2.details}</p>
               </div>
             </div>
           </div>
