@@ -1,17 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, useLocation, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, notFound, useLocation } from '@tanstack/react-router';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import ProductOverview from '../../../components/ProductOverview';
 import { CustomHistoryState } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
 
 export const Route = createFileRoute('/admin/product/$productId')({
-  // loader: ({ params: { productId } }) => {
-  //   // if (isNaN(Number(productId))) throw notFound();
-  // },
+  loader: ({ params: { productId } }) => {
+    if (!/^[a-fA-F0-9]{24}$/.test(productId)) throw notFound();
+  },
   component: AdminProductComponent,
   notFoundComponent: () => {
-    return <p>Product doesn't exist!</p>;
+    return (
+      <div className="flex flex-col items-center">
+        <p>Product not found!</p>
+        <Link
+          from="/admin/product/$productId"
+          to="/admin"
+          className="mt-2 inline-flex min-w-28 items-center justify-center space-x-8 rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          Go to Admin Home
+        </Link>
+      </div>
+    );
   },
 });
 
@@ -22,9 +33,12 @@ function AdminProductComponent() {
   const isExactRouteLocation =
     location.pathname.startsWith('/admin/product') &&
     location.pathname.slice(1).split('/').length == 3;
-  const navigate = useNavigate({ from: '/admin/product/$productId' });
 
-  const { data: product, isLoading: isProductFetchLoading } = useQuery({
+  const {
+    data: product,
+    isLoading: isProductFetchLoading,
+    isError: isProductFetchError,
+  } = useQuery({
     queryKey: ['product', productId, locationStateProductData, { status: false }],
     queryFn: () => {
       if (locationStateProductData) return locationStateProductData;
@@ -45,22 +59,25 @@ function AdminProductComponent() {
         .then((res) => res.data.images),
     enabled: !!product?.images,
   });
-  // console.log({ product, images, isImagesFetchSuccess });
 
   const isLoading = isProductFetchLoading || isImagesFetchLoading;
+  const isError = isImagesFetchError || !isExactRouteLocation;
+  const isNotFound = !isLoading && isProductFetchError;
 
   if (isLoading) return <LoadingSpinner size={8} />;
+  if (isNotFound) throw notFound({ routeId: '/admin/product/$productId' });
   if (isImagesFetchSuccess) return <ProductOverview product2={{ ...product, images }} />;
-  if (isImagesFetchError)
+  if (isError)
     return (
       <div className="flex flex-col items-center">
-        <p>Something went wrong</p>
-        <button
+        <p>Something went wrong!</p>
+        <Link
+          from="/admin/product/$productId"
+          to="/admin"
           className="mt-2 inline-flex min-w-28 items-center justify-center space-x-8 rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          onClick={() => navigate({ to: '/admin' })}
         >
-          Go back to Admin Home page
-        </button>
+          Go to Admin Home
+        </Link>
       </div>
     );
 }

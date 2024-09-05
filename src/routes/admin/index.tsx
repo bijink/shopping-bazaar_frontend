@@ -112,15 +112,6 @@ function AdminHomeComponent() {
                 <tr
                   key={prod._id}
                   className="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
-                  onClick={() =>
-                    navigate({
-                      to: '/admin/product/$productId',
-                      params: { productId: prod._id },
-                      state: {
-                        product: prod,
-                      } as CustomHistoryState,
-                    })
-                  }
                 >
                   <th
                     scope="row"
@@ -134,11 +125,12 @@ function AdminHomeComponent() {
                   <td className="px-6 py-4">{prod.price}</td>
                   <td className="px-6 py-4 text-right">
                     <Link
-                      to="/admin/product/edit/$productId"
-                      params={{ productId: 'dummyid' }}
+                      to="/admin/product/$productId"
+                      params={{ productId: prod._id }}
+                      state={{ product: prod } as CustomHistoryState}
                       className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                     >
-                      Edit
+                      View
                     </Link>
                   </td>
                 </tr>

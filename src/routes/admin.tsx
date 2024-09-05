@@ -2,10 +2,12 @@ import { createFileRoute, Outlet } from '@tanstack/react-router';
 import AdminHeader from '../components/AdminHeader';
 import Footer from '../components/Footer';
 import ForbiddenPage from '../components/ForbiddenPage';
+import NotFoundPage from '../components/NotFoundPage';
 import useLocalUser from '../hooks/useLocalUser';
 
 export const Route = createFileRoute('/admin')({
   component: AdminRootComponent,
+  notFoundComponent: NotFoundPage,
 });
 
 function AdminRootComponent() {
