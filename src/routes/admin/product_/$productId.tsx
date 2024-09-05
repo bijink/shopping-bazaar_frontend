@@ -9,13 +9,13 @@ export const Route = createFileRoute('/admin/product/$productId')({
   // loader: ({ params: { productId } }) => {
   //   // if (isNaN(Number(productId))) throw notFound();
   // },
-  component: ProductComponent,
+  component: AdminProductComponent,
   notFoundComponent: () => {
     return <p>Product doesn't exist!</p>;
   },
 });
 
-function ProductComponent() {
+function AdminProductComponent() {
   const { productId } = Route.useParams();
   const location = useLocation();
   const { product: locationStateProductData } = (location.state as CustomHistoryState) || {};

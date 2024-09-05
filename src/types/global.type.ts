@@ -34,7 +34,7 @@ export interface Product {
   highlights: string[];
   images?: string[];
 }
-interface Base64Image {
+export interface Base64Image {
   name: string;
   data: string;
   mimeType: string;

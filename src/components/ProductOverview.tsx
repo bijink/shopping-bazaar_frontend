@@ -2,9 +2,13 @@
 
 import { Radio, RadioGroup } from '@headlessui/react';
 import { PhotoIcon } from '@heroicons/react/24/solid';
+import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { ProductWithBase64Image } from '../types/global.type';
+import { twMerge } from 'tailwind-merge';
+import useLocalUser from '../hooks/useLocalUser';
+import { Base64Image, ProductWithBase64Image } from '../types/global.type';
 import stringOps from '../utils/stringOps';
+import ProductDeleteConfirmation from './ProductDeleteConfirmation';
 
 const product = {
   name: 'Basic Tee 6-Pack',
@@ -64,147 +68,148 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
+function DisplayImageUI({
+  index,
+  image,
+  height,
+}: {
+  index: number;
+  image: Base64Image;
+  height: number;
+}) {
+  return (
+    <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-lg">
+      {image ? (
+        <img
+          src={`data:image/${image.mimeType};base64,${image.data}`}
+          alt={`product-image-${index + 1}`}
+          className={twMerge(
+            'w-full rounded-lg border border-black border-opacity-10 object-cover object-center',
+            `h-[${height}rem]`,
+          )}
+        />
+      ) : (
+        <div
+          role="status"
+          className={twMerge(
+            'flex h-[15rem] max-w-sm items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700',
+            `h-[${height}rem]`,
+          )}
+        >
+          <PhotoIcon className="h-10 w-10 text-gray-200 dark:text-gray-600" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProductOverview({ product2 }: { product2: ProductWithBase64Image }) {
-  // console.log({ product2 });
+  const user = useLocalUser();
+  // console.log({ user, product2 });
 
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
 
+  const [openProductDeleteDialog, setOpenProductDeleteDialog] = useState(false);
+
   return (
     <div className="bg-white">
+      {/* Confirmation dialog for deleting product */}
+      <ProductDeleteConfirmation
+        open={openProductDeleteDialog}
+        setOpen={setOpenProductDeleteDialog}
+        productId={product2._id!}
+      />
       <div className="pt-4">
-        <nav aria-label="Breadcrumb">
-          <ol
-            role="list"
-            className="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8"
-          >
-            <li>
-              <div className="flex items-center">
-                <span className="font-light text-gray-500">&#10098;</span>
-                {product2.suitableFor.map((item, i) => (
-                  <div key={i}>
-                    <a href={'#'} className="mr-2 text-sm font-medium text-gray-900">
-                      {stringOps.capitalizeFirstWord(item)}
-                    </a>
-                    {i !== product2.suitableFor.length - 1 && (
-                      <span className="-ml-2 mr-2">&#44;</span>
-                    )}
-                  </div>
-                ))}
-                <span className="-ml-2 font-light text-gray-500">&#10099;</span>
-                <svg
-                  fill="currentColor"
-                  width={16}
-                  height={20}
-                  viewBox="0 0 16 20"
-                  aria-hidden="true"
-                  className="h-5 w-4 text-gray-300"
-                >
-                  <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
-                </svg>
-              </div>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <a href={'#'} className="mr-2 text-sm font-medium text-gray-900">
-                  {stringOps.capitalizeFirstWord(product2.category)}
+        <div className="flex flex-col justify-between sm:flex-row">
+          <nav aria-label="Breadcrumb">
+            <ol
+              role="list"
+              className="mx-auto flex max-w-2xl flex-wrap items-center space-x-2 px-0 sm:px-6 lg:max-w-7xl lg:px-8"
+            >
+              <li>
+                <div className="flex items-center">
+                  <span className="font-light text-gray-500">&#10098;</span>
+                  {product2.suitableFor.map((item, i) => (
+                    <div key={i}>
+                      <a href={'#'} className="mr-2 text-sm font-medium text-gray-900">
+                        {stringOps.capitalizeFirstWord(item)}
+                      </a>
+                      {i !== product2.suitableFor.length - 1 && (
+                        <span className="-ml-2 mr-2">&#44;</span>
+                      )}
+                    </div>
+                  ))}
+                  <span className="-ml-2 font-light text-gray-500">&#10099;</span>
+                  <svg
+                    fill="currentColor"
+                    width={16}
+                    height={20}
+                    viewBox="0 0 16 20"
+                    aria-hidden="true"
+                    className="h-5 w-4 text-gray-300"
+                  >
+                    <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
+                  </svg>
+                </div>
+              </li>
+              <li>
+                <div className="flex items-center">
+                  <a href={'#'} className="mr-2 text-sm font-medium text-gray-900">
+                    {stringOps.capitalizeFirstWord(product2.category)}
+                  </a>
+                  <svg
+                    fill="currentColor"
+                    width={16}
+                    height={20}
+                    viewBox="0 0 16 20"
+                    aria-hidden="true"
+                    className="h-5 w-4 text-gray-300"
+                  >
+                    <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
+                  </svg>
+                </div>
+              </li>
+              <li className="text-sm">
+                <a aria-current="page" className="font-medium text-gray-500">
+                  {stringOps.capitalizeFirstWord(product2.name)}
                 </a>
-                <svg
-                  fill="currentColor"
-                  width={16}
-                  height={20}
-                  viewBox="0 0 16 20"
-                  aria-hidden="true"
-                  className="h-5 w-4 text-gray-300"
+              </li>
+            </ol>
+          </nav>
+          {user?.role === 'admin' && (
+            <div className="flex justify-end sm:px-6 lg:px-8">
+              <div className="space-x-4">
+                <Link
+                  to="/admin/product/edit/$productId"
+                  params={{ productId: product2._id as string }}
+                  className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500"
                 >
-                  <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
-                </svg>
+                  Edit
+                </Link>
+                <button
+                  onClick={() => setOpenProductDeleteDialog(true)}
+                  className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-500"
+                >
+                  Delete
+                </button>
               </div>
-            </li>
-            <li className="text-sm">
-              <a
-                href={product.href}
-                aria-current="page"
-                className="font-medium text-gray-500 hover:text-gray-600"
-              >
-                {stringOps.capitalizeFirstWord(product2.name)}
-              </a>
-            </li>
-          </ol>
-        </nav>
+            </div>
+          )}
+        </div>
 
         {/* Image gallery */}
         {product2.images.length && (
           <div className="mx-auto mt-6 h-[32rem] max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
-            <div className="aspect-h-4 aspect-w-3 hidden overflow-hidden rounded-lg lg:block">
-              {product2.images[0] ? (
-                <img
-                  src={`data:image/${product2.images[0].mimeType};base64,${product2.images[0].data}`}
-                  alt={product2.images[0].name}
-                  className="h-[32rem] w-full object-cover object-center"
-                />
-              ) : (
-                <div
-                  role="status"
-                  className="flex h-[32rem] max-w-sm items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700"
-                >
-                  <PhotoIcon className="h-10 w-10 text-gray-200 dark:text-gray-600" />
-                  <span className="sr-only">Loading...</span>
-                </div>
-              )}
+            <div className="">
+              <DisplayImageUI index={0} image={product2.images[0]} height={32} />
             </div>
             <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-              <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-                {product2.images[1] ? (
-                  <img
-                    src={`data:image/${product2.images[1].mimeType};base64,${product2.images[1].data}`}
-                    alt={product2.images[1].name}
-                    className="h-[15rem] w-full object-cover object-center"
-                  />
-                ) : (
-                  <div
-                    role="status"
-                    className="flex h-[15rem] max-w-sm items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700"
-                  >
-                    <PhotoIcon className="h-10 w-10 text-gray-200 dark:text-gray-600" />
-                    <span className="sr-only">Loading...</span>
-                  </div>
-                )}
-              </div>
-              <div className="aspect-h-2 aspect-w-3 overflow-hidden rounded-lg">
-                {product2.images[2] ? (
-                  <img
-                    src={`data:image/${product2.images[2].mimeType};base64,${product2.images[2].data}`}
-                    alt={product2.images[2].name}
-                    className="h-[15rem] w-full object-cover object-center"
-                  />
-                ) : (
-                  <div
-                    role="status"
-                    className="flex h-[15rem] max-w-sm items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700"
-                  >
-                    <PhotoIcon className="h-10 w-10 text-gray-200 dark:text-gray-600" />
-                    <span className="sr-only">Loading...</span>
-                  </div>
-                )}
-              </div>
+              <DisplayImageUI index={1} image={product2.images[1]} height={15} />
+              <DisplayImageUI index={2} image={product2.images[2]} height={15} />
             </div>
-            <div className="aspect-h-5 aspect-w-4 lg:aspect-h-4 lg:aspect-w-3 sm:overflow-hidden sm:rounded-lg">
-              {product2.images[3] ? (
-                <img
-                  src={`data:image/${product2.images[3].mimeType};base64,${product2.images[3].data}`}
-                  alt={product2.images[3].name}
-                  className="h-[32rem] w-full object-cover object-center"
-                />
-              ) : (
-                <div
-                  role="status"
-                  className="flex h-[32rem] max-w-sm items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700"
-                >
-                  <PhotoIcon className="h-10 w-10 text-gray-200 dark:text-gray-600" />
-                  <span className="sr-only">Loading...</span>
-                </div>
-              )}
+            <div className="hidden lg:block">
+              <DisplayImageUI index={3} image={product2.images[3]} height={32} />
             </div>
           </div>
         )}
@@ -225,32 +230,6 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
               {product2.price}
             </p>
 
-            {/* Reviews */}
-            {/* <div className="mt-6">
-              <h3 className="sr-only">Reviews</h3>
-              <div className="flex items-center">
-                <div className="flex items-center">
-                  {[0, 1, 2, 3, 4].map((rating) => (
-                    <StarIcon
-                      key={rating}
-                      aria-hidden="true"
-                      className={classNames(
-                        reviews.average > rating ? 'text-gray-900' : 'text-gray-200',
-                        'h-5 w-5 flex-shrink-0',
-                      )}
-                    />
-                  ))}
-                </div>
-                <p className="sr-only">{reviews.average} out of 5 stars</p>
-                <a
-                  href={reviews.href}
-                  className="ml-3 text-sm font-medium text-indigo-600 hover:text-indigo-500"
-                >
-                  {reviews.totalCount} reviews
-                </a>
-              </div>
-            </div> */}
-
             <form className="mt-10">
               {/* Colors */}
               <div>
@@ -262,22 +241,19 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
                     onChange={setSelectedColor}
                     className="flex items-center space-x-3"
                   >
-                    {product.colors.map((color) => (
+                    {product2.colors.map((color) => (
                       <Radio
                         key={color.name}
                         value={color}
                         aria-label={color.name}
-                        className={classNames(
-                          color.selectedClass,
-                          'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none data-[checked]:ring-2 data-[focus]:data-[checked]:ring data-[focus]:data-[checked]:ring-offset-1',
-                        )}
+                        className="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 ring-gray-400 focus:outline-none data-[checked]:ring-2 data-[focus]:data-[checked]:ring data-[focus]:data-[checked]:ring-offset-1"
                       >
                         <span
                           aria-hidden="true"
-                          className={classNames(
-                            color.class,
-                            'h-8 w-8 rounded-full border border-black border-opacity-10',
-                          )}
+                          className="h-8 w-8 rounded-full border border-black border-opacity-10"
+                          style={{ backgroundColor: color.hex }}
+                          data-twe-toggle="tooltip"
+                          title={stringOps.capitalizeFirstWord(color.name)}
                         />
                       </Radio>
                     ))}
@@ -289,9 +265,9 @@ export default function ProductOverview({ product2 }: { product2: ProductWithBas
               <div className="mt-10">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-medium text-gray-900">Size</h3>
-                  <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+                  {/* <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                     Size guide
-                  </a>
+                  </a> */}
                 </div>
 
                 <fieldset aria-label="Choose a size" className="mt-4">
