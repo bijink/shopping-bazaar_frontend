@@ -4,7 +4,7 @@ import {
   useQueryErrorResetBoundary,
   useSuspenseQuery,
 } from '@tanstack/react-query';
-import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import PageLoadingIndicator from '../../components/PageLoadingIndicator';
 import { CustomHistoryState } from '../../types/global.type';
@@ -67,7 +67,6 @@ function AdminHomeErrorComponent({ error }: { error: Error }) {
 function AdminHomeComponent() {
   const { data: products } = useSuspenseQuery(productsQueryOptions);
   // console.log({ products });
-  const navigate = useNavigate({ from: '/admin/' });
 
   return (
     <>

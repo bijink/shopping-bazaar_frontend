@@ -10,6 +10,7 @@ import ImageCrop from '../../../components/ImageCrop';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import { NamedBlob, Product } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
+import stringOps from '../../../utils/stringOps';
 
 export const Route = createFileRoute('/admin/product/add')({
   component: ProductAddComponent,
@@ -18,12 +19,18 @@ export const Route = createFileRoute('/admin/product/add')({
 function ProductAddComponent() {
   const navigate = useNavigate({ from: '/admin/product/add' });
 
+  // #input images fn
+  const [selectedImageFiles, setSelectedImageFiles] = useState<(File | null)[]>([
+    null,
+    null,
+    null,
+    null,
+  ]);
   const blobs = useRef<NamedBlob[] | null[]>([null, null, null, null]);
-  const [selectedImageFile_0, setSelectedImageFile_0] = useState<File | null>(null);
-  const [selectedImageFile_1, setSelectedImageFile_1] = useState<File | null>(null);
-  const [selectedImageFile_2, setSelectedImageFile_2] = useState<File | null>(null);
-  const [selectedImageFile_3, setSelectedImageFile_3] = useState<File | null>(null);
-
+  const handleSelectedImageFiles = (file: File | null, index: number) => {
+    if (file === null) blobs.current[index] = null;
+    setSelectedImageFiles((prevState) => prevState.map((item, i) => (i === index ? file : item)));
+  };
   // #input colors fn
   const [colors, setColors] = useState<{ name: string; hex: string }[]>([]);
   const [colorInputValue, setColorInputValue] = useState('#ffffff');
@@ -52,7 +59,6 @@ function ProductAddComponent() {
     setColors(colors.filter((_, i) => i !== index));
     event.preventDefault();
   };
-  // #/input colors fn
   // #suitableFor select fn
   const [suitableForSelectedOptions, setSuitableForSelectedOptions] = useState<string[]>([]);
   const handleSuitableForCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +73,6 @@ function ProductAddComponent() {
       }
     });
   };
-  // #/suitableFor select fn
   // #size select fn
   const [sizesSelectedOptions, setSizesSelectedOptions] = useState<Product['sizes']>({
     xxs: false,
@@ -83,7 +88,6 @@ function ProductAddComponent() {
     const { name, checked } = event.target;
     setSizesSelectedOptions((prevState) => ({ ...prevState, [name]: checked }));
   };
-  // #/size select fn
   // #highlights list fn
   const [highlightsInputValue, setHighlightsInputValue] = useState('');
   const [highlights, setHighlights] = useState<string[]>([]);
@@ -106,7 +110,6 @@ function ProductAddComponent() {
     setHighlights(highlights.filter((_, i) => i !== index));
     event.preventDefault();
   };
-  // #/highlights list fn
 
   const formSubmitMutation = useMutation({
     mutationFn: (formData: {
@@ -126,6 +129,7 @@ function ProductAddComponent() {
       error.message = error.response?.data?.message || error.message;
     },
   });
+
   const form = useForm({
     defaultValues: {
       name: '',
@@ -186,6 +190,50 @@ function ProductAddComponent() {
       }
     },
   });
+
+  function SuitableForInputCheckboxUI({ value }: { value: string }) {
+    return (
+      <div className="relative flex gap-x-3">
+        <div className="flex h-6 items-center">
+          <input
+            id={value}
+            name={value}
+            type="checkbox"
+            checked={suitableForSelectedOptions.includes(value)}
+            onChange={handleSuitableForCheckboxChange}
+            className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+          />
+        </div>
+        <div className="text-sm leading-6">
+          <label htmlFor={value} className="text-black">
+            {stringOps.capitalizeFirstWord(value)}
+          </label>
+        </div>
+      </div>
+    );
+  }
+  function SizesInputCheckboxUI({ value }: { value: string }) {
+    return (
+      <div className="relative flex gap-x-3">
+        <div className="flex h-6 items-center">
+          <input
+            id={value}
+            name={value}
+            type="checkbox"
+            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+            checked={(sizesSelectedOptions as any)[value]}
+            onChange={handleSizeCheckboxChange}
+            className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+          />
+        </div>
+        <div className="text-sm leading-6">
+          <label htmlFor={value} className="text-black">
+            {stringOps.uppercase(value)}
+          </label>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-0">
@@ -262,57 +310,9 @@ function ProductAddComponent() {
                   <span className="text-red-400"> *</span>
                 </label>
                 <div className="flex flex-wrap [&>*]:pr-8">
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="children"
-                        name="children"
-                        type="checkbox"
-                        checked={suitableForSelectedOptions.includes('children')}
-                        onChange={handleSuitableForCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="children" className="text-black">
-                        Children
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="men"
-                        name="men"
-                        type="checkbox"
-                        checked={suitableForSelectedOptions.includes('men')}
-                        onChange={handleSuitableForCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="men" className="text-black">
-                        Men
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="women"
-                        name="women"
-                        type="checkbox"
-                        checked={suitableForSelectedOptions.includes('women')}
-                        onChange={handleSuitableForCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="women" className="text-black">
-                        Women
-                      </label>
-                    </div>
-                  </div>
+                  <SuitableForInputCheckboxUI value="children" />
+                  <SuitableForInputCheckboxUI value="men" />
+                  <SuitableForInputCheckboxUI value="women" />
                 </div>
               </fieldset>
               {/* size */}
@@ -322,142 +322,14 @@ function ProductAddComponent() {
                   <span className="text-red-400"> *</span>
                 </label>
                 <div className="flex flex-wrap [&>*]:pr-5">
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="xxs"
-                        name="xxs"
-                        type="checkbox"
-                        checked={sizesSelectedOptions['xxs']}
-                        onChange={handleSizeCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="xxs" className="text-black">
-                        XXS
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="xs"
-                        name="xs"
-                        type="checkbox"
-                        checked={sizesSelectedOptions['xs']}
-                        onChange={handleSizeCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="xs" className="text-black">
-                        XS
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="s"
-                        name="s"
-                        type="checkbox"
-                        checked={sizesSelectedOptions['s']}
-                        onChange={handleSizeCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="s" className="text-black">
-                        S
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="m"
-                        name="m"
-                        type="checkbox"
-                        checked={sizesSelectedOptions['m']}
-                        onChange={handleSizeCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="m" className="text-black">
-                        M
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="l"
-                        name="l"
-                        type="checkbox"
-                        checked={sizesSelectedOptions['l']}
-                        onChange={handleSizeCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="l" className="text-black">
-                        L
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="xl"
-                        name="xl"
-                        type="checkbox"
-                        checked={sizesSelectedOptions['xl']}
-                        onChange={handleSizeCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="xl" className="text-black">
-                        XL
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="2xl"
-                        name="2xl"
-                        type="checkbox"
-                        checked={sizesSelectedOptions['2xl']}
-                        onChange={handleSizeCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="2xl" className="text-black">
-                        2XL
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="3xl"
-                        name="3xl"
-                        type="checkbox"
-                        checked={sizesSelectedOptions['3xl']}
-                        onChange={handleSizeCheckboxChange}
-                        className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label htmlFor="3xl" className="text-black">
-                        3XL
-                      </label>
-                    </div>
-                  </div>
+                  <SizesInputCheckboxUI value="xxs" />
+                  <SizesInputCheckboxUI value="xs" />
+                  <SizesInputCheckboxUI value="s" />
+                  <SizesInputCheckboxUI value="m" />
+                  <SizesInputCheckboxUI value="l" />
+                  <SizesInputCheckboxUI value="xl" />
+                  <SizesInputCheckboxUI value="2xl" />
+                  <SizesInputCheckboxUI value="3xl" />
                 </div>
               </fieldset>
               {/* colors */}
@@ -638,240 +510,76 @@ function ProductAddComponent() {
               <span className="text-red-400"> *</span>
             </label>
             <div className="grid grid-cols-12 gap-y-4 lg:gap-x-8 lg:gap-y-8">
-              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
-                {!selectedImageFile_0 && (
-                  <div className="flex h-full w-full items-center justify-center px-6 py-10">
-                    <div>
-                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                        <label
-                          htmlFor="file-upload_0"
-                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                        >
-                          <span>
-                            Upload 1<sup>st</sup> image
-                            <span className="text-red-400"> *</span>
-                          </span>
-                          <input
-                            id="file-upload_0"
-                            name="file-upload_0"
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            required
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files.length > 0) {
-                                setSelectedImageFile_0(e.target.files[0]);
-                              }
-                            }}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <>
-                  {selectedImageFile_0 && (
-                    <div className="relative">
-                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
-                        <XMarkIcon
-                          className="w-5 cursor-pointer text-black"
-                          onClick={() => {
-                            setSelectedImageFile_0(null);
-                            blobs.current[0] = null;
-                          }}
-                        />
+              {selectedImageFiles.map((file, index) => (
+                <div
+                  key={index}
+                  className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6"
+                >
+                  {!file && (
+                    <div className="flex h-full w-full items-center justify-center px-6 py-10">
+                      <div>
+                        <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
+                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                          <label
+                            htmlFor={`file-upload_${index}`}
+                            className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                          >
+                            <span>
+                              Upload {index + 1}
+                              {/* IIFE is used, eg: (["a", "b", "c", "d"])[2] //output: "c" */}
+                              <sup>{['st', 'nd', 'rd', 'th'][index]}</sup> image
+                              <span className="text-red-400"> *</span>
+                            </span>
+                            <input
+                              id={`file-upload_${index}`}
+                              name={`file-upload_${index}`}
+                              type="file"
+                              accept="image/*"
+                              className="sr-only"
+                              // IIFE is used, eg: (["a", "b", "c", "d"])[2] //output: "c"
+                              required={[true, false, false, false][index]}
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files.length > 0) {
+                                  handleSelectedImageFiles(e.target.files[0], index);
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
                       </div>
                     </div>
                   )}
-                  <div
-                    className={twMerge(
-                      'flex h-full items-center justify-center',
-                      selectedImageFile_0 ? 'flex' : 'hidden',
-                    )}
-                  >
-                    <ImageCrop
-                      getBlob={(blob) => (blobs.current[0] = blob)}
-                      aspectValue={3 / 4}
-                      selectedFile={selectedImageFile_0}
-                    />
-                  </div>
-                </>
-              </div>
-              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
-                {!selectedImageFile_1 && (
-                  <div className="flex h-full w-full items-center justify-center px-6 py-10">
-                    <div>
-                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                        <label
-                          htmlFor="file-upload_1"
-                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                        >
-                          <span>
-                            Upload 2<sup>nd</sup> image
-                          </span>
-                          <input
-                            id="file-upload_1"
-                            name="file-upload_1"
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files.length > 0) {
-                                setSelectedImageFile_1(e.target.files[0]);
-                              }
+                  <>
+                    {!!file && (
+                      <div className="relative">
+                        <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
+                          <XMarkIcon
+                            className="w-5 cursor-pointer text-black"
+                            onClick={() => {
+                              handleSelectedImageFiles(null, index);
                             }}
                           />
-                        </label>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                )}
-                <>
-                  {selectedImageFile_1 && (
-                    <div className="relative">
-                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
-                        <XMarkIcon
-                          className="w-5 cursor-pointer text-black"
-                          onClick={() => {
-                            setSelectedImageFile_1(null);
-                            blobs.current[1] = null;
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div
-                    className={twMerge(
-                      'flex h-full items-center justify-center',
-                      selectedImageFile_1 ? 'flex' : 'hidden',
                     )}
-                  >
-                    <ImageCrop
-                      getBlob={(blob) => (blobs.current[1] = blob)}
-                      aspectValue={3 / 2}
-                      selectedFile={selectedImageFile_1}
-                    />
-                  </div>
-                </>
-              </div>
-              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
-                {!selectedImageFile_2 && (
-                  <div className="flex h-full w-full items-center justify-center px-6 py-10">
-                    <div>
-                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                        <label
-                          htmlFor="file-upload_2"
-                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                        >
-                          <span>
-                            Upload 3<sup>rd</sup> image
-                          </span>
-                          <input
-                            id="file-upload_2"
-                            name="file-upload_2"
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files.length > 0) {
-                                setSelectedImageFile_2(e.target.files[0]);
-                              }
-                            }}
-                          />
-                        </label>
-                      </div>
+                    <div
+                      className={twMerge(
+                        'flex h-full items-center justify-center',
+                        file ? 'flex' : 'hidden',
+                      )}
+                    >
+                      <ImageCrop
+                        getBlob={(blob) => {
+                          blobs.current[index] = blob;
+                        }}
+                        // IIFE is used, eg: (["a", "b", "c", "d"])[2] //output: "c"
+                        aspectValue={[3 / 4, 3 / 2, 3 / 2, 3 / 4][index]}
+                        selectedFile={file}
+                      />
                     </div>
-                  </div>
-                )}
-                <>
-                  {selectedImageFile_2 && (
-                    <div className="relative">
-                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
-                        <XMarkIcon
-                          className="w-5 cursor-pointer text-black"
-                          onClick={() => {
-                            setSelectedImageFile_2(null);
-                            blobs.current[2] = null;
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div
-                    className={twMerge(
-                      'flex h-full items-center justify-center',
-                      selectedImageFile_2 ? 'flex' : 'hidden',
-                    )}
-                  >
-                    <ImageCrop
-                      getBlob={(blob) => (blobs.current[2] = blob)}
-                      aspectValue={3 / 2}
-                      selectedFile={selectedImageFile_2}
-                    />
-                  </div>
-                </>
-              </div>
-              <div className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6">
-                {!selectedImageFile_3 && (
-                  <div className="flex h-full w-full items-center justify-center px-6 py-10">
-                    <div>
-                      <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                        <label
-                          htmlFor="file-upload_3"
-                          className="relative cursor-pointer rounded-md font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                        >
-                          <span>
-                            Upload 4<sup>th</sup> image
-                          </span>
-                          <input
-                            id="file-upload_3"
-                            name="file-upload_3"
-                            type="file"
-                            accept="image/*"
-                            className="sr-only"
-                            onChange={(e) => {
-                              if (e.target.files && e.target.files.length > 0) {
-                                setSelectedImageFile_3(e.target.files[0]);
-                              }
-                            }}
-                          />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <>
-                  {selectedImageFile_3 && (
-                    <div className="relative">
-                      <div className="absolute right-1 top-1 z-50 flex aspect-square w-7 items-center justify-center rounded-full border-2 border-black/60 bg-white/60 hover:bg-white/100">
-                        <XMarkIcon
-                          className="w-5 cursor-pointer text-black"
-                          onClick={() => {
-                            setSelectedImageFile_3(null);
-                            blobs.current[3] = null;
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  <div
-                    className={twMerge(
-                      'flex h-full items-center justify-center',
-                      selectedImageFile_3 ? 'flex' : 'hidden',
-                    )}
-                  >
-                    <ImageCrop
-                      getBlob={(blob) => (blobs.current[3] = blob)}
-                      aspectValue={3 / 4}
-                      selectedFile={selectedImageFile_3}
-                    />
-                  </div>
-                </>
-              </div>
+                  </>
+                </div>
+              ))}
             </div>
           </div>
         </div>
