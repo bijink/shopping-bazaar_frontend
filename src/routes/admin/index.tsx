@@ -7,7 +7,6 @@ import {
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import PageLoadingIndicator from '../../components/PageLoadingIndicator';
-import { CustomHistoryState } from '../../types/global.type';
 import { axiosInstance } from '../../utils/axios';
 
 type ProductType = {
@@ -107,7 +106,7 @@ function AdminHomeComponent() {
               </tr>
             </thead>
             <tbody>
-              {products?.map((prod: ProductType) => (
+              {[...products]?.reverse()?.map((prod: ProductType) => (
                 <tr
                   key={prod._id}
                   className="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
@@ -126,7 +125,6 @@ function AdminHomeComponent() {
                     <Link
                       to="/admin/product/$productId"
                       params={{ productId: prod._id }}
-                      state={{ product: prod } as CustomHistoryState}
                       className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                     >
                       View

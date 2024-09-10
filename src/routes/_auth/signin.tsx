@@ -21,7 +21,7 @@ function SigninComponent() {
     },
     onSuccess: (data) => {
       // console.log({ data, variables, context });
-      Cookies.set('token', data.data.token, { expires: 1, secure: true });
+      Cookies.set('token', data.data.token, { expires: 7, secure: true });
       if (data.data.user.role === 'admin') navigate({ to: '/admin' });
       else navigate({ to: '/' });
     },

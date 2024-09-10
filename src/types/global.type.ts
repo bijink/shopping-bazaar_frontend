@@ -1,5 +1,3 @@
-import { HistoryState } from '@tanstack/react-router';
-
 export type User = {
   _id: string;
   role: string;
@@ -41,8 +39,4 @@ export interface Base64Image {
 }
 export interface ProductWithBase64Image extends Omit<Product, 'images'> {
   images: Base64Image[];
-}
-
-export interface CustomHistoryState extends HistoryState {
-  product?: Product;
 }

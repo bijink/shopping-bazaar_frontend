@@ -1,8 +1,8 @@
-import { useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link, notFound, useLocation } from '@tanstack/react-router';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import ProductOverview from '../../../components/ProductOverview';
-import { CustomHistoryState } from '../../../types/global.type';
+import { Product } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
 
 export const Route = createFileRoute('/admin/product/$productId')({
@@ -28,23 +28,22 @@ export const Route = createFileRoute('/admin/product/$productId')({
 
 function AdminProductComponent() {
   const { productId } = Route.useParams();
-  const location = useLocation();
-  const { product: locationStateProductData } = (location.state as CustomHistoryState) || {};
-  const isExactRouteLocation =
-    location.pathname.startsWith('/admin/product') &&
-    location.pathname.slice(1).split('/').length == 3;
+  const queryClient = useQueryClient();
 
   const {
     data: product,
     isLoading: isProductFetchLoading,
     isError: isProductFetchError,
   } = useQuery({
-    queryKey: ['product', productId, locationStateProductData, { status: false }],
+    queryKey: ['product', productId],
     queryFn: () => {
-      if (locationStateProductData) return locationStateProductData;
+      const cachedProducts: Product[] | undefined = queryClient.getQueryData(['admin-products']);
+      const cachedProductData =
+        cachedProducts?.find((prod) => prod._id === productId) ||
+        queryClient.getQueryData(['product', productId]);
+      if (cachedProductData) return cachedProductData;
       else return axiosInstance.get(`/admin/get-product?id=${productId}`).then((res) => res.data);
     },
-    enabled: isExactRouteLocation,
   });
   const {
     data: images,
@@ -52,21 +51,24 @@ function AdminProductComponent() {
     isSuccess: isImagesFetchSuccess,
     isError: isImagesFetchError,
   } = useQuery({
-    queryKey: ['product-images', product?.images],
-    queryFn: () =>
-      axiosInstance
-        .post('/get-multi-images', { images: product?.images }, { timeout: 0 })
-        .then((res) => res.data.images),
-    enabled: !!product?.images,
+    queryKey: ['product-images', productId],
+    queryFn: async () => {
+      const cachedProduct: Product | undefined = queryClient.getQueryData(['product', productId]);
+      return axiosInstance
+        .post('/get-multi-images', { images: cachedProduct?.images }, { timeout: 0 })
+        .then((res) => res.data.images);
+    },
+    enabled: !!product,
   });
 
   const isLoading = isProductFetchLoading || isImagesFetchLoading;
-  const isError = isImagesFetchError || !isExactRouteLocation;
   const isNotFound = !isLoading && isProductFetchError;
+  const isSuccess = isImagesFetchSuccess;
+  const isError = isImagesFetchError;
 
   if (isLoading) return <LoadingSpinner size={8} />;
   if (isNotFound) throw notFound({ routeId: '/admin/product/$productId' });
-  if (isImagesFetchSuccess) return <ProductOverview product2={{ ...product, images }} />;
+  if (isSuccess) return <ProductOverview product={{ ...product, images }} />;
   if (isError)
     return (
       <div className="flex flex-col items-center">
