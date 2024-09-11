@@ -142,7 +142,7 @@ function ProductAddComponent() {
       const formSubmitted = await formSubmitMutation.mutateAsync({
         ...value,
         colors,
-        suitableFor: suitableForSelectedOptions,
+        suitableFor: suitableForSelectedOptions.sort(),
         sizes: sizesSelectedOptions,
         highlights: highlights,
       });
