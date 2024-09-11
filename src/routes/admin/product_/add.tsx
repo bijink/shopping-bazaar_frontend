@@ -8,7 +8,7 @@ import { HexColorPicker } from 'react-colorful';
 import { twMerge } from 'tailwind-merge';
 import ImageCrop from '../../../components/ImageCrop';
 import LoadingSpinner from '../../../components/LoadingSpinner';
-import { NamedBlob, Product } from '../../../types/global.type';
+import { Product } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
 import stringOps from '../../../utils/stringOps';
 
@@ -26,7 +26,7 @@ function ProductAddComponent() {
     null,
     null,
   ]);
-  const blobs = useRef<NamedBlob[] | null[]>([null, null, null, null]);
+  const blobs = useRef<Blob[] | null[]>([null, null, null, null]);
   const handleSelectedImageFiles = (file: File | null, index: number) => {
     if (file === null) blobs.current[index] = null;
     setSelectedImageFiles((prevState) => prevState.map((item, i) => (i === index ? file : item)));
@@ -154,7 +154,7 @@ function ProductAddComponent() {
           blobs.current.forEach((blob, index) => {
             let croppedImgFile: File;
             if (blob) {
-              croppedImgFile = new File([blob], blob.name || `image_${index}.png`, {
+              croppedImgFile = new File([blob], `image_${index}`, {
                 type: blob.type,
               });
             } else croppedImgFile = new File([], 'no-image', { type: undefined });
@@ -528,7 +528,9 @@ function ProductAddComponent() {
                               Upload {index + 1}
                               {/* IIFE is used, eg: (["a", "b", "c", "d"])[2] //output: "c" */}
                               <sup>{['st', 'nd', 'rd', 'th'][index]}</sup> image
-                              <span className="text-red-400"> *</span>
+                              {[true, false, false, false][index] && (
+                                <span className="text-red-400"> *</span>
+                              )}
                             </span>
                             <input
                               id={`file-upload_${index}`}

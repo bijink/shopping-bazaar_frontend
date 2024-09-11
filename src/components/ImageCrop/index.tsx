@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { NamedBlob } from '../../types/global.type';
 import { canvasPreview } from './canvasPreview';
 import croppedImgData from './croppedImgData';
 import { useDebounceEffect } from './useDebounceEffect';
@@ -34,7 +33,7 @@ export default function ImageCrop({
   showPreview,
 }: {
   selectedFile: File | null;
-  getBlob: (blob: NamedBlob) => void;
+  getBlob: (blob: Blob) => void;
   aspectValue?: number;
   enableCircularCrop?: boolean;
   enableScale?: boolean;
@@ -48,12 +47,10 @@ export default function ImageCrop({
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
   const [scale, setScale] = useState(1);
   const [rotate, setRotate] = useState(0);
-  const [imgOriginalName, setImgOriginalName] = useState('');
   const [aspect] = useState<number | undefined>(aspectValue || 16 / 9);
 
   useEffect(() => {
     if (selectedFile) {
-      setImgOriginalName(selectedFile.name);
       setCrop(undefined); // Makes crop preview update between images.
       const reader = new FileReader();
       reader.addEventListener('load', () => setImgSrc(reader.result?.toString() || ''));
@@ -90,11 +87,9 @@ export default function ImageCrop({
         }).then((response) => {
           return response.blob;
         });
-        const namedBlob: NamedBlob = blob;
-        namedBlob.name = imgOriginalName;
-        getBlob(namedBlob);
+        getBlob(blob);
       }
-    }, [completedCrop, scale, rotate, imgOriginalName, getBlob]),
+    }, [completedCrop, scale, rotate, getBlob]),
     100,
     completedCrop,
     scale,

@@ -6,10 +6,6 @@ export type User = {
   email: string;
 };
 
-export interface NamedBlob extends Blob {
-  name?: string;
-}
-
 export interface Product {
   _id?: string;
   name: string;

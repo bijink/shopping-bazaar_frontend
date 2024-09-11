@@ -6,7 +6,6 @@ import Cookies from 'js-cookie';
 import { useRef, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import ImageCrop from '../../components/ImageCrop';
-import { NamedBlob } from '../../types/global.type';
 import { axiosInstance } from '../../utils/axios';
 
 export const Route = createFileRoute('/_auth/signup')({
@@ -17,7 +16,7 @@ function SignupComponent() {
   const navigate = useNavigate({ from: '/signup' });
 
   const [emailInput, setEmailInput] = useState('');
-  const blobs = useRef<NamedBlob | null>(null);
+  const blobs = useRef<Blob | null>(null);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
   const otpSendMutation = useMutation({
@@ -71,7 +70,7 @@ function SignupComponent() {
           // #upload image
           const blobFile = blobs.current;
           const bodyFormData = new FormData();
-          const croppedImgFile = new File([blobFile], blobFile.name || `image_${0}`, {
+          const croppedImgFile = new File([blobFile], `image_${0}`, {
             type: blobFile.type,
           });
           bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
