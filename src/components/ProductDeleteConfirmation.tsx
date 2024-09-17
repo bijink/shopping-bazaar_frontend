@@ -2,6 +2,7 @@
 
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { axiosInstance } from '../utils/axios';
 
@@ -14,12 +15,17 @@ export default function ProductDeleteConfirmation({
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   productId: string;
 }) {
+  const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/admin/product/$productId' });
 
   const handleProductDelete = async () => {
     await axiosInstance.delete(`/admin/delete-product/${productId}`).then(() => {
       setOpen(false);
-      navigate({ to: '/admin' });
+      queryClient.invalidateQueries({ queryKey: ['products', 'admin'] });
+      navigate({ to: '/admin' }).then(() => {
+        queryClient.removeQueries({ queryKey: ['product', productId], exact: true });
+        queryClient.removeQueries({ queryKey: ['product', 'edit', productId], exact: true });
+      });
     });
   };
 

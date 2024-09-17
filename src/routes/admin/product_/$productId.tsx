@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 import ProductOverview from '../../../components/ProductOverview';
-import { Product } from '../../../types/global.type';
+import { Base64Image, Product, ProductWithBase64Image } from '../../../types/global.type';
 import { axiosInstance } from '../../../utils/axios';
 
 export const Route = createFileRoute('/admin/product/$productId')({
@@ -33,43 +33,45 @@ function AdminProductComponent() {
   const {
     data: product,
     isLoading: isProductFetchLoading,
+    isSuccess: isProductFetchSuccess,
     isError: isProductFetchError,
   } = useQuery({
     queryKey: ['product', productId],
-    queryFn: () => {
-      const cachedProducts: Product[] | undefined = queryClient.getQueryData(['admin-products']);
-      const cachedProductData =
-        cachedProducts?.find((prod) => prod._id === productId) ||
-        queryClient.getQueryData(['product', productId]);
-      if (cachedProductData) return cachedProductData;
-      else return axiosInstance.get(`/admin/get-product?id=${productId}`).then((res) => res.data);
-    },
-  });
-  const {
-    data: images,
-    isLoading: isImagesFetchLoading,
-    isSuccess: isImagesFetchSuccess,
-    isError: isImagesFetchError,
-  } = useQuery({
-    queryKey: ['product-images', productId],
     queryFn: async () => {
-      const cachedProduct: Product | undefined = queryClient.getQueryData(['product', productId]);
-      return axiosInstance
-        .post('/get-multi-images', { images: cachedProduct?.images }, { timeout: 0 })
+      // #if ['products', 'admin'] exist and includes the product
+      const cachedAdminProducts: Product[] | undefined = queryClient.getQueryData([
+        'products',
+        'admin',
+      ]);
+      const cachedAdminProduct: Product | undefined = cachedAdminProducts?.find(
+        (prod) => prod._id === productId,
+      );
+      if (cachedAdminProduct) {
+        const imagesForCachedAdminProduct: Base64Image[] = await axiosInstance
+          .post('/get-multi-images', { images: cachedAdminProduct.images }, { timeout: 90000 })
+          .then((res) => res.data.images);
+        const updatedCachedAdminProduct: ProductWithBase64Image = {
+          ...cachedAdminProduct,
+          images: imagesForCachedAdminProduct,
+        };
+        return updatedCachedAdminProduct;
+      }
+      // #if ['products', 'admin'] doesn't exists
+      const product: Product = await axiosInstance
+        .get(`/user/get-product?id=${productId}`)
+        .then((res) => res.data);
+      const imagesForProduct: Base64Image[] = await axiosInstance
+        .post('/get-multi-images', { images: product.images }, { timeout: 90000 })
         .then((res) => res.data.images);
+      const updatedProduct: ProductWithBase64Image = { ...product, images: imagesForProduct };
+      return updatedProduct;
     },
-    enabled: !!product,
+    staleTime: 1000 * 60 * 5,
   });
 
-  const isLoading = isProductFetchLoading || isImagesFetchLoading;
-  const isNotFound = !isLoading && isProductFetchError;
-  const isSuccess = isImagesFetchSuccess;
-  const isError = isImagesFetchError;
-
-  if (isLoading) return <LoadingSpinner size={8} />;
-  if (isNotFound) throw notFound({ routeId: '/admin/product/$productId' });
-  if (isSuccess) return <ProductOverview product={{ ...product, images }} />;
-  if (isError)
+  if (isProductFetchLoading) return <LoadingSpinner size={8} />;
+  if (isProductFetchSuccess) return <ProductOverview product={product} />;
+  if (isProductFetchError)
     return (
       <div className="flex flex-col items-center">
         <p>Something went wrong!</p>

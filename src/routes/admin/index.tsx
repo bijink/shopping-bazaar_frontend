@@ -7,15 +7,8 @@ import {
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { useEffect } from 'react';
 import PageLoadingIndicator from '../../components/PageLoadingIndicator';
+import { Product } from '../../types/global.type';
 import { axiosInstance } from '../../utils/axios';
-
-type ProductType = {
-  _id: string;
-  name: string;
-  category: string;
-  price: number;
-  description: string;
-};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,8 +18,9 @@ const queryClient = new QueryClient({
   },
 });
 const productsQueryOptions = queryOptions({
-  queryKey: ['admin-products'],
-  queryFn: () => axiosInstance.get('/admin/get-all-product').then((res) => res.data),
+  queryKey: ['products', 'admin'],
+  queryFn: () => axiosInstance.get('/user/get-all-product').then((res) => res.data as Product[]),
+  staleTime: 1000 * 60 * 5,
 });
 
 export const Route = createFileRoute('/admin/')({
@@ -106,7 +100,7 @@ function AdminHomeComponent() {
               </tr>
             </thead>
             <tbody>
-              {[...products]?.reverse()?.map((prod: ProductType) => (
+              {[...products]?.reverse()?.map((prod) => (
                 <tr
                   key={prod._id}
                   className="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
@@ -124,7 +118,7 @@ function AdminHomeComponent() {
                   <td className="px-6 py-4 text-right">
                     <Link
                       to="/admin/product/$productId"
-                      params={{ productId: prod._id }}
+                      params={{ productId: prod._id as string }}
                       className="font-medium text-blue-600 hover:underline dark:text-blue-500"
                     >
                       View

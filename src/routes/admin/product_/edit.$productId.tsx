@@ -1,7 +1,13 @@
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import { useForm } from '@tanstack/react-form';
-import { QueryClient, useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  QueryClient,
+  queryOptions,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
@@ -20,23 +26,18 @@ const queryClient = new QueryClient({
     },
   },
 });
+const productsQueryOptions = (productId: string) => {
+  return queryOptions({
+    queryKey: ['product', 'edit', productId],
+    queryFn: () =>
+      axiosInstance.get(`/user/get-product?id=${productId}`).then((res) => res.data as Product),
+    staleTime: 1000 * 60 * 2,
+  });
+};
 
 export const Route = createFileRoute('/admin/product/edit/$productId')({
   loader: ({ params: { productId } }) =>
-    queryClient.ensureQueryData({
-      queryKey: ['product', productId],
-      queryFn: () => {
-        const cachedProducts: Product[] | undefined = queryClient.getQueryData(['admin-products']);
-        const cachedProductData =
-          cachedProducts?.find((prod) => prod._id === productId) ||
-          queryClient.getQueryData<Product>(['product', productId]);
-        if (cachedProductData) return cachedProductData;
-        else
-          return axiosInstance
-            .get(`/admin/get-product?id=${productId}`)
-            .then((res) => res.data as Product);
-      },
-    }),
+    queryClient.ensureQueryData(productsQueryOptions(productId)),
   pendingComponent: PageLoadingIndicator,
   pendingMinMs: 1000,
   component: ProductEditComponent,
@@ -47,20 +48,7 @@ function ProductEditComponent() {
   const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/admin/product/edit/$productId' });
 
-  const { data: product } = useSuspenseQuery({
-    queryKey: ['product', productId],
-    queryFn: () => {
-      const cachedProducts: Product[] | undefined = queryClient.getQueryData(['admin-products']);
-      const cachedProductData =
-        cachedProducts?.find((prod) => prod._id === productId) ||
-        queryClient.getQueryData<Product>(['product', productId]);
-      if (cachedProductData) return cachedProductData;
-      else
-        return axiosInstance
-          .get(`/admin/get-product?id=${productId}`)
-          .then((res) => res.data as Product);
-    },
-  });
+  const { data: product } = useSuspenseQuery(productsQueryOptions(productId));
 
   // #input images fn
   const [isImagesEditOpen, setIsImagesEditOpen] = useState(false);
@@ -159,6 +147,7 @@ function ProductEditComponent() {
       suitableFor?: Product['suitableFor'];
       sizes?: Product['sizes'];
       highlights?: Product['highlights'];
+      images?: Product['images'];
     }) => {
       return axiosInstance.patch(`/admin/edit-product/${productId}`, formData);
     },
@@ -167,6 +156,7 @@ function ProductEditComponent() {
     },
   });
 
+  const [formError, setFormError] = useState<string | null>(null);
   const form = useForm({
     defaultValues: {
       name: product.name,
@@ -176,82 +166,93 @@ function ProductEditComponent() {
       details: product.details,
     },
     onSubmit: async ({ value }) => {
-      const formSubmitted = await formSubmitMutation.mutateAsync({
-        ...value,
-        colors,
-        suitableFor: suitableForSelectedOptions.sort(),
-        sizes: sizesSelectedOptions,
-        highlights: highlights,
-      });
-      try {
-        if (isImagesEditOpen) {
-          if (formSubmitted && blobs.current.length) {
-            // #upload image
-            const bodyFormData = new FormData();
-            blobs.current.forEach((blob, index) => {
-              let croppedImgFile: File;
-              if (blob) {
-                croppedImgFile = new File([blob], `image_${index}`, {
-                  type: blob.type,
-                });
-              } else croppedImgFile = new File([], 'no-image', { type: undefined });
-              bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
+      setFormError(null);
+      if (isImagesEditOpen && blobs.current.length) {
+        // #upload image
+        const bodyFormData = new FormData();
+        blobs.current.forEach((blob, index) => {
+          let croppedImgFile: File;
+          if (blob) {
+            croppedImgFile = new File([blob], `image_${index}`, {
+              type: blob.type,
             });
-            try {
-              await axiosInstance.delete('/delete-image', {
-                data: product?.images,
-              });
-            } finally {
-              const imageUploaded = await axiosInstance({
-                method: 'post',
-                url: `/upload-file/image?for=product&id=${productId}`,
-                data: bodyFormData,
-                headers: {
-                  'Content-Type': 'multipart/form-data',
-                },
-                timeout: 0,
-              });
-              // #insert img reference in user data
-              if (imageUploaded) {
-                const imgFileNames = imageUploaded.data.filenames;
-                if (imgFileNames.length) {
-                  try {
-                    const updatedProductData = await axiosInstance.patch(
-                      `/admin/edit-product/${productId}`,
-                      {
-                        images: imgFileNames,
-                      },
-                    );
-                    // #updating queries with new product data and images
-                    queryClient.setQueryData(['admin-products'], (oldData: Product[]) =>
-                      oldData?.map((prod: Product) =>
-                        prod._id === productId ? updatedProductData.data.product : prod,
-                      ),
-                    );
-                    queryClient.setQueryData(
-                      ['product', productId],
-                      updatedProductData.data.product,
-                    );
-                  } catch (err) {
-                    await axiosInstance.delete('/delete-image', {
-                      data: imgFileNames,
-                    });
-                  }
-                }
+          } else croppedImgFile = new File([], 'no-image', { type: undefined });
+          bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
+        });
+        try {
+          // #delete previous images in db
+          await axiosInstance.delete('/delete-image', {
+            data: product?.images,
+          });
+        } finally {
+          try {
+            // #upload new images to db
+            const imageUploaded = await axiosInstance({
+              method: 'post',
+              url: `/upload-file/image?for=product&id=${productId}`,
+              data: bodyFormData,
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+              timeout: 90000,
+            });
+            // #insert img reference in product data
+            const imgFileNames = imageUploaded?.data?.filenames;
+            if (imgFileNames?.length) {
+              try {
+                const formSubmitted = await formSubmitMutation.mutateAsync({
+                  ...value,
+                  colors,
+                  suitableFor: suitableForSelectedOptions.sort(),
+                  sizes: sizesSelectedOptions,
+                  highlights: highlights,
+                  images: imgFileNames,
+                });
+                // #updating queries with new product data and images
+                queryClient.invalidateQueries({ queryKey: ['product', productId] });
+                queryClient.setQueryData(['products', 'admin'], (oldData: Product[]) =>
+                  oldData?.map((prod) =>
+                    prod._id === productId ? formSubmitted.data.product : prod,
+                  ),
+                );
+
+                navigate({ to: '/admin/product/$productId' }).then(() => {
+                  queryClient.removeQueries({
+                    queryKey: ['product', 'edit'],
+                  });
+                });
+              } catch (err) {
+                await axiosInstance.delete('/delete-image', {
+                  data: imgFileNames,
+                });
               }
             }
+          } catch (err) {
+            setFormError('Submission failed. Please try again');
           }
-        } else {
-          // #updating queries with new product data
-          queryClient.setQueryData(['admin-products'], (oldData: Product[]) =>
-            oldData?.map((prod: Product) =>
-              prod._id === productId ? formSubmitted.data.product : prod,
-            ),
-          );
-          queryClient.setQueryData(['product', productId], formSubmitted.data.product);
         }
-      } finally {
-        navigate({ to: '/admin/product/$productId' });
+      } else {
+        const formSubmitted = await formSubmitMutation.mutateAsync({
+          ...value,
+          colors,
+          suitableFor: suitableForSelectedOptions.sort(),
+          sizes: sizesSelectedOptions,
+          highlights: highlights,
+        });
+        // #updating queries with new product data
+        queryClient.setQueryData(['product', productId], (oldData: Product) => ({
+          ...formSubmitted.data.product,
+          images: oldData.images,
+        }));
+        queryClient.setQueryData(['products', 'admin'], (oldData: Product[]) =>
+          oldData?.map((prod) => (prod._id === productId ? formSubmitted.data.product : prod)),
+        );
+
+        navigate({ to: '/admin/product/$productId' }).then(() => {
+          queryClient.removeQueries({
+            queryKey: ['product', 'edit'],
+          });
+        });
       }
     },
   });
@@ -600,6 +601,9 @@ function ProductEditComponent() {
                                 Upload {index + 1}
                                 {/* IIFE is used, eg: (["a", "b", "c", "d"])[2] //output: "c" */}
                                 <sup>{['st', 'nd', 'rd', 'th'][index]}</sup> image
+                                {[true, false, false, false][index] && (
+                                  <span className="text-red-400"> *</span>
+                                )}
                               </span>
                               <input
                                 id={`file-upload_${index}`}
@@ -608,6 +612,7 @@ function ProductEditComponent() {
                                 accept="image/*"
                                 className="sr-only"
                                 // IIFE is used, eg: (["a", "b", "c", "d"])[2] //output: "c"
+                                required={[true, false, false, false][index]}
                                 onChange={(e) => {
                                   if (e.target.files && e.target.files.length > 0) {
                                     handleSelectedImageFiles(e.target.files[0], index);
@@ -678,6 +683,7 @@ function ProductEditComponent() {
           {formSubmitMutation.isError && (
             <p className="text-sm text-red-500">{formSubmitMutation?.error?.message}</p>
           )}
+          {formError && <p className="text-sm text-red-500">{formError}</p>}
         </div>
       </form>
     </div>

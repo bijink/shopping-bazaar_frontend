@@ -1,7 +1,7 @@
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import { useForm } from '@tanstack/react-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useRef, useState } from 'react';
 import { HexColorPicker } from 'react-colorful';
@@ -17,6 +17,7 @@ export const Route = createFileRoute('/admin/product/add')({
 });
 
 function ProductAddComponent() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/admin/product/add' });
 
   // #input images fn
@@ -185,6 +186,7 @@ function ProductAddComponent() {
             }
           }
         } finally {
+          queryClient.invalidateQueries({ queryKey: ['products', 'admin'] });
           navigate({ to: '/admin' });
         }
       }
