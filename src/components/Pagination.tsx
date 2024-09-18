@@ -2,7 +2,7 @@ import { ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/react/24/outli
 
 export default function Pagination() {
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 bg-white pb-10 pt-3 sm:pb-10 sm:pt-0">
+    <div className="flex items-center justify-between border-t border-gray-200 pb-10 pt-3 sm:pb-10 sm:pt-0">
       <div className="flex flex-1 justify-between sm:hidden">
         <a
           href="#"

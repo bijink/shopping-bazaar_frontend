@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_customer')({
   component: () => (
     <>
       <Header />
-      <main className="container mx-auto min-h-svh">
+      <main className="container mx-auto min-h-svh max-w-2xl px-6 pb-14 pt-5 lg:max-w-7xl lg:px-8">
         <Outlet />
       </main>
       <CartSideDrawer />

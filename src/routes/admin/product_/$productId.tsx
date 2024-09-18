@@ -43,9 +43,7 @@ function AdminProductComponent() {
         'products',
         'admin',
       ]);
-      const cachedAdminProduct: Product | undefined = cachedAdminProducts?.find(
-        (prod) => prod._id === productId,
-      );
+      const cachedAdminProduct = cachedAdminProducts?.find((prod) => prod._id === productId);
       if (cachedAdminProduct) {
         const imagesForCachedAdminProduct: Base64Image[] = await axiosInstance
           .post('/get-multi-images', { images: cachedAdminProduct.images }, { timeout: 90000 })

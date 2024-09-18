@@ -56,7 +56,7 @@ function DisplayImageUI({
         <div
           role="status"
           className={twMerge(
-            'flex h-[15rem] max-w-sm items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700',
+            'flex h-[15rem] items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700',
             `h-[${height}rem]`,
           )}
         >
@@ -77,7 +77,7 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
   const [openProductDeleteDialog, setOpenProductDeleteDialog] = useState(false);
 
   return (
-    <div className="bg-white">
+    <div className="">
       {/* Confirmation dialog for deleting product */}
       <ProductDeleteConfirmation
         open={openProductDeleteDialog}
@@ -85,12 +85,9 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
         productId={product._id!}
       />
       <div className="pt-4">
-        <div className="flex flex-col justify-between sm:flex-row">
+        <div className="mx-auto flex flex-col justify-between sm:flex-row">
           <nav aria-label="Breadcrumb">
-            <ol
-              role="list"
-              className="mx-auto flex max-w-2xl flex-wrap items-center space-x-2 px-0 sm:px-6 lg:max-w-7xl lg:px-8"
-            >
+            <ol role="list" className="mx-auto flex flex-wrap items-center space-x-2">
               <li>
                 <div className="flex items-center">
                   <span className="font-light text-gray-500">&#10098;</span>
@@ -142,7 +139,7 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
             </ol>
           </nav>
           {user?.role === 'admin' && (
-            <div className="flex justify-end sm:px-6 lg:px-8">
+            <div className="flex justify-end">
               <div className="space-x-4">
                 <Link
                   to="/admin/product/edit/$productId"
@@ -164,7 +161,7 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
 
         {/* Image gallery */}
         {!!product.images.length && (
-          <div className="mx-auto mt-6 h-[32rem] max-w-2xl sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:gap-x-8 lg:px-8">
+          <div className="mx-auto mt-6 h-[32rem] lg:grid lg:grid-cols-3 lg:gap-x-8">
             <div className="">
               <DisplayImageUI index={0} image={product.images[0]} height={32} />
             </div>
@@ -179,7 +176,7 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
         )}
 
         {/* Product info */}
-        <div className="mx-auto max-w-2xl px-4 pb-16 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pb-24 lg:pt-16">
+        <div className="mx-auto pb-16 pt-10 lg:grid lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:pb-24 lg:pt-16">
           <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
             <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
               {stringOps.capitalizeFirstWord(product.name)}

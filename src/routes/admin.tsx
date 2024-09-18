@@ -17,7 +17,7 @@ function AdminRootComponent() {
   return (
     <>
       <AdminHeader />
-      <main className="container mx-auto min-h-svh max-w-2xl px-4 pb-14 pt-5 sm:px-6 lg:max-w-7xl lg:px-8">
+      <main className="container mx-auto min-h-svh max-w-2xl px-6 pb-14 pt-5 lg:max-w-7xl lg:px-8">
         <Outlet />
       </main>
       <Footer />
