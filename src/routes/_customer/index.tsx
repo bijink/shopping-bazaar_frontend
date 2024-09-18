@@ -1,6 +1,6 @@
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import PageLoadingIndicator from '../../components/PageLoadingIndicator';
 import Pagination from '../../components/Pagination';
 import ProductQuickview from '../../components/ProductQuickview';
@@ -45,6 +45,8 @@ function HomeComponent() {
   const { data: products } = useSuspenseQuery(productsQueryOptions);
   const { setOpen } = useContext(ProductQuickviewOpenContext)!;
 
+  const [quickviewProduct, setQuickviewProduct] = useState({} as ProductWithBase64Image);
+
   return (
     <>
       {products.length ? (
@@ -62,6 +64,7 @@ function HomeComponent() {
                     <button
                       onClick={(e) => {
                         e.preventDefault();
+                        setQuickviewProduct(prod);
                         setOpen(true);
                       }}
                       className="absolute bottom-0 left-0 mb-[5%] ml-[10%] w-[80%] rounded-md bg-white bg-opacity-75 px-4 py-2 text-sm text-gray-800 opacity-0 group-hover:opacity-100"
@@ -97,7 +100,7 @@ function HomeComponent() {
           <div className="flex items-center justify-center">Product list is empty</div>
         </div>
       )}
-      <ProductQuickview />
+      {!!Object.keys(quickviewProduct).length && <ProductQuickview product={quickviewProduct} />}
     </>
   );
 }

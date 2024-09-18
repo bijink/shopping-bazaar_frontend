@@ -28,10 +28,6 @@ const dummyProduct = {
   ],
 };
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
-}
-
 function DisplayImageUI({
   index,
   image,
@@ -237,19 +233,19 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
                     onChange={setSelectedSize}
                     className="grid grid-cols-4 gap-4 sm:grid-cols-8 lg:grid-cols-4"
                   >
-                    {Object.entries(product.sizes).map(([name, inStock]) => (
+                    {Object.entries(product.sizes).map(([size, inStock]) => (
                       <Radio
-                        key={name}
-                        value={name} //!:
+                        key={size}
+                        value={size} //!:
                         disabled={!inStock}
-                        className={classNames(
+                        className={twMerge(
+                          'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
                           inStock
                             ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
                             : 'cursor-not-allowed bg-gray-50 text-gray-200',
-                          'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
                         )}
                       >
-                        <span>{name}</span>
+                        <span>{size}</span>
                         {inStock ? (
                           <span
                             aria-hidden="true"

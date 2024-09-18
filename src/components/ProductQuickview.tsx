@@ -1,19 +1,14 @@
 'use client';
 
 import { Dialog, DialogBackdrop, DialogPanel, Radio, RadioGroup } from '@headlessui/react';
-import { StarIcon } from '@heroicons/react/20/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useContext, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { ProductQuickviewOpenContext } from '../contexts';
+import { ProductWithBase64Image } from '../types/global.type';
+import stringOps from '../utils/stringOps';
 
-const product = {
-  name: 'Basic Tee 6-Pack ',
-  price: '$192',
-  rating: 3.9,
-  reviewCount: 117,
-  href: '#',
-  imageSrc: 'https://tailwindui.com/img/ecommerce-images/product-quick-preview-02-detail.jpg',
-  imageAlt: 'Two each of gray, white, and black shirts arranged on table.',
+const dummyProduct = {
   colors: [
     { name: 'White', class: 'bg-white', selectedClass: 'ring-gray-400' },
     { name: 'Gray', class: 'bg-gray-200', selectedClass: 'ring-gray-400' },
@@ -31,15 +26,11 @@ const product = {
   ],
 };
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
-}
-
-export default function ProductQuickview() {
+export default function ProductQuickview({ product }: { product: ProductWithBase64Image }) {
   const { open, setOpen } = useContext(ProductQuickviewOpenContext)!;
 
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[2]);
+  const [selectedColor, setSelectedColor] = useState(dummyProduct.colors[0]);
+  const [selectedSize, setSelectedSize] = useState(dummyProduct.sizes[2]);
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">
@@ -67,8 +58,8 @@ export default function ProductQuickview() {
               <div className="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
                 <div className="aspect-h-3 aspect-w-2 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5">
                   <img
-                    alt={product.imageAlt}
-                    src={product.imageSrc}
+                    src={`data:image/${product.images[0].mimeType};base64,${product.images[0].data}`}
+                    alt={`product-${product.name}`}
                     className="object-cover object-center"
                   />
                 </div>
@@ -80,10 +71,13 @@ export default function ProductQuickview() {
                       Product information
                     </h3>
 
-                    <p className="text-2xl text-gray-900">{product.price}</p>
+                    <p className="text-2xl text-gray-900">
+                      <span>&#8377;</span>
+                      {product.price}
+                    </p>
 
                     {/* Reviews */}
-                    <div className="mt-6">
+                    {/* <div className="mt-6">
                       <h4 className="sr-only">Reviews</h4>
                       <div className="flex items-center">
                         <div className="flex items-center">
@@ -106,7 +100,7 @@ export default function ProductQuickview() {
                           {product.reviewCount} reviews
                         </a>
                       </div>
-                    </div>
+                    </div> */}
                   </section>
 
                   <section aria-labelledby="options-heading" className="mt-10">
@@ -129,17 +123,14 @@ export default function ProductQuickview() {
                               key={color.name}
                               value={color}
                               aria-label={color.name}
-                              className={classNames(
-                                color.selectedClass,
-                                'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 focus:outline-none data-[checked]:ring-2 data-[focus]:data-[checked]:ring data-[focus]:data-[checked]:ring-offset-1',
-                              )}
+                              className="relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 ring-gray-400 focus:outline-none data-[checked]:ring-2 data-[focus]:data-[checked]:ring data-[focus]:data-[checked]:ring-offset-1"
                             >
                               <span
                                 aria-hidden="true"
-                                className={classNames(
-                                  color.class,
-                                  'h-8 w-8 rounded-full border border-black border-opacity-10',
-                                )}
+                                className="h-8 w-8 rounded-full border border-black border-opacity-10"
+                                style={{ backgroundColor: color.hex }}
+                                data-twe-toggle="tooltip"
+                                title={stringOps.capitalizeFirstWord(color.name)}
                               />
                             </Radio>
                           ))}
@@ -150,12 +141,12 @@ export default function ProductQuickview() {
                       <fieldset aria-label="Choose a size" className="mt-10">
                         <div className="flex items-center justify-between">
                           <div className="text-sm font-medium text-gray-900">Size</div>
-                          <a
+                          {/* <a
                             href="#"
                             className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
                           >
                             Size guide
-                          </a>
+                          </a> */}
                         </div>
 
                         <RadioGroup
@@ -163,20 +154,20 @@ export default function ProductQuickview() {
                           onChange={setSelectedSize}
                           className="mt-4 grid grid-cols-4 gap-4"
                         >
-                          {product.sizes.map((size) => (
+                          {Object.entries(product.sizes).map(([size, inStock]) => (
                             <Radio
-                              key={size.name}
-                              value={size}
-                              disabled={!size.inStock}
-                              className={classNames(
-                                size.inStock
+                              key={size}
+                              value={size} //!:
+                              disabled={!inStock}
+                              className={twMerge(
+                                'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1',
+                                inStock
                                   ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
                                   : 'cursor-not-allowed bg-gray-50 text-gray-200',
-                                'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1',
                               )}
                             >
-                              <span>{size.name}</span>
-                              {size.inStock ? (
+                              <span>{size}</span>
+                              {inStock ? (
                                 <span
                                   aria-hidden="true"
                                   className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-indigo-500"
