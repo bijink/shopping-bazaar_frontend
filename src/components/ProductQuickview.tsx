@@ -2,35 +2,45 @@
 
 import { Dialog, DialogBackdrop, DialogPanel, Radio, RadioGroup } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useMutation } from '@tanstack/react-query';
 import { useContext, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { ProductQuickviewOpenContext } from '../contexts';
+import { ProductQuickviewOpenContext, ToastContext } from '../contexts';
+import useLocalUser from '../hooks/useLocalUser';
 import { ProductWithBase64Image } from '../types/global.type';
+import { axiosInstance } from '../utils/axios';
 import stringOps from '../utils/stringOps';
 
-const dummyProduct = {
-  colors: [
-    { name: 'White', class: 'bg-white', selectedClass: 'ring-gray-400' },
-    { name: 'Gray', class: 'bg-gray-200', selectedClass: 'ring-gray-400' },
-    { name: 'Black', class: 'bg-gray-900', selectedClass: 'ring-gray-900' },
-  ],
-  sizes: [
-    { name: 'XXS', inStock: true },
-    { name: 'XS', inStock: true },
-    { name: 'S', inStock: true },
-    { name: 'M', inStock: true },
-    { name: 'L', inStock: true },
-    { name: 'XL', inStock: true },
-    { name: 'XXL', inStock: true },
-    { name: 'XXXL', inStock: false },
-  ],
-};
-
 export default function ProductQuickview({ product }: { product: ProductWithBase64Image }) {
-  const { open, setOpen } = useContext(ProductQuickviewOpenContext)!;
+  const user = useLocalUser();
 
-  const [selectedColor, setSelectedColor] = useState(dummyProduct.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(dummyProduct.sizes[2]);
+  const { open, setOpen } = useContext(ProductQuickviewOpenContext)!;
+  const { setTriggerToast, toastCount, setToastCount, setToastMessage } = useContext(ToastContext)!;
+
+  const [selectedColor, setSelectedColor] = useState<null | { name: string; hex: string }>(null);
+  const [selectedSize, setSelectedSize] = useState<null | string>(null);
+
+  const formSubmitMutation = useMutation({
+    mutationFn: (formData: { color: { name: string; hex: string }; size: string }) => {
+      return axiosInstance.post(`/customer/add-to-cart/${user?._id}/${product._id}`, formData);
+    },
+    onError: (error) => {
+      error.message = error.response?.data?.message || error.message;
+    },
+    onSuccess: () => {
+      setTriggerToast(true);
+      setToastMessage(`${toastCount} item added to cart`);
+      setToastCount((prev) => ++prev);
+      setSelectedColor(null);
+      setSelectedSize(null);
+    },
+  });
+
+  const handleAddToCartSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (selectedColor && selectedSize)
+      formSubmitMutation.mutate({ color: selectedColor, size: selectedSize });
+  };
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">
@@ -108,7 +118,7 @@ export default function ProductQuickview({ product }: { product: ProductWithBase
                       Product options
                     </h3>
 
-                    <form>
+                    <form onSubmit={handleAddToCartSubmit}>
                       {/* Colors */}
                       <fieldset aria-label="Choose a color">
                         <legend className="text-sm font-medium text-gray-900">Color</legend>
@@ -157,7 +167,7 @@ export default function ProductQuickview({ product }: { product: ProductWithBase
                           {Object.entries(product.sizes).map(([size, inStock]) => (
                             <Radio
                               key={size}
-                              value={size} //!:
+                              value={size}
                               disabled={!inStock}
                               className={twMerge(
                                 'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1',
@@ -200,6 +210,7 @@ export default function ProductQuickview({ product }: { product: ProductWithBase
 
                       <button
                         type="submit"
+                        disabled={!selectedColor || !selectedSize}
                         className="mt-6 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                       >
                         Add to cart

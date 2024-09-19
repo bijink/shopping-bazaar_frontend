@@ -6,13 +6,16 @@ import {
   ProductQuickviewOpenContext,
   ProductQuickviewOpenProvider,
 } from './productQuickviewOpen.context';
+import { ToastContext, ToastProvider } from './toast.context';
 
 export default function ContextProviders({ children }: { children: React.ReactNode }) {
   return (
     <CartSideDrawerOpenProvider>
-      <ProductQuickviewOpenProvider>{children}</ProductQuickviewOpenProvider>
+      <ProductQuickviewOpenProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </ProductQuickviewOpenProvider>
     </CartSideDrawerOpenProvider>
   );
 }
 
-export { CartSideDrawerOpenContext, ProductQuickviewOpenContext };
+export { CartSideDrawerOpenContext, ProductQuickviewOpenContext, ToastContext };

@@ -2,31 +2,16 @@
 
 import { Radio, RadioGroup } from '@headlessui/react';
 import { PhotoIcon } from '@heroicons/react/24/solid';
+import { useMutation } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { ToastContext } from '../contexts';
 import useLocalUser from '../hooks/useLocalUser';
 import { Base64Image, ProductWithBase64Image } from '../types/global.type';
+import { axiosInstance } from '../utils/axios';
 import stringOps from '../utils/stringOps';
 import ProductDeleteConfirmation from './ProductDeleteConfirmation';
-
-const dummyProduct = {
-  colors: [
-    { name: 'White', class: 'bg-white', selectedClass: 'ring-gray-400' },
-    { name: 'Gray', class: 'bg-gray-200', selectedClass: 'ring-gray-400' },
-    { name: 'Black', class: 'bg-gray-900', selectedClass: 'ring-gray-900' },
-  ],
-  sizes: [
-    { name: 'XXS', inStock: false },
-    { name: 'XS', inStock: true },
-    { name: 'S', inStock: true },
-    { name: 'M', inStock: true },
-    { name: 'L', inStock: true },
-    { name: 'XL', inStock: true },
-    { name: '2XL', inStock: true },
-    { name: '3XL', inStock: true },
-  ],
-};
 
 function DisplayImageUI({
   index,
@@ -65,12 +50,34 @@ function DisplayImageUI({
 
 export default function ProductOverview({ product }: { product: ProductWithBase64Image }) {
   const user = useLocalUser();
-  // console.log({ user, product });
 
-  const [selectedColor, setSelectedColor] = useState(dummyProduct.colors[0]);
-  const [selectedSize, setSelectedSize] = useState(dummyProduct.sizes[2]);
+  const { setTriggerToast, toastCount, setToastCount, setToastMessage } = useContext(ToastContext)!;
 
   const [openProductDeleteDialog, setOpenProductDeleteDialog] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<null | { name: string; hex: string }>(null);
+  const [selectedSize, setSelectedSize] = useState<null | string>(null);
+
+  const formSubmitMutation = useMutation({
+    mutationFn: (formData: { color: { name: string; hex: string }; size: string }) => {
+      return axiosInstance.post(`/customer/add-to-cart/${user?._id}/${product._id}`, formData);
+    },
+    onError: (error) => {
+      error.message = error.response?.data?.message || error.message;
+    },
+    onSuccess: () => {
+      setTriggerToast(true);
+      setToastMessage(`${toastCount} item added to cart`);
+      setToastCount((prev) => ++prev);
+      setSelectedColor(null);
+      setSelectedSize(null);
+    },
+  });
+
+  const handleAddToCartSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (selectedColor && selectedSize)
+      formSubmitMutation.mutate({ color: selectedColor, size: selectedSize });
+  };
 
   return (
     <div className="">
@@ -187,7 +194,7 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
               {product.price}
             </p>
 
-            <form className="mt-10">
+            <form className="mt-10" onSubmit={handleAddToCartSubmit}>
               {/* Colors */}
               <div>
                 <h3 className="text-sm font-medium text-gray-900">Color</h3>
@@ -236,7 +243,7 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
                     {Object.entries(product.sizes).map(([size, inStock]) => (
                       <Radio
                         key={size}
-                        value={size} //!:
+                        value={size}
                         disabled={!inStock}
                         className={twMerge(
                           'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
@@ -280,7 +287,8 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
 
               <button
                 type="submit"
-                className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                disabled={!selectedColor || !selectedSize}
+                className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-500"
               >
                 Add to cart
               </button>
