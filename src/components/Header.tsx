@@ -292,11 +292,13 @@ export default function Header({
   noSearch,
   noCart,
   noAccount,
+  cartCount,
 }: {
   noSearch?: boolean;
   noAdminKey?: boolean;
   noCart?: boolean;
   noAccount?: boolean;
+  cartCount: number;
 }) {
   const [open, setOpen] = useState(false);
   const [openSignoutDialog, setOpenSignoutDialog] = useState(false);
@@ -512,9 +514,9 @@ export default function Header({
                       >
                         <span className="sr-only">Cart</span>
                         <ShoppingCartIcon aria-hidden="true" className="h-6 w-6 flex-shrink-0" />
-                        {!noCart && (
+                        {!noCart && !!cartCount && (
                           <div className="absolute -end-[0px] top-[3px] inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white dark:text-black">
-                            20
+                            {cartCount}
                           </div>
                         )}
                       </button>

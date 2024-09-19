@@ -2,7 +2,7 @@
 
 import { Radio, RadioGroup } from '@headlessui/react';
 import { PhotoIcon } from '@heroicons/react/24/solid';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useContext, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
@@ -26,7 +26,7 @@ function DisplayImageUI({
     <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-lg">
       {image ? (
         <img
-          src={`data:image/${image.mimeType};base64,${image.data}`}
+          src={`data:${image.mimeType};base64,${image.data}`}
           alt={`product-image-${index + 1}`}
           className={twMerge(
             'w-full rounded-lg border border-black border-opacity-10 object-cover object-center',
@@ -50,6 +50,7 @@ function DisplayImageUI({
 
 export default function ProductOverview({ product }: { product: ProductWithBase64Image }) {
   const user = useLocalUser();
+  const queryClient = useQueryClient();
 
   const { setTriggerToast, toastCount, setToastCount, setToastMessage } = useContext(ToastContext)!;
 
@@ -70,6 +71,9 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
       setToastCount((prev) => ++prev);
       setSelectedColor(null);
       setSelectedSize(null);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['cart'], refetchType: 'all' });
     },
   });
 

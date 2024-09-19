@@ -57,7 +57,7 @@ function HomeComponent() {
                 <Link from="/" to="/product/$productId" params={{ productId: prod._id as string }}>
                   <div className="aspect-w-1 xl:aspect-w-7 relative h-[40rem] w-full overflow-hidden rounded-lg bg-gray-200 sm:h-[20rem]">
                     <img
-                      src={`data:image/${prod.images[0].mimeType};base64,${prod.images[0].data}`}
+                      src={`data:${prod.images[0].mimeType};base64,${prod.images[0].data}`}
                       alt={`product-${prod.name}`}
                       className="h-full w-full object-cover object-center group-hover:opacity-75"
                     />

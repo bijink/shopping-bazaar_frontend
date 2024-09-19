@@ -36,3 +36,21 @@ export interface Base64Image {
 export interface ProductWithBase64Image extends Omit<Product, 'images'> {
   images: Base64Image[];
 }
+
+export interface CartItem {
+  _id?: string;
+  name: string;
+  suitableFor: string[];
+  category: string;
+  price: number;
+  description: string;
+  details: string;
+  highlights: string[];
+  size: string;
+  color: { name: string; hex: string };
+  image: string;
+  quantity: number;
+}
+export interface CartItemWithBase64Image extends Omit<CartItem, 'image'> {
+  image: Base64Image;
+}

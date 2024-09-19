@@ -2,7 +2,7 @@
 
 import { Dialog, DialogBackdrop, DialogPanel, Radio, RadioGroup } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useContext, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { ProductQuickviewOpenContext, ToastContext } from '../contexts';
@@ -13,6 +13,7 @@ import stringOps from '../utils/stringOps';
 
 export default function ProductQuickview({ product }: { product: ProductWithBase64Image }) {
   const user = useLocalUser();
+  const queryClient = useQueryClient();
 
   const { open, setOpen } = useContext(ProductQuickviewOpenContext)!;
   const { setTriggerToast, toastCount, setToastCount, setToastMessage } = useContext(ToastContext)!;
@@ -33,6 +34,9 @@ export default function ProductQuickview({ product }: { product: ProductWithBase
       setToastCount((prev) => ++prev);
       setSelectedColor(null);
       setSelectedSize(null);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['cart'], refetchType: 'all' });
     },
   });
 
@@ -68,7 +72,7 @@ export default function ProductQuickview({ product }: { product: ProductWithBase
               <div className="grid w-full grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-12 lg:gap-x-8">
                 <div className="aspect-h-3 aspect-w-2 overflow-hidden rounded-lg bg-gray-100 sm:col-span-4 lg:col-span-5">
                   <img
-                    src={`data:image/${product.images[0].mimeType};base64,${product.images[0].data}`}
+                    src={`data:${product.images[0].mimeType};base64,${product.images[0].data}`}
                     alt={`product-${product.name}`}
                     className="object-cover object-center"
                   />
