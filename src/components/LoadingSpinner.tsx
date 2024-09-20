@@ -4,7 +4,7 @@ export default function LoadingSpinner({
   size = 6,
   styles = '',
 }: {
-  size: number;
+  size?: number;
   styles?: string;
 }) {
   return (

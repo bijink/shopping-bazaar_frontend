@@ -1,55 +1,202 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import CartItem from '../../components/CartItem';
+import { useState } from 'react';
+import CartItemRemoveConfirmation from '../../components/CartItemRemoveConfirmation';
+import LoadingSpinner from '../../components/LoadingSpinner';
+import useLocalUser from '../../hooks/useLocalUser';
+import { CartItem, CartItemWithBase64Image } from '../../types/global.type';
+import { axiosInstance } from '../../utils/axios';
+import stringOps from '../../utils/stringOps';
 
 export const Route = createFileRoute('/_customer/cart')({
   component: CartComponent,
 });
 
 function CartComponent() {
+  const user = useLocalUser();
+  const queryClient = useQueryClient();
+
+  const [removingCartItemId, setRemovingCartItemId] = useState('');
+  const [cartItemRmConfirmDialogOpen, setCartItemRmConfirmDialogOpen] = useState(false);
+
+  const { data: cartItems, isLoading: isCartItemsLoading } = useQuery({
+    queryKey: ['cart', user?._id],
+    queryFn: async () => {
+      const cartItems: CartItem[] = await axiosInstance
+        .get(`/customer/get-cart-items/${user?._id}`)
+        .then((res) => res.data.items);
+      if (!cartItems) return null;
+      const updatedCartItems: CartItemWithBase64Image[] = await Promise.all(
+        cartItems.map(async (item) => {
+          const image = await axiosInstance
+            .get(`/get-image/${item.image}`, { timeout: 90000 })
+            .then((res) => res.data);
+          return { ...item, image };
+        }),
+      );
+      return updatedCartItems;
+    },
+    staleTime: 1000 * 60 * 5,
+    enabled: !!user && user.role === 'customer',
+  });
+  const { data: cartTotalAmout } = useQuery({
+    queryKey: ['cart', 'total-amount', user?._id],
+    queryFn: () =>
+      axiosInstance
+        .get(`/customer/get-cart-amount/${user?._id}`)
+        .then((res) => res.data.total_amount),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!user && user.role === 'customer',
+  });
+
+  const changeCartItemQuantityMutation = useMutation({
+    mutationFn: (param: { cartItemId: string; count: number }) => {
+      return axiosInstance.patch(
+        `/customer/change-cart-item-quantity?userId=${user?._id}&cartItemId=${param.cartItemId}&count=${param.count}`,
+      );
+    },
+    onError: (error) => {
+      error.message = error.response?.data?.message || error.message;
+    },
+    onSuccess: () => {},
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['cart'], refetchType: 'all' });
+    },
+  });
+
+  const handleCartItemRmBtn = async (itemId: string) => {
+    setRemovingCartItemId(itemId);
+    setCartItemRmConfirmDialogOpen(true);
+  };
+
+  function CartItemDetailsUI({ itemDetails }: { itemDetails: CartItemWithBase64Image }) {
+    return (
+      <>
+        <h2 className="text-lg font-bold text-gray-900">{itemDetails.name}</h2>
+        <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500">
+          <p className="">Color:</p>
+          <p className="font-semibold">{stringOps.capitalizeFirstWord(itemDetails.color.name)}</p>
+        </div>
+        <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500">
+          <p className="">Size:</p>
+          <p className="font-semibold">{stringOps.uppercase(itemDetails.size)}</p>
+        </div>
+      </>
+    );
+  }
+
   return (
-    <section>
-      <div className="px-8 pb-16 pt-12">
-        <h1 className="mx-auto mb-10 max-w-2xl px-4 text-2xl font-bold tracking-tight text-gray-900 sm:px-6 sm:text-3xl lg:max-w-7xl lg:px-8">
-          Cart Items
-        </h1>
-        <div className="mx-auto max-w-2xl justify-center px-4 sm:px-6 md:flex md:space-x-12 lg:max-w-7xl lg:px-8">
-          {/* Cart list item */}
-          <div className="border-t-[1px] border-t-gray-200 md:w-2/3">
-            {[...Array(10)].map(() => (
-              <CartItem />
-            ))}
-          </div>
-          <div className="sticky top-10 mt-6 h-full rounded-lg bg-gray-50 p-6 md:mt-0 md:w-1/3">
-            <div className="mb-2 flex justify-between">
-              <p className="text-gray-700">Subtotal</p>
-              <p className="text-gray-700">$129.99</p>
-            </div>
-            <div className="flex justify-between">
-              <p className="text-gray-700">Shipping</p>
-              <p className="text-gray-700">$4.99</p>
-            </div>
-            <hr className="my-4" />
-            <div className="flex justify-between">
-              <p className="text-lg font-bold">Total</p>
-              <div className="">
-                <p className="mb-1 text-lg font-bold">$134.98 USD</p>
-                <p className="text-sm text-gray-700">including VAT</p>
+    <>
+      <CartItemRemoveConfirmation
+        open={removingCartItemId.length ? cartItemRmConfirmDialogOpen : false}
+        setOpen={setCartItemRmConfirmDialogOpen}
+        itemId={removingCartItemId}
+      />
+      <div className="pt-4">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Cart Items</h1>
+        <div className="pt-8">
+          {!isCartItemsLoading && cartItems?.length ? (
+            <div className="flex flex-col justify-center lg:flex-row lg:space-x-12">
+              {/* Cart-item list */}
+              <div className="border-t-[1px] border-t-gray-200 lg:w-2/3">
+                {cartItems.map((item) => (
+                  <div
+                    key={item._id}
+                    className="border-b-[1px] border-b-gray-200 px-3 py-8 sm:py-10 lg:px-0"
+                  >
+                    <div className="flex flex-row justify-between">
+                      <img
+                        src={`data:${item.image.mimeType};base64,${item.image.data}`}
+                        alt={`product-${item.name}`}
+                        className="h-48 w-44 rounded-md object-cover object-center"
+                      />
+                      <div className="ml-1 flex w-full flex-row justify-end sm:ml-4 sm:justify-between">
+                        <div className="hidden sm:block">
+                          <CartItemDetailsUI itemDetails={item} />
+                        </div>
+                        <div className="flex flex-col justify-between">
+                          <div className="flex flex-row justify-end">
+                            <p className="text-md">
+                              <span>&#8377;</span>
+                              {item.price}
+                            </p>
+                          </div>
+                          <div className="flex flex-row items-center justify-end border-gray-100">
+                            <button
+                              onClick={() => {
+                                if (item.quantity === 1) handleCartItemRmBtn(item._id as string);
+                                else
+                                  changeCartItemQuantityMutation.mutate({
+                                    cartItemId: item._id as string,
+                                    count: -1,
+                                  });
+                              }}
+                              className="cursor-pointer rounded-l bg-gray-100 px-3.5 py-1 duration-100 hover:bg-indigo-600 hover:text-white"
+                            >
+                              -
+                            </button>
+                            <span className="bg-gray-200 px-3 py-1">{item.quantity}</span>
+                            <button
+                              onClick={() =>
+                                changeCartItemQuantityMutation.mutate({
+                                  cartItemId: item._id as string,
+                                  count: 1,
+                                })
+                              }
+                              className="cursor-pointer rounded-r bg-gray-100 px-3 py-1 duration-100 hover:bg-indigo-600 hover:text-white"
+                            >
+                              +
+                            </button>
+                          </div>
+                          <div className="flex flex-row justify-end">
+                            <button
+                              type="button"
+                              onClick={() => handleCartItemRmBtn(item._id as string)}
+                              className="font-medium text-indigo-600 hover:text-indigo-500"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 block sm:hidden">
+                      <CartItemDetailsUI itemDetails={item} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* cart checkout */}
+              <div className="sticky top-10 mt-6 h-full rounded-lg bg-gray-50 px-3 py-6 lg:mt-0 lg:w-1/3 lg:px-6 lg:py-10">
+                <div className="flex justify-between text-lg font-bold text-gray-600">
+                  <p className="">Total no.of items</p>
+                  <p className="mb-1">{cartItems.length}</p>
+                </div>
+                <div className="flex justify-between text-lg font-bold">
+                  <p className="">Total amount</p>
+                  <p className="mb-1">
+                    <span>&#8377;&nbsp;</span>
+                    {cartTotalAmout}
+                  </p>
+                </div>
+                {/* <button className="mt-6 w-full rounded-md bg-blue-500 py-1.5 font-medium text-blue-50 hover:bg-blue-600">
+                Check out
+              </button> */}
+                <div className="mt-6">
+                  <a
+                    href="#"
+                    className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                  >
+                    Checkout
+                  </a>
+                </div>
               </div>
             </div>
-            {/* <button className="mt-6 w-full rounded-md bg-blue-500 py-1.5 font-medium text-blue-50 hover:bg-blue-600">
-              Check out
-            </button> */}
-            <div className="mt-6">
-              <a
-                href="#"
-                className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-              >
-                Checkout
-              </a>
-            </div>
-          </div>
+          ) : (
+            <>{isCartItemsLoading ? <LoadingSpinner /> : <p>Cart is empty</p>}</>
+          )}
         </div>
       </div>
-    </section>
+    </>
   );
 }

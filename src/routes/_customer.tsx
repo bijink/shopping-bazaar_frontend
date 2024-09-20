@@ -37,6 +37,7 @@ function CustomerRootComponent() {
       return updatedCartItems;
     },
     staleTime: 1000 * 60 * 5,
+    enabled: !!user && user.role === 'customer',
   });
 
   useEffect(() => {

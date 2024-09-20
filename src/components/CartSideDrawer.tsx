@@ -25,6 +25,7 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
         .get(`/customer/get-cart-amount/${user?._id}`)
         .then((res) => res.data.total_amount),
     staleTime: 1000 * 60 * 5,
+    enabled: !!user && user.role === 'customer',
   });
 
   const handleRemoveItemFromCart = async (itemId: string) => {
