@@ -6,25 +6,21 @@ import { useQueryClient } from '@tanstack/react-query';
 import useLocalUser from '../hooks/useLocalUser';
 import { axiosInstance } from '../utils/axios';
 
-export default function CartItemRemoveConfirmation({
+export default function CartDeleteConfirmation({
   open,
   setOpen,
-  itemId,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  itemId: string;
 }) {
   const user = useLocalUser();
   const queryClient = useQueryClient();
 
-  const handleRemoveItemFromCart = async () => {
-    await axiosInstance
-      .delete(`/customer/remove-from-cart?userId=${user?._id}&cartItemId=${itemId}`)
-      .then(async () => {
-        setOpen(false);
-        await queryClient.invalidateQueries({ queryKey: ['cart'], refetchType: 'all' });
-      });
+  const handleRemoveCart = async () => {
+    await axiosInstance.delete(`/customer/remove-cart/${user?._id}`).then(async () => {
+      setOpen(false);
+      await queryClient.invalidateQueries({ queryKey: ['cart'], refetchType: 'all' });
+    });
   };
 
   return (
@@ -46,11 +42,11 @@ export default function CartItemRemoveConfirmation({
                 </div>
                 <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                   <DialogTitle as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                    Remove item from cart
+                    Remove all items from cart
                   </DialogTitle>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Are you sure you want to remove this item from the cart?
+                      Are you sure you want to remove all items from the cart?
                     </p>
                   </div>
                 </div>
@@ -59,7 +55,7 @@ export default function CartItemRemoveConfirmation({
             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 type="button"
-                onClick={handleRemoveItemFromCart}
+                onClick={handleRemoveCart}
                 className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
               >
                 Remove

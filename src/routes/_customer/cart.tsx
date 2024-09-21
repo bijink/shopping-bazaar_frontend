@@ -1,6 +1,8 @@
+import { ArrowTopRightOnSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import CartDeleteConfirmation from '../../components/CartDeleteConfirmation';
 import CartItemRemoveConfirmation from '../../components/CartItemRemoveConfirmation';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import useLocalUser from '../../hooks/useLocalUser';
@@ -15,9 +17,11 @@ export const Route = createFileRoute('/_customer/cart')({
 function CartComponent() {
   const user = useLocalUser();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [removingCartItemId, setRemovingCartItemId] = useState('');
   const [cartItemRmConfirmDialogOpen, setCartItemRmConfirmDialogOpen] = useState(false);
+  const [cartDeleteConfirmDialogOpen, setCartDeleteConfirmDialogOpen] = useState(false);
 
   const { data: cartItems, isLoading: isCartItemsLoading } = useQuery({
     queryKey: ['cart', user?._id],
@@ -72,7 +76,18 @@ function CartComponent() {
   function CartItemDetailsUI({ itemDetails }: { itemDetails: CartItemWithBase64Image }) {
     return (
       <>
-        <h2 className="text-lg font-bold text-gray-900">{itemDetails.name}</h2>
+        <div className="flex flex-row space-x-2">
+          <h2 className="text-lg font-bold text-gray-900">{itemDetails.name}</h2>
+          <ArrowTopRightOnSquareIcon
+            onClick={() => {
+              navigate({
+                to: '/product/$productId',
+                params: { productId: itemDetails.product_id },
+              });
+            }}
+            className="w-5 cursor-pointer text-indigo-700"
+          />
+        </div>
         <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500">
           <p className="">Color:</p>
           <p className="font-semibold">{stringOps.capitalizeFirstWord(itemDetails.color.name)}</p>
@@ -91,6 +106,10 @@ function CartComponent() {
         open={removingCartItemId.length ? cartItemRmConfirmDialogOpen : false}
         setOpen={setCartItemRmConfirmDialogOpen}
         itemId={removingCartItemId}
+      />
+      <CartDeleteConfirmation
+        open={cartDeleteConfirmDialogOpen}
+        setOpen={setCartDeleteConfirmDialogOpen}
       />
       <div className="pt-4">
         <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Cart Items</h1>
@@ -131,7 +150,7 @@ function CartComponent() {
                                     count: -1,
                                   });
                               }}
-                              className="cursor-pointer rounded-l bg-gray-100 px-3.5 py-1 duration-100 hover:bg-indigo-600 hover:text-white"
+                              className="cursor-pointer rounded-l bg-gray-100 px-3.5 py-1 text-indigo-600 duration-100 hover:bg-indigo-600 hover:text-white"
                             >
                               -
                             </button>
@@ -143,7 +162,7 @@ function CartComponent() {
                                   count: 1,
                                 })
                               }
-                              className="cursor-pointer rounded-r bg-gray-100 px-3 py-1 duration-100 hover:bg-indigo-600 hover:text-white"
+                              className="cursor-pointer rounded-r bg-gray-100 px-3 py-1 text-indigo-600 duration-100 hover:bg-indigo-600 hover:text-white"
                             >
                               +
                             </button>
@@ -168,7 +187,7 @@ function CartComponent() {
               </div>
               {/* cart checkout */}
               <div className="sticky top-10 mt-6 h-full rounded-lg bg-gray-50 px-3 py-6 lg:mt-0 lg:w-1/3 lg:px-6 lg:py-10">
-                <div className="flex justify-between text-lg font-bold text-gray-600">
+                <div className="flex justify-between text-lg font-bold text-gray-500">
                   <p className="">Total no.of items</p>
                   <p className="mb-1">{cartItems.length}</p>
                 </div>
@@ -180,12 +199,20 @@ function CartComponent() {
                   </p>
                 </div>
                 {/* <button className="mt-6 w-full rounded-md bg-blue-500 py-1.5 font-medium text-blue-50 hover:bg-blue-600">
-                Check out
-              </button> */}
-                <div className="mt-6">
+                  Check out
+                </button> */}
+                <div className="mt-6 flex flex-row space-x-2">
+                  <button
+                    className="flex w-16 items-center justify-center rounded-md border border-transparent bg-red-700 shadow-sm hover:bg-red-800"
+                    data-twe-toggle="tooltip"
+                    title="Remove all items"
+                    onClick={() => setCartDeleteConfirmDialogOpen(true)}
+                  >
+                    <TrashIcon className="h-5 w-5 text-white" />
+                  </button>
                   <a
                     href="#"
-                    className="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
                   >
                     Checkout
                   </a>

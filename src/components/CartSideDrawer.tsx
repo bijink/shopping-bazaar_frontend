@@ -3,7 +3,7 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from '@tanstack/react-router';
+import { Link } from '@tanstack/react-router';
 import { useContext } from 'react';
 import { CartSideDrawerOpenContext } from '../contexts';
 import useLocalUser from '../hooks/useLocalUser';
@@ -13,7 +13,6 @@ import stringOps from '../utils/stringOps';
 
 export default function CartSideDrawer({ items }: { items: CartItemWithBase64Image[] }) {
   const user = useLocalUser();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { open, setOpen } = useContext(CartSideDrawerOpenContext)!;
@@ -132,8 +131,14 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                 </div>
 
                 <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
+                  <div className="flex justify-between text-base font-medium text-gray-500">
+                    <p>Total no.of items</p>
+                    <div className="flex flex-row">
+                      <p>{items.length}</p>
+                    </div>
+                  </div>
                   <div className="flex justify-between text-base font-medium text-gray-900">
-                    <p>Subtotal</p>
+                    <p>Total amount</p>
                     <div className="flex flex-row">
                       <span>&#8377;</span>
                       <p>{cartTotalAmout}</p>
@@ -153,17 +158,14 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                   <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
                     <p>
                       or{' '}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setOpen(false);
-                          navigate({ to: '/cart' });
-                        }}
+                      <Link
+                        to="/cart"
+                        onClick={() => setOpen(false)}
                         className="font-medium text-indigo-600 hover:text-indigo-500"
                       >
                         Go to cart
                         <span aria-hidden="true"> &rarr;</span>
-                      </button>
+                      </Link>
                     </p>
                   </div>
                 </div>

@@ -39,6 +39,7 @@ export interface ProductWithBase64Image extends Omit<Product, 'images'> {
 
 export interface CartItem {
   _id?: string;
+  product_id: string;
   name: string;
   suitableFor: string[];
   category: string;

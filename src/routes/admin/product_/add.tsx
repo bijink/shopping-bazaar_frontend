@@ -408,7 +408,7 @@ function ProductAddComponent() {
                         onBlur={field.handleBlur}
                         onChange={(e) =>
                           field.handleChange(
-                            e.target.value.length > 0 ? parseFloat(e.target.value) : '',
+                            e.target.value.length > 0 ? parseInt(e.target.value) : '',
                           )
                         }
                       />
