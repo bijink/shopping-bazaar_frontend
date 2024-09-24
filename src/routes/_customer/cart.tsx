@@ -1,6 +1,6 @@
 import { ArrowTopRightOnSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import CartDeleteConfirmation from '../../components/CartDeleteConfirmation';
 import CartItemRemoveConfirmation from '../../components/CartItemRemoveConfirmation';
@@ -112,7 +112,7 @@ function CartComponent() {
         setOpen={setCartDeleteConfirmDialogOpen}
       />
       <div className="pt-4">
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Cart Items</h1>
+        <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Cart Items</h3>
         <div className="pt-8">
           {!isCartItemsLoading && cartItems?.length ? (
             <div className="flex flex-col justify-center lg:flex-row lg:space-x-12">
@@ -198,9 +198,6 @@ function CartComponent() {
                     {cartTotalAmout}
                   </p>
                 </div>
-                {/* <button className="mt-6 w-full rounded-md bg-blue-500 py-1.5 font-medium text-blue-50 hover:bg-blue-600">
-                  Check out
-                </button> */}
                 <div className="mt-6 flex flex-row space-x-2">
                   <button
                     className="flex w-16 items-center justify-center rounded-md border border-transparent bg-red-700 shadow-sm hover:bg-red-800"
@@ -210,12 +207,13 @@ function CartComponent() {
                   >
                     <TrashIcon className="h-5 w-5 text-white" />
                   </button>
-                  <a
-                    href="#"
+                  <Link
+                    from="/cart"
+                    to="/place-order"
                     className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
                   >
-                    Checkout
-                  </a>
+                    Place order
+                  </Link>
                 </div>
               </div>
             </div>

@@ -17,6 +17,8 @@ import { Route as AuthImport } from './routes/_auth'
 import { Route as AdminIndexImport } from './routes/admin/index'
 import { Route as CustomerIndexImport } from './routes/_customer/index'
 import { Route as AdminOrdersImport } from './routes/admin/orders'
+import { Route as CustomerPlaceOrderImport } from './routes/_customer/place-order'
+import { Route as CustomerOrdersImport } from './routes/_customer/orders'
 import { Route as CustomerCartImport } from './routes/_customer/cart'
 import { Route as CustomerAccountImport } from './routes/_customer/account'
 import { Route as AuthSignupImport } from './routes/_auth/signup'
@@ -56,6 +58,16 @@ const CustomerIndexRoute = CustomerIndexImport.update({
 const AdminOrdersRoute = AdminOrdersImport.update({
   path: '/orders',
   getParentRoute: () => AdminRoute,
+} as any)
+
+const CustomerPlaceOrderRoute = CustomerPlaceOrderImport.update({
+  path: '/place-order',
+  getParentRoute: () => CustomerRoute,
+} as any)
+
+const CustomerOrdersRoute = CustomerOrdersImport.update({
+  path: '/orders',
+  getParentRoute: () => CustomerRoute,
 } as any)
 
 const CustomerCartRoute = CustomerCartImport.update({
@@ -151,6 +163,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomerCartImport
       parentRoute: typeof CustomerImport
     }
+    '/_customer/orders': {
+      id: '/_customer/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof CustomerOrdersImport
+      parentRoute: typeof CustomerImport
+    }
+    '/_customer/place-order': {
+      id: '/_customer/place-order'
+      path: '/place-order'
+      fullPath: '/place-order'
+      preLoaderRoute: typeof CustomerPlaceOrderImport
+      parentRoute: typeof CustomerImport
+    }
     '/admin/orders': {
       id: '/admin/orders'
       path: '/orders'
@@ -210,6 +236,8 @@ export const routeTree = rootRoute.addChildren({
   CustomerRoute: CustomerRoute.addChildren({
     CustomerAccountRoute,
     CustomerCartRoute,
+    CustomerOrdersRoute,
+    CustomerPlaceOrderRoute,
     CustomerIndexRoute,
     CustomerProductProductIdRoute,
   }),
@@ -247,6 +275,8 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/_customer/account",
         "/_customer/cart",
+        "/_customer/orders",
+        "/_customer/place-order",
         "/_customer/",
         "/_customer/product/$productId"
       ]
@@ -275,6 +305,14 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_customer/cart": {
       "filePath": "_customer/cart.tsx",
+      "parent": "/_customer"
+    },
+    "/_customer/orders": {
+      "filePath": "_customer/orders.tsx",
+      "parent": "/_customer"
+    },
+    "/_customer/place-order": {
+      "filePath": "_customer/place-order.tsx",
       "parent": "/_customer"
     },
     "/admin/orders": {
