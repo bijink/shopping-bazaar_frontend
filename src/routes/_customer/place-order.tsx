@@ -65,7 +65,6 @@ function PlaceOrderComponent() {
       mobile: string;
       paymentMethod: string;
       paymentStatus: string;
-      deliveryStatus: string;
     }) => {
       return axiosInstance.post(`/customer/place-order/${user?._id}`, formData);
     },
@@ -78,6 +77,7 @@ function PlaceOrderComponent() {
       navigate({ to: '/orders' });
     },
     onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['orders'], refetchType: 'all' });
       await queryClient.invalidateQueries({ queryKey: ['cart'], refetchType: 'all' });
     },
   });
@@ -88,8 +88,6 @@ function PlaceOrderComponent() {
     landmark: string;
     mobile: string;
     paymentMethod: string;
-    paymentStatus: string;
-    deliveryStatus: string;
   }) {
     const res = await loadScript('https://checkout.razorpay.com/v1/checkout.js');
     if (!res) {
@@ -120,7 +118,10 @@ function PlaceOrderComponent() {
         };
         const result = await axiosInstance.post('/customer/verify-payment', data);
         if (result) {
-          formSubmitMutation.mutate(orderValues);
+          formSubmitMutation.mutate({
+            ...orderValues,
+            paymentStatus: 'success',
+          });
         }
       },
       prefill: {
@@ -144,10 +145,10 @@ function PlaceOrderComponent() {
 
   const form = useForm({
     defaultValues: {
-      address: 'wqwr',
-      pincode: '234324',
-      landmark: '3243',
-      mobile: '9995543528',
+      address: '',
+      pincode: '',
+      landmark: '',
+      mobile: '',
     },
     onSubmit: async ({ value }) => {
       if (value.mobile.length === 10 && value.pincode.length === 6) {
@@ -155,15 +156,12 @@ function PlaceOrderComponent() {
           displayRazorpay({
             ...value,
             paymentMethod: selectedPayMethod.value,
-            paymentStatus: 'success',
-            deliveryStatus: 'pending',
           });
         } else {
           formSubmitMutation.mutate({
             ...value,
             paymentMethod: selectedPayMethod.value,
             paymentStatus: 'pending',
-            deliveryStatus: 'pending',
           });
         }
       }

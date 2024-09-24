@@ -55,3 +55,34 @@ export interface CartItem {
 export interface CartItemWithBase64Image extends Omit<CartItem, 'image'> {
   image: Base64Image;
 }
+
+interface OrderedItem {
+  _id: string;
+  product_id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  color: {
+    name: string;
+    hex: string;
+  };
+  size: string;
+  image: string;
+}
+export interface Order {
+  _id: string;
+  date: string;
+  user_id: string;
+  deliveryDetails: {
+    address: string;
+    pincode: string;
+    landmark: string;
+    mobile: string;
+  };
+  orderedItems: OrderedItem[];
+  totalAmount: number;
+  paymentMethod: string;
+  orderStatus: string;
+  paymentStatus: string;
+  deliveryStatus: string;
+}
