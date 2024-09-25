@@ -74,6 +74,7 @@ export interface Order {
   date: string;
   user_id: string;
   deliveryDetails: {
+    name: string;
     address: string;
     pincode: string;
     landmark: string;

@@ -83,6 +83,7 @@ function PlaceOrderComponent() {
   });
 
   async function displayRazorpay(orderValues: {
+    name: string;
     address: string;
     pincode: string;
     landmark: string;
@@ -145,6 +146,7 @@ function PlaceOrderComponent() {
 
   const form = useForm({
     defaultValues: {
+      name: '',
       address: '',
       pincode: '',
       landmark: '',
@@ -183,6 +185,31 @@ function PlaceOrderComponent() {
             >
               <div className="mt-6 grid grid-cols-5 gap-12">
                 <div className="col-span-5 space-y-4 lg:col-span-3">
+                  <div className="space-y-2">
+                    <form.Field
+                      name="name"
+                      children={(field) => (
+                        <>
+                          <label
+                            htmlFor={field.name}
+                            className="block text-sm font-medium leading-6 text-black"
+                          >
+                            Your name
+                          </label>
+                          <input
+                            id={field.name}
+                            name={field.name}
+                            type="text"
+                            required
+                            className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          />
+                        </>
+                      )}
+                    />
+                  </div>
                   <div className="space-y-2">
                     <form.Field
                       name="address"
