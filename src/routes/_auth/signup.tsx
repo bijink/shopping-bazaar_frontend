@@ -327,46 +327,47 @@ function SignupComponent() {
               </div>
             </div>
             <div>
-              <div className="flex w-full space-x-4">
-                <div className="w-4/6">
-                  <form.Field
-                    name="otp"
-                    children={(field) => (
-                      <>
-                        <label
-                          htmlFor={field.name}
-                          className="block text-sm font-medium leading-6 text-gray-900"
+              <form.Field
+                name="otp"
+                children={(field) => (
+                  <div className="w-full">
+                    <label
+                      htmlFor={field.name}
+                      className="block text-sm font-medium leading-6 text-gray-900"
+                    >
+                      OTP
+                    </label>
+                    <div className="mt-2 flex space-x-4">
+                      <div className="w-2/6">
+                        <button
+                          className="flex w-full justify-center rounded-md bg-green-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (!otpSendMutation.isPending) {
+                              otpSendMutation.mutate(emailInput);
+                            }
+                          }}
                         >
-                          OTP
-                        </label>
+                          {otpSendMutation.isPending ? 'Sending...' : 'Send OTP'}
+                        </button>
+                      </div>
+                      <div className="w-4/6">
                         <input
                           id={field.name}
                           name={field.name}
                           type="number"
                           required
-                          className="mt-2 block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                          className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Enter OTP here"
                         />
-                      </>
-                    )}
-                  />
-                </div>
-                <div className="w-2/6">
-                  <button
-                    className="mt-8 flex w-full justify-center rounded-md bg-green-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (!otpSendMutation.isPending) {
-                        otpSendMutation.mutate(emailInput);
-                      }
-                    }}
-                  >
-                    {otpSendMutation.isPending ? 'Sending...' : 'Email OTP'}
-                  </button>
-                </div>
-              </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              />
               <div
                 className={twMerge(
                   'text-sm',

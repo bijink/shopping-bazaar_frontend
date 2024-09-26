@@ -298,7 +298,7 @@ export default function Header({
   noAdminKey?: boolean;
   noCart?: boolean;
   noAccount?: boolean;
-  cartCount: number;
+  cartCount?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [openSignoutDialog, setOpenSignoutDialog] = useState(false);

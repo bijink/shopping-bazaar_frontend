@@ -4,6 +4,8 @@ export type User = {
   fname: string;
   lname: string;
   email: string;
+  image?: string;
+  address?: UserAddress;
 };
 
 export interface Product {
@@ -87,3 +89,14 @@ export interface Order {
   paymentStatus: string;
   deliveryStatus: string;
 }
+
+export type UserAddress = {
+  fullname: string;
+  building: string;
+  street: string;
+  town: string;
+  state: string;
+  pincode: string;
+  landmark: string;
+  mobile: string;
+};
