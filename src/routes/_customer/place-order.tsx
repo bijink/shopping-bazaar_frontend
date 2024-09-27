@@ -6,9 +6,10 @@ import { useContext, useState } from 'react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { ToastContext } from '../../contexts';
 import useLocalUser from '../../hooks/useLocalUser';
-import { CartItem, CartItemWithBase64Image } from '../../types/global.type';
+import { CartItem, CartItemWithBase64Image, User, UserAddress } from '../../types/global.type';
 import { axiosInstance } from '../../utils/axios';
 import { loadScript } from '../../utils/loadScript';
+import stringOps from '../../utils/stringOps';
 
 export const Route = createFileRoute('/_customer/place-order')({
   component: PlaceOrderComponent,
@@ -27,6 +28,13 @@ function PlaceOrderComponent() {
 
   const [selectedPayMethod, setSelectedPayMethod] = useState(paymentMethods[0]);
 
+  const { data: userDetails, isLoading } = useQuery({
+    queryKey: ['user', user?._id],
+    queryFn: () =>
+      axiosInstance.get(`user/get-user-details/${user?._id}`).then((res) => res.data as User),
+    staleTime: 1000 * 60 * 5,
+    enabled: !!user && user.role === 'customer',
+  });
   const { data: cartItems, isLoading: isCartItemsLoading } = useQuery({
     queryKey: ['cart', user?._id],
     queryFn: async () => {
@@ -59,9 +67,7 @@ function PlaceOrderComponent() {
 
   const formSubmitMutation = useMutation({
     mutationFn: (formData: {
-      address: string;
-      pincode: string;
-      landmark: string;
+      address: UserAddress;
       mobile: string;
       paymentMethod: string;
       paymentStatus: string;
@@ -71,22 +77,17 @@ function PlaceOrderComponent() {
     onError: (error) => {
       error.message = error.response?.data?.message || error.message;
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       setToastMessage('Order success');
       setTriggerToast(true);
-      navigate({ to: '/orders' });
-    },
-    onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: ['orders'], refetchType: 'all' });
       await queryClient.invalidateQueries({ queryKey: ['cart'], refetchType: 'all' });
+      navigate({ to: '/orders' });
     },
   });
 
   async function displayRazorpay(orderValues: {
-    name: string;
-    address: string;
-    pincode: string;
-    landmark: string;
+    address: UserAddress;
     mobile: string;
     paymentMethod: string;
   }) {
@@ -145,23 +146,18 @@ function PlaceOrderComponent() {
   }
 
   const form = useForm({
-    defaultValues: {
-      name: '',
-      address: '',
-      pincode: '',
-      landmark: '',
-      mobile: '',
-    },
-    onSubmit: async ({ value }) => {
-      if (value.mobile.length === 10 && value.pincode.length === 6) {
+    onSubmit: async () => {
+      if (userDetails) {
         if (selectedPayMethod.value === 'POL') {
           displayRazorpay({
-            ...value,
+            address: userDetails.address!,
+            mobile: userDetails.mobile!,
             paymentMethod: selectedPayMethod.value,
           });
         } else {
           formSubmitMutation.mutate({
-            ...value,
+            address: userDetails.address!,
+            mobile: userDetails.mobile!,
             paymentMethod: selectedPayMethod.value,
             paymentStatus: 'pending',
           });
@@ -176,7 +172,7 @@ function PlaceOrderComponent() {
       <div className="pt-6 lg:pt-8">
         {!isCartItemsLoading && cartItems?.length ? (
           <>
-            <p className="text-center text-lg font-bold lg:text-xl">Enter delivery details</p>
+            <p className="text-center text-lg font-bold lg:text-xl">Delivery details</p>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -185,131 +181,48 @@ function PlaceOrderComponent() {
             >
               <div className="mt-6 grid grid-cols-5 gap-12">
                 <div className="col-span-5 space-y-4 lg:col-span-3">
-                  <div className="space-y-2">
-                    <form.Field
-                      name="name"
-                      children={(field) => (
-                        <>
-                          <label
-                            htmlFor={field.name}
-                            className="block text-sm font-medium leading-6 text-black"
-                          >
-                            Your name
-                          </label>
-                          <input
-                            id={field.name}
-                            name={field.name}
-                            type="text"
-                            required
-                            className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                        </>
+                  {userDetails && (
+                    <>
+                      {!isLoading && (
+                        <div className="w-1/2">
+                          {userDetails?.address ? (
+                            <div>
+                              <p>Address: </p>
+                              <div className="pl-3">
+                                <p className="font-bold">{userDetails?.address?.fullname}</p>
+                                <p className="">{userDetails?.address?.building},</p>
+                                <p className="">
+                                  <span>{userDetails?.address?.street}</span>,{' '}
+                                  <span>{userDetails?.address?.town}</span>,
+                                </p>
+                                <p className="">
+                                  <span>
+                                    {stringOps.uppercase(userDetails?.address?.state as string)}
+                                  </span>{' '}
+                                  <span className="">{userDetails?.address?.pincode}</span>{' '}
+                                  <span className="">India</span>
+                                </p>
+                              </div>
+                              <p className="">
+                                Phone number:{' '}
+                                <span className="font-bold">{userDetails?.mobile}</span>
+                              </p>
+                            </div>
+                          ) : (
+                            <div>
+                              <p>No address is added</p>
+                              <button
+                                className="mt-6 flex w-full justify-center rounded-md bg-red-600 px-5 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 lg:max-w-fit"
+                                onClick={() => navigate({ from: '/place-order', to: '/account' })}
+                              >
+                                Add address
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <form.Field
-                      name="address"
-                      children={(field) => (
-                        <>
-                          <label
-                            htmlFor={field.name}
-                            className="block text-sm font-medium leading-6 text-black"
-                          >
-                            Address
-                          </label>
-                          <textarea
-                            id={field.name}
-                            name={field.name}
-                            rows={3}
-                            required
-                            className="min-h-[100px] w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                        </>
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <form.Field
-                      name="pincode"
-                      children={(field) => (
-                        <>
-                          <label
-                            htmlFor={field.name}
-                            className="block text-sm font-medium leading-6 text-black"
-                          >
-                            Pincode
-                          </label>
-                          <input
-                            id={field.name}
-                            name={field.name}
-                            type="number"
-                            required
-                            className="hide-number-input-arrow w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                        </>
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <form.Field
-                      name="landmark"
-                      children={(field) => (
-                        <>
-                          <label
-                            htmlFor={field.name}
-                            className="block text-sm font-medium leading-6 text-black"
-                          >
-                            Landmark
-                          </label>
-                          <input
-                            id={field.name}
-                            name={field.name}
-                            type="text"
-                            required
-                            className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                        </>
-                      )}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <form.Field
-                      name="mobile"
-                      children={(field) => (
-                        <>
-                          <label
-                            htmlFor={field.name}
-                            className="block text-sm font-medium leading-6 text-black"
-                          >
-                            Mobile Number
-                          </label>
-                          <input
-                            id={field.name}
-                            name={field.name}
-                            type="number"
-                            required
-                            className="hide-number-input-arrow w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                        </>
-                      )}
-                    />
-                  </div>
+                    </>
+                  )}
                 </div>
                 <div className="col-span-5 flex h-fit flex-col space-y-4 rounded-lg border p-6 lg:col-span-2">
                   <div>
@@ -363,7 +276,8 @@ function PlaceOrderComponent() {
                   </div>
                   <button
                     type="submit"
-                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 disabled:bg-indigo-400"
+                    disabled={!userDetails?.address}
                   >
                     Checkout
                   </button>

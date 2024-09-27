@@ -106,13 +106,28 @@ export default function Orders({
                     <div>
                       <h3 className="mb-4 text-lg font-semibold text-gray-700">Delivery Details</h3>
                       <div className="space-y-2 text-gray-600">
-                        <p>{stringOps.capitalize(order.deliveryDetails.name)}</p>
+                        <p>{stringOps.capitalize(order.deliveryDetails.address.fullname)}</p>
                         <p className="flex items-center">
                           <MapPinIcon className="mr-2 h-5 w-5 text-gray-500" />
-                          {order.deliveryDetails.address}
+                          <span className="space-x-1">
+                            <span>
+                              {stringOps.capitalizeFirstWord(
+                                order.deliveryDetails.address.building,
+                              )}
+                              ,
+                            </span>
+                            <span>
+                              {stringOps.capitalizeFirstWord(order.deliveryDetails.address.street)},
+                            </span>
+                            <span>
+                              {stringOps.capitalizeFirstWord(order.deliveryDetails.address.town)},
+                            </span>
+                            <span>{stringOps.uppercase(order.deliveryDetails.address.state)}</span>
+                            <span>{order.deliveryDetails.address.pincode},</span>
+                            <span>India</span>
+                          </span>
                         </p>
-                        <p>Landmark: {order.deliveryDetails.landmark}</p>
-                        <p>Pincode: {order.deliveryDetails.pincode}</p>
+                        <p>Landmark: {order.deliveryDetails.address.landmark}</p>
                         <p className="flex items-center">
                           <PhoneIcon className="mr-2 h-5 w-5 text-gray-500" />
                           {order.deliveryDetails.mobile}

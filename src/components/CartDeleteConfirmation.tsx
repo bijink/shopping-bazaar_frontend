@@ -46,7 +46,8 @@ export default function CartDeleteConfirmation({
                   </DialogTitle>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Are you sure you want to remove all items from the cart?
+                      Are you sure you want to remove all items from the cart? This action cannot be
+                      undone.
                     </p>
                   </div>
                 </div>

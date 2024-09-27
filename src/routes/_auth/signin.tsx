@@ -23,7 +23,10 @@ function SigninComponent() {
       // console.log({ data, variables, context });
       Cookies.set('token', data.data.token, { expires: 7, secure: true });
       if (data.data.user.role === 'admin') navigate({ to: '/admin' });
-      else navigate({ to: '/' });
+      else
+        navigate({ to: '/' }).then(() => {
+          window.location.reload();
+        });
     },
   });
 

@@ -2,6 +2,7 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import UserAccountDeleteConfirmation from '../../components/UserAccountDeleteConfirmation';
 import useLocalUser from '../../hooks/useLocalUser';
 import { User } from '../../types/global.type';
 import { axiosInstance } from '../../utils/axios';
@@ -15,6 +16,7 @@ function AccountComponent() {
   const user = useLocalUser();
   const queryClient = useQueryClient();
   const [openAccountEdit, setOpenAccountEdit] = useState(false);
+  const [openAccountDeleteDialog, setOpenAccountDeleteDialog] = useState(false);
 
   const { data: userDetails, isLoading } = useQuery({
     queryKey: ['user', user?._id],
@@ -36,8 +38,8 @@ function AccountComponent() {
         state: string;
         pincode: string;
         landmark: string;
-        mobile: string;
       };
+      mobile: string;
     }) => {
       return axiosInstance.patch(`/user/update-details/${user?._id}`, formData);
     },
@@ -60,7 +62,7 @@ function AccountComponent() {
       state: userDetails?.address?.state || '',
       pincode: userDetails?.address?.pincode || '',
       landmark: userDetails?.address?.landmark || '',
-      mobile: userDetails?.address?.mobile || '',
+      mobile: userDetails?.mobile || '',
     },
     onSubmit: async ({ value }) => {
       await formSubmitMutation.mutateAsync({
@@ -74,23 +76,21 @@ function AccountComponent() {
           state: value.state,
           pincode: value.pincode,
           landmark: value.landmark,
-          mobile: value.mobile,
         },
+        mobile: value.mobile,
       });
     },
   });
 
   return (
     <>
+      <UserAccountDeleteConfirmation
+        open={openAccountDeleteDialog}
+        setOpen={setOpenAccountDeleteDialog}
+      />
       <div className="pt-4">
         <div className="flex flex-row items-center space-x-4">
           <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Account</h3>
-          <button
-            onClick={() => setOpenAccountEdit((prev) => !prev)}
-            className="mt-1 flex justify-center rounded-[4px] bg-indigo-600 px-3 py-0 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            {openAccountEdit ? 'Close edit' : 'Open edit'}
-          </button>
         </div>
         <div className="mt-6">
           {!openAccountEdit ? (
@@ -104,9 +104,9 @@ function AccountComponent() {
                   <p>
                     Email: <span className="font-bold">{userDetails?.email}</span>
                   </p>
-                  {userDetails?.address && (
+                  {userDetails?.address ? (
                     <div>
-                      <p>Addresss: </p>
+                      <p>Address: </p>
                       <div>
                         <p className="font-bold">{userDetails?.address?.fullname}</p>
                         <p className="">{userDetails?.address?.building},</p>
@@ -119,13 +119,31 @@ function AccountComponent() {
                           <span className="">{userDetails?.address?.pincode}</span>{' '}
                           <span className="">India</span>
                         </p>
-                        <p className="">
-                          Phone number:{' '}
-                          <span className="font-bold">{userDetails?.address?.mobile}</span>
-                        </p>
                       </div>
+                      <p className="">
+                        Phone number: <span className="font-bold">{userDetails?.mobile}</span>
+                      </p>
                     </div>
+                  ) : (
+                    <p className="mt-4 font-thin">
+                      No address is added. Click <span className="font-normal">Update</span> button
+                      to add address.
+                    </p>
                   )}
+                  <div className="flex flex-row space-x-2">
+                    <button
+                      onClick={() => setOpenAccountEdit(true)}
+                      className="mt-6 flex justify-center rounded-[4px] bg-indigo-600 px-5 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                      Update
+                    </button>
+                    <button
+                      className="mt-6 flex w-full justify-center rounded-md bg-red-600 px-5 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 lg:max-w-fit"
+                      onClick={() => setOpenAccountDeleteDialog(true)}
+                    >
+                      Delete account
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -413,14 +431,20 @@ function AccountComponent() {
                 </div>
               </div>
 
-              <div className="flex w-1/2 flex-row justify-end pt-0">
+              <div className="flex w-full flex-row justify-end space-x-2 pt-6 lg:w-1/2">
+                <button
+                  onClick={() => setOpenAccountEdit(false)}
+                  className="flex w-full justify-center rounded-md bg-gray-500 px-6 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 lg:w-[6rem]"
+                >
+                  Cancel
+                </button>
                 <form.Subscribe
                   selector={(state) => [state.canSubmit, state.isSubmitting]}
                   children={([canSubmit, isSubmitting]) => (
                     <button
                       type="submit"
                       disabled={!canSubmit}
-                      className="mt-6 flex w-full justify-center rounded-md bg-indigo-600 px-6 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 lg:w-[8rem]"
+                      className="flex w-full justify-center rounded-md bg-indigo-600 px-6 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 lg:w-[8rem]"
                     >
                       {isSubmitting ? 'Loading...' : 'Update'}
                     </button>

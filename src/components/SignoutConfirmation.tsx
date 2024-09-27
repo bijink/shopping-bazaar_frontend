@@ -2,6 +2,7 @@
 
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
 
@@ -16,11 +17,15 @@ export default function SignoutConfirmation({
     select: (location) => location.pathname,
   });
   const navigate = useNavigate({ from: pathname });
+  const queryClient = useQueryClient();
 
   const handleSignout = () => {
     Cookies.remove('token');
     setOpen(false);
     navigate({ to: '/' }).then(() => {
+      queryClient.removeQueries({ queryKey: ['user'], exact: false });
+      queryClient.removeQueries({ queryKey: ['cart'], exact: false });
+      queryClient.removeQueries({ queryKey: ['orders'], exact: false });
       window.location.reload();
     });
   };

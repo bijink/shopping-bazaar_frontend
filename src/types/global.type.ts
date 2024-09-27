@@ -6,6 +6,7 @@ export type User = {
   email: string;
   image?: string;
   address?: UserAddress;
+  mobile?: string;
 };
 
 export interface Product {
@@ -76,10 +77,7 @@ export interface Order {
   date: string;
   user_id: string;
   deliveryDetails: {
-    name: string;
-    address: string;
-    pincode: string;
-    landmark: string;
+    address: UserAddress;
     mobile: string;
   };
   orderedItems: OrderedItem[];
@@ -98,5 +96,4 @@ export type UserAddress = {
   state: string;
   pincode: string;
   landmark: string;
-  mobile: string;
 };

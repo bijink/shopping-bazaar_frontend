@@ -3,23 +3,32 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
+import Cookies from 'js-cookie';
+import useLocalUser from '../hooks/useLocalUser';
 import { axiosInstance } from '../utils/axios';
 
-export default function OrderCancelConfirmation({
+export default function UserAccountDeleteConfirmation({
   open,
   setOpen,
-  orderId,
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  orderId: string;
 }) {
+  const user = useLocalUser();
+  const navigate = useNavigate({ from: '/account' });
   const queryClient = useQueryClient();
 
-  const handleRemoveCart = async () => {
-    await axiosInstance.patch(`/customer/cancel-order/${orderId}`).then(async () => {
+  const handleUserAccountDelete = async () => {
+    await axiosInstance.delete(`/user/delete/${user?._id}`).then(async () => {
       setOpen(false);
-      await queryClient.invalidateQueries({ queryKey: ['orders'], refetchType: 'all' });
+      queryClient.removeQueries({ queryKey: ['user'], exact: false });
+      queryClient.removeQueries({ queryKey: ['cart'], exact: false });
+      queryClient.removeQueries({ queryKey: ['orders'], exact: false });
+      Cookies.remove('token');
+      navigate({ to: '/' }).then(() => {
+        window.location.reload();
+      });
     });
   };
 
@@ -42,11 +51,11 @@ export default function OrderCancelConfirmation({
                 </div>
                 <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                   <DialogTitle as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                    Cancel this order
+                    Delete your account
                   </DialogTitle>
                   <div className="mt-2">
                     <p className="text-sm text-gray-500">
-                      Are you sure you want to cancel this order? This action cannot be undone.
+                      Are you sure you want to delete your account? This action cannot be undone.
                     </p>
                   </div>
                 </div>
@@ -55,18 +64,18 @@ export default function OrderCancelConfirmation({
             <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
               <button
                 type="button"
-                onClick={handleRemoveCart}
-                className="inline-flex w-full min-w-20 justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+                onClick={handleUserAccountDelete}
+                className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
               >
-                Yes
+                Delete
               </button>
               <button
                 type="button"
                 data-autofocus
                 onClick={() => setOpen(false)}
-                className="mt-3 inline-flex w-full min-w-16 justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
               >
-                No
+                Cancel
               </button>
             </div>
           </DialogPanel>
