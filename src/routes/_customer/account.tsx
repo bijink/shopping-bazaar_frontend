@@ -2,6 +2,7 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import ForbiddenPage from '../../components/ForbiddenPage';
 import UserAccountDeleteConfirmation from '../../components/UserAccountDeleteConfirmation';
 import useLocalUser from '../../hooks/useLocalUser';
 import { User } from '../../types/global.type';
@@ -82,6 +83,7 @@ function AccountComponent() {
     },
   });
 
+  if (user?.role !== 'customer') return <ForbiddenPage />;
   return (
     <>
       <UserAccountDeleteConfirmation

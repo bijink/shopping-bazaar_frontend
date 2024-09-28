@@ -3,6 +3,7 @@ import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useContext, useState } from 'react';
+import ForbiddenPage from '../../components/ForbiddenPage';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { ToastContext } from '../../contexts';
 import useLocalUser from '../../hooks/useLocalUser';
@@ -166,6 +167,7 @@ function PlaceOrderComponent() {
     },
   });
 
+  if (user?.role !== 'customer') return <ForbiddenPage />;
   return (
     <div className="pt-4">
       <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Place order</h3>
@@ -286,7 +288,7 @@ function PlaceOrderComponent() {
             </form>
           </>
         ) : (
-          <>{isCartItemsLoading ? <LoadingSpinner /> : <p>No items in cart to place order</p>}</>
+          <>{isCartItemsLoading ? <LoadingSpinner /> : <p>No items in cart to place an order</p>}</>
         )}
       </div>
     </div>

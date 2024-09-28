@@ -23,7 +23,7 @@ const orderStatusColors = {
   placed: 'bg-gray-100 text-gray-800',
   'on-packing': 'bg-amber-100 text-amber-800',
   'on-shipping': 'bg-blue-100 text-blue-800',
-  'on-delivering': 'bg-sky-100 text-sky-800',
+  'on-delivery': 'bg-sky-100 text-sky-800',
   delivered: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
 };

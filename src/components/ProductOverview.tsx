@@ -100,9 +100,9 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
                   <span className="font-light text-gray-500">&#10098;</span>
                   {product.suitableFor.map((item, i) => (
                     <div key={i}>
-                      <a href={'#'} className="mr-2 text-sm font-medium text-gray-900">
+                      <p className="mr-2 text-sm font-medium text-gray-900">
                         {stringOps.capitalizeFirstWord(item)}
-                      </a>
+                      </p>
                       {i !== product.suitableFor.length - 1 && (
                         <span className="-ml-2 mr-2">&#44;</span>
                       )}
@@ -123,9 +123,9 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
               </li>
               <li>
                 <div className="flex items-center">
-                  <a href={'#'} className="mr-2 text-sm font-medium text-gray-900">
+                  <p className="mr-2 text-sm font-medium text-gray-900">
                     {stringOps.capitalizeFirstWord(product.category)}
-                  </a>
+                  </p>
                   <svg
                     fill="currentColor"
                     width={16}
@@ -139,9 +139,9 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
                 </div>
               </li>
               <li className="text-sm">
-                <a aria-current="page" className="font-medium text-gray-500">
+                <p className="font-medium text-gray-500">
                   {stringOps.capitalizeFirstWord(product.name)}
-                </a>
+                </p>
               </li>
             </ol>
           </nav>
@@ -291,8 +291,8 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
 
               <button
                 type="submit"
-                disabled={!selectedColor || !selectedSize}
-                className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-500"
+                disabled={!selectedColor || !selectedSize || user?.role !== 'customer'}
+                className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-400"
               >
                 Add to cart
               </button>

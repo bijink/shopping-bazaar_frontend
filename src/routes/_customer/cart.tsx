@@ -4,6 +4,7 @@ import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import CartDeleteConfirmation from '../../components/CartDeleteConfirmation';
 import CartItemRemoveConfirmation from '../../components/CartItemRemoveConfirmation';
+import ForbiddenPage from '../../components/ForbiddenPage';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import useLocalUser from '../../hooks/useLocalUser';
 import { CartItem, CartItemWithBase64Image } from '../../types/global.type';
@@ -100,6 +101,7 @@ function CartComponent() {
     );
   }
 
+  if (user?.role !== 'customer') return <ForbiddenPage />;
   return (
     <>
       <CartItemRemoveConfirmation

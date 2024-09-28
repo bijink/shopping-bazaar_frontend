@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';
+import ForbiddenPage from '../../components/ForbiddenPage';
 import Orders from '../../components/Orders';
 import useLocalUser from '../../hooks/useLocalUser';
 import { Order } from '../../types/global.type';
@@ -38,6 +39,7 @@ function OrdersComponent() {
     enabled: !!user && user.role === 'customer',
   });
 
+  if (user?.role !== 'customer') return <ForbiddenPage />;
   return (
     <Orders
       data={{ orders, isLoading: isOrdersFetchLoading, showOrderedItems, setShowOrderedItems }}
