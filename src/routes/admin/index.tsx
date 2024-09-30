@@ -19,12 +19,14 @@ const queryClient = new QueryClient({
 });
 const productsQueryOptions = queryOptions({
   queryKey: ['products', 'admin'],
-  queryFn: () => axiosInstance.get('/user/get-all-product').then((res) => res.data as Product[]),
+  queryFn: () =>
+    axiosInstance
+      .get('/user/get-all-product?sort=desc')
+      .then((res) => res.data.products as Product[]),
   staleTime: 1000 * 60 * 5,
 });
 
 export const Route = createFileRoute('/admin/')({
-  // Use the `loader` option to ensure that the data is loaded
   loader: () => queryClient.ensureQueryData(productsQueryOptions),
   pendingComponent: PageLoadingIndicator,
   pendingMinMs: 2000,
@@ -59,7 +61,6 @@ function AdminHomeErrorComponent({ error }: { error: Error }) {
 
 function AdminHomeComponent() {
   const { data: products } = useSuspenseQuery(productsQueryOptions);
-  // console.log({ products });
 
   return (
     <>
@@ -100,7 +101,7 @@ function AdminHomeComponent() {
               </tr>
             </thead>
             <tbody>
-              {[...products]?.reverse()?.map((prod) => (
+              {products.map((prod) => (
                 <tr
                   key={prod._id}
                   className="cursor-pointer border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"

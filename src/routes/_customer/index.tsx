@@ -1,5 +1,5 @@
 import { QueryClient, queryOptions, useSuspenseQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useSearch } from '@tanstack/react-router';
 import { useContext, useState } from 'react';
 import PageLoadingIndicator from '../../components/PageLoadingIndicator';
 import Pagination from '../../components/Pagination';
@@ -15,34 +15,48 @@ const queryClient = new QueryClient({
     },
   },
 });
-const productsQueryOptions = queryOptions({
-  queryKey: ['products', 'customer'],
-  queryFn: async () => {
-    const products: Product[] = await axiosInstance
-      .get('/user/get-all-product')
-      .then((res) => res.data);
-    const updatedProducts: ProductWithBase64Image[] = await Promise.all(
-      products.map(async (prod: Product) => {
-        const images = await axiosInstance
-          .post('/get-multi-images', { images: prod.images }, { timeout: 90000 })
-          .then((res) => res.data.images);
-        return { ...prod, images }; // return the product with updated images
-      }),
-    );
-    return updatedProducts; // return products with images data
-  },
-  staleTime: 1000 * 60 * 5,
-});
+const limit = 8;
+const productsQueryOptions = (page = 1) => {
+  return queryOptions({
+    queryKey: ['products', 'customer', page],
+    queryFn: async () => {
+      const productsData: { products: Product[]; length: number } = await axiosInstance
+        .get(`/user/get-all-product?sort=desc&skip=${page * limit - limit}&limit=${limit}`)
+        .then((res) => res.data);
+      const updatedProducts: ProductWithBase64Image[] = await Promise.all(
+        productsData.products.map(async (prod: Product) => {
+          const images = await axiosInstance
+            .post('/get-multi-images', { images: prod.images }, { timeout: 90000 })
+            .then((res) => res.data.images);
+          return { ...prod, images }; // return the product with updated images
+        }),
+      );
+      return { products: updatedProducts, length: productsData.length };
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+};
 
 export const Route = createFileRoute('/_customer/')({
-  loader: () => queryClient.ensureQueryData(productsQueryOptions),
+  loaderDeps: ({ search: { page } }: { search: { page: number } }) => ({
+    page: isNaN(page) ? 1 : page,
+  }),
+  loader: ({ deps: { page } }) => queryClient.ensureQueryData(productsQueryOptions(page)),
   pendingComponent: PageLoadingIndicator,
   pendingMinMs: 2000,
   component: HomeComponent,
+  staleTime: 5_000,
 });
 
 function HomeComponent() {
-  const { data: products } = useSuspenseQuery(productsQueryOptions);
+  const page = useSearch({
+    from: '/_customer/',
+    select: (search: { page: number }) => (isNaN(search.page) ? 1 : search.page),
+  });
+  const {
+    data: { products, length },
+  } = useSuspenseQuery(productsQueryOptions(page));
+
   const { setOpen } = useContext(ProductQuickviewOpenContext)!;
 
   const [quickviewProduct, setQuickviewProduct] = useState({} as ProductWithBase64Image);
@@ -52,7 +66,7 @@ function HomeComponent() {
       {products.length ? (
         <>
           <div className="grid grid-cols-1 gap-x-6 gap-y-10 py-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-            {[...products]?.reverse()?.map((prod) => (
+            {products.map((prod) => (
               <div key={prod._id} className="group">
                 <Link from="/" to="/product/$productId" params={{ productId: prod._id as string }}>
                   <div className="aspect-w-1 xl:aspect-w-7 relative h-[40rem] w-full overflow-hidden rounded-lg bg-gray-200 sm:h-[20rem]">
@@ -93,7 +107,7 @@ function HomeComponent() {
               </div>
             ))}
           </div>
-          <Pagination />
+          <Pagination limit={limit} productsLength={length} page={page} />
         </>
       ) : (
         <div className="h-screen">

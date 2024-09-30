@@ -19,7 +19,7 @@ function AdminOrdersComponent() {
     queryKey: ['orders', 'admin', user?._id],
     queryFn: async () => {
       const orders = await axiosInstance
-        .get('/admin/get-all-orders')
+        .get('/admin/get-all-orders?sort=desc')
         .then((res) => res.data as Order[]);
       setShowOrderedItems(
         (prev) =>

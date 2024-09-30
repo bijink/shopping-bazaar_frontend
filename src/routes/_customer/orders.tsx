@@ -20,7 +20,7 @@ function OrdersComponent() {
     queryKey: ['orders', user?._id],
     queryFn: async () => {
       const orders = await axiosInstance
-        .get(`/customer/get-orders/${user?._id}`)
+        .get(`/customer/get-orders/${user?._id}?sort=desc`)
         .then((res) => res.data as Order[]);
       setShowOrderedItems(
         (prev) =>

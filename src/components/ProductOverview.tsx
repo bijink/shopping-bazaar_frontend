@@ -99,7 +99,7 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
                 <div className="flex items-center">
                   <span className="font-light text-gray-500">&#10098;</span>
                   {product.suitableFor.map((item, i) => (
-                    <div key={i}>
+                    <div key={i} className="flex flex-row items-center">
                       <p className="mr-2 text-sm font-medium text-gray-900">
                         {stringOps.capitalizeFirstWord(item)}
                       </p>
