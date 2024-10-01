@@ -68,7 +68,7 @@ function AdminProductComponent() {
   });
 
   if (isProductFetchLoading) return <LoadingSpinner size={8} />;
-  if (isProductFetchSuccess) return <ProductOverview product={product} />;
+  if (isProductFetchSuccess) return <ProductOverview product={product} isAdmin />;
   if (isProductFetchError)
     return (
       <div className="flex flex-col items-center">

@@ -16,17 +16,19 @@ function SigninComponent() {
       return axiosInstance.post('/auth/signin', formData);
     },
     onError: (error) => {
-      // console.log({ error, variables, context });
       error.message = error.response.data.message || error.message;
     },
     onSuccess: (data) => {
-      // console.log({ data, variables, context });
       Cookies.set('token', data.data.token, { expires: 7, secure: true });
-      if (data.data.user.role === 'admin') navigate({ to: '/admin' });
-      else
+      if (data.data.user.role === 'admin') {
+        navigate({ to: '/admin' }).then(() => {
+          window.location.reload();
+        });
+      } else {
         navigate({ to: '/' }).then(() => {
           window.location.reload();
         });
+      }
     },
   });
 

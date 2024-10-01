@@ -100,7 +100,9 @@ function SignupComponent() {
           }
         } finally {
           Cookies.set('token', token, { expires: 1, secure: true });
-          navigate({ to: '/' });
+          navigate({ to: '/' }).then(() => {
+            window.location.reload();
+          });
         }
       }
     },

@@ -100,8 +100,6 @@ function ProductAddComponent() {
       setHighlights([...highlights, highlightsInputValue.trim()]);
       setHighlightsInputValue(''); // Clear input after adding
       event.preventDefault(); // Prevent form submission or newline
-    } else if (event.key === 'Backspace' && highlightsInputValue === '' && highlights.length > 0) {
-      setHighlights(highlights.slice(0, -1)); // Remove the last item if input is empty
     }
   };
   const handleRemoveHighlightItem = (
@@ -494,7 +492,7 @@ function ProductAddComponent() {
                         <span className="break-all">{item}</span>
                         <button
                           onClick={(e) => handleRemoveHighlightItem(e, index)}
-                          className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                          className="text-2xl text-gray-500 hover:text-gray-700 focus:outline-none"
                         >
                           &times;
                         </button>

@@ -20,13 +20,13 @@ export default function UserAccountDeleteConfirmation({
   const queryClient = useQueryClient();
 
   const handleUserAccountDelete = async () => {
-    await axiosInstance.delete(`/user/delete/${user?._id}`).then(async () => {
+    await axiosInstance.delete(`/user/delete/${user?._id}`).then(() => {
       setOpen(false);
       queryClient.removeQueries({ queryKey: ['user'], exact: false });
       queryClient.removeQueries({ queryKey: ['cart'], exact: false });
       queryClient.removeQueries({ queryKey: ['orders'], exact: false });
-      Cookies.remove('token');
       navigate({ to: '/' }).then(() => {
+        Cookies.remove('token');
         window.location.reload();
       });
     });

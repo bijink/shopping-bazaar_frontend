@@ -87,13 +87,10 @@ function AdminHomeComponent() {
                   Product id
                 </th>
                 <th scope="col" className="px-6 py-3">
-                  Color
-                </th>
-                <th scope="col" className="px-6 py-3">
                   Category
                 </th>
                 <th scope="col" className="px-6 py-3">
-                  Price
+                  Price ( &#8377; )
                 </th>
                 <th scope="col" className="px-6 py-3">
                   <span className="sr-only">Edit</span>
@@ -113,7 +110,6 @@ function AdminHomeComponent() {
                     {prod.name}
                   </th>
                   <td className="px-6 py-4">{prod._id}</td>
-                  <td className="px-6 py-4">Silver</td>
                   <td className="px-6 py-4">{prod.category}</td>
                   <td className="px-6 py-4">{prod.price}</td>
                   <td className="px-6 py-4 text-right">

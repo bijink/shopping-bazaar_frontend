@@ -20,12 +20,12 @@ export default function SignoutConfirmation({
   const queryClient = useQueryClient();
 
   const handleSignout = () => {
-    Cookies.remove('token');
     setOpen(false);
+    queryClient.removeQueries({ queryKey: ['user'], exact: false });
+    queryClient.removeQueries({ queryKey: ['cart'], exact: false });
+    queryClient.removeQueries({ queryKey: ['orders'], exact: false });
     navigate({ to: '/' }).then(() => {
-      queryClient.removeQueries({ queryKey: ['user'], exact: false });
-      queryClient.removeQueries({ queryKey: ['cart'], exact: false });
-      queryClient.removeQueries({ queryKey: ['orders'], exact: false });
+      Cookies.remove('token');
       window.location.reload();
     });
   };

@@ -139,7 +139,7 @@ function CartComponent() {
                           <div className="flex flex-row justify-end">
                             <p className="text-md">
                               <span>&#8377;</span>
-                              {item.price}
+                              {item.quantity * item.price}
                             </p>
                           </div>
                           <div className="flex flex-row items-center justify-end border-gray-100">

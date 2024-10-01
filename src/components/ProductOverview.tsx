@@ -48,7 +48,13 @@ function DisplayImageUI({
   );
 }
 
-export default function ProductOverview({ product }: { product: ProductWithBase64Image }) {
+export default function ProductOverview({
+  product,
+  isAdmin,
+}: {
+  product: ProductWithBase64Image;
+  isAdmin?: boolean;
+}) {
   const user = useLocalUser();
   const queryClient = useQueryClient();
 
@@ -289,13 +295,15 @@ export default function ProductOverview({ product }: { product: ProductWithBase6
                 </fieldset>
               </div>
 
-              <button
-                type="submit"
-                disabled={!selectedColor || !selectedSize || user?.role !== 'customer'}
-                className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-400"
-              >
-                Add to cart
-              </button>
+              {!isAdmin && (
+                <button
+                  type="submit"
+                  disabled={!selectedColor || !selectedSize || user?.role !== 'customer'}
+                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-400"
+                >
+                  Add to cart
+                </button>
+              )}
             </form>
           </div>
 
