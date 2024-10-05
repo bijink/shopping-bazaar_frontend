@@ -1,10 +1,11 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-if (!import.meta.env.VITE_DOMAIN_NAME || !import.meta.env.VITE_API_VERSION)
-  throw new Error('DOMAIN_NAME or API_VERSION env is missing');
+if (!import.meta.env.VITE_BACKEND_API_DOMAIN_NAME || !import.meta.env.VITE_BACKEND_API_VERSION)
+  throw new Error('BACKEND_API_DOMAIN_NAME or BACKEND_API_VERSION env is missing');
 
-const baseURL = import.meta.env.VITE_DOMAIN_NAME + import.meta.env.VITE_API_VERSION;
+const baseURL =
+  import.meta.env.VITE_BACKEND_API_DOMAIN_NAME + import.meta.env.VITE_BACKEND_API_VERSION;
 
 export const axiosInstance = axios.create({
   baseURL,

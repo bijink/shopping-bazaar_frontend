@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools as TanStackQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import React, { Suspense } from 'react';
 import ContextProviders from './contexts';
 import { routeTree } from './routeTree.gen';
 
@@ -17,12 +17,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+const TanStackRouterDevtools =
+  process.env.NODE_ENV === 'production'
+    ? () => null
+    : React.lazy(() =>
+        import('@tanstack/router-devtools').then((res) => ({
+          default: res.TanStackRouterDevtools,
+        })),
+      );
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ContextProviders>
         <RouterProvider router={router} />
-        <TanStackRouterDevtools router={router} />
+        <Suspense>
+          <TanStackRouterDevtools router={router} />
+        </Suspense>
         <TanStackQueryDevtools />
       </ContextProviders>
     </QueryClientProvider>

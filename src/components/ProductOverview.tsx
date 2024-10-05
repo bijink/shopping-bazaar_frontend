@@ -1,5 +1,3 @@
-'use client';
-
 import { Radio, RadioGroup } from '@headlessui/react';
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
+import LoadingSpinner from '../LoadingSpinner';
 import { canvasPreview } from './canvasPreview';
 import croppedImgData from './croppedImgData';
 import { useDebounceEffect } from './useDebounceEffect';
@@ -49,6 +50,9 @@ export default function ImageCrop({
   const [rotate, setRotate] = useState(0);
   const [aspect] = useState<number | undefined>(aspectValue || 16 / 9);
 
+  // loading when blob file is creating
+  const [isBlobCreationLoading, setIsBlobCreationLoading] = useState(true);
+
   useEffect(() => {
     if (selectedFile) {
       setCrop(undefined); // Makes crop preview update between images.
@@ -75,9 +79,9 @@ export default function ImageCrop({
         imgRef.current &&
         previewCanvasRef.current
       ) {
+        setIsBlobCreationLoading(true);
         // We use canvasPreview as it's much faster than imgPreview.
         canvasPreview(imgRef.current, previewCanvasRef.current, completedCrop, scale, rotate);
-
         const blob = await croppedImgData({
           image: imgRef.current!,
           crop: completedCrop!,
@@ -88,6 +92,7 @@ export default function ImageCrop({
           return response.blob;
         });
         getBlob(blob);
+        setIsBlobCreationLoading(false);
       }
     }, [completedCrop, scale, rotate, getBlob]),
     100,
@@ -135,13 +140,20 @@ export default function ImageCrop({
           minHeight={100}
           circularCrop={enableCircularCrop}
         >
-          <img
-            ref={imgRef}
-            alt="Crop me"
-            src={imgSrc}
-            style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-            onLoad={onImageLoad}
-          />
+          <div className="relative">
+            <img
+              ref={imgRef}
+              alt="Crop me"
+              src={imgSrc}
+              style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+              onLoad={onImageLoad}
+            />
+            {isBlobCreationLoading && (
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-black/50 p-1">
+                <LoadingSpinner size={8} styles="" />
+              </div>
+            )}
+          </div>
         </ReactCrop>
       )}
       {!!completedCrop && (

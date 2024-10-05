@@ -1,5 +1,3 @@
-'use client';
-
 import { Dialog, DialogBackdrop, DialogPanel, PopoverGroup } from '@headlessui/react';
 import { Bars3Icon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { ShoppingBagIcon, UserCircleIcon } from '@heroicons/react/24/solid';

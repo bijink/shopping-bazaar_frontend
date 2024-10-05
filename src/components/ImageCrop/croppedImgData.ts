@@ -3,10 +3,25 @@ import { canvasPreview } from './canvasPreview';
 
 let previewUrl = '';
 
-function toBlob(canvas: HTMLCanvasElement, type?: string, quality?: number): Promise<Blob> {
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => resolve(blob!), type, quality);
+async function toBlob(canvas: HTMLCanvasElement, maxSizeBytes: number, type: string) {
+  let quality = 1.0; // Start with the highest quality
+  // Use a loop to progressively reduce the quality or resize the image
+  while (quality > 0) {
+    const blob: Blob = await new Promise((resolve) => {
+      canvas.toBlob((blob) => resolve(blob!), type, quality);
+    });
+    // Check the file size
+    if (blob.size <= maxSizeBytes) {
+      return blob; // Return the image blob if it's under the size limit
+    }
+    // Reduce quality in steps (e.g., decrease by 0.1 each iteration)
+    quality -= 0.1;
+  }
+  // Return image with quality 0.0 if unable to compress image below the target size
+  const blob: Blob = await new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob!), type, 0.0);
   });
+  return blob;
 }
 
 // Returns an object contained with -
@@ -18,20 +33,19 @@ export default async function croppedImgData({
   crop,
   scale = 1,
   rotate = 0,
-  type = 'image/png',
-  quality = 1,
+  type = 'image/jpeg',
 }: {
   image: HTMLImageElement;
   crop: PixelCrop;
   scale?: number;
   rotate?: number;
   type?: string;
-  quality?: number;
 }) {
+  const maxSizeBytes = 0.5 * 1024 * 1024;
   const canvas = document.createElement('canvas');
   canvasPreview(image, canvas, crop, scale, rotate);
 
-  const blob = await toBlob(canvas, type, quality);
+  const blob = await toBlob(canvas, maxSizeBytes, type);
   if (previewUrl) {
     URL.revokeObjectURL(previewUrl);
   }
