@@ -194,7 +194,7 @@ function ProductEditComponent() {
               headers: {
                 'Content-Type': 'multipart/form-data',
               },
-              timeout: 90000,
+              timeout: 0,
             });
             // #insert img reference in product data
             const imgFileNames = imageUploaded?.data?.filenames;

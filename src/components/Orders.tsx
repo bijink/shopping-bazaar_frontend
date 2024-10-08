@@ -27,6 +27,10 @@ const orderStatusColors = {
   delivered: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
 };
+const paymentMethods = [
+  { name: 'Pay on delivery', value: 'POD' },
+  { name: 'Online payment', value: 'POL' },
+];
 
 export default function Orders({
   data: { orders, isLoading, showOrderedItems, setShowOrderedItems },
@@ -56,6 +60,11 @@ export default function Orders({
         await queryClient.invalidateQueries({ queryKey: ['orders', 'admin'], refetchType: 'all' });
       });
   };
+
+  function getPaymentMethodNameByValue(value: string) {
+    const paymentMethod = paymentMethods.find((method) => method.value === value);
+    return paymentMethod ? paymentMethod.name : null; // Return null if not found
+  }
 
   return (
     <>
@@ -88,7 +97,9 @@ export default function Orders({
                           Total Amount: <span>&#8377;</span>
                           {order.totalAmount}
                         </p>
-                        <p className="text-gray-600">Payment Method: {order.paymentMethod}</p>
+                        <p className="text-gray-600">
+                          Payment Method: {getPaymentMethodNameByValue(order.paymentMethod)}
+                        </p>
                         <div className="flex space-x-2">
                           <span
                             className={twMerge(
@@ -224,61 +235,67 @@ export default function Orders({
                       leaveTo="opacity-0 max-h-0"
                     >
                       <div className="mt-4 space-y-4 overflow-hidden">
-                        {order.orderedItems.map((item) => (
-                          <div
-                            key={item._id}
-                            className="flex items-center justify-between rounded-lg bg-gray-50 p-4"
-                          >
-                            <div className="flex items-center space-x-4">
-                              <div>
-                                <div className="flex flex-row space-x-2">
-                                  <h4
-                                    className={twMerge(
-                                      'font-semibold text-gray-800',
-                                      order.orderStatus === 'cancelled' && 'line-through',
-                                    )}
-                                  >
-                                    {item.name}
-                                  </h4>
-                                  <ArrowTopRightOnSquareIcon
-                                    className="w-4 cursor-pointer text-indigo-700"
-                                    onClick={() => {
-                                      navigate({
-                                        to: '/product/$productId',
-                                        params: { productId: item.product_id },
-                                      });
-                                    }}
-                                  />
-                                </div>
-                                <p className="text-sm text-gray-600">
-                                  Size: {item.size.toUpperCase()}
-                                </p>
-                                <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                  <span>Color:</span>
-                                  <span>{stringOps.capitalizeFirstWord(item.color.name)}</span>
-                                  <span
-                                    className="h-4 w-4 cursor-pointer rounded-full border border-gray-300"
-                                    style={{ backgroundColor: item.color.hex }}
-                                    data-twe-toggle="tooltip"
-                                    title={stringOps.capitalizeFirstWord(item.color.name)}
-                                  />
+                        {order.orderedItems.length ? (
+                          order.orderedItems.map((item) => (
+                            <div
+                              key={item._id}
+                              className="flex items-center justify-between rounded-lg bg-gray-50 p-4"
+                            >
+                              <div className="flex items-center space-x-4">
+                                <div>
+                                  <div className="flex flex-row space-x-2">
+                                    <h4
+                                      className={twMerge(
+                                        'font-semibold text-gray-800',
+                                        order.orderStatus === 'cancelled' && 'line-through',
+                                      )}
+                                    >
+                                      {item.name}
+                                    </h4>
+                                    <ArrowTopRightOnSquareIcon
+                                      className="w-4 cursor-pointer text-indigo-700"
+                                      onClick={() => {
+                                        navigate({
+                                          to: '/product/$productId',
+                                          params: { productId: item.product_id },
+                                        });
+                                      }}
+                                    />
+                                  </div>
+                                  <p className="text-sm text-gray-600">
+                                    Size: {item.size.toUpperCase()}
+                                  </p>
+                                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                                    <span>Color:</span>
+                                    <span>{stringOps.capitalizeFirstWord(item.color.name)}</span>
+                                    <span
+                                      className="h-4 w-4 cursor-pointer rounded-full border border-gray-300"
+                                      style={{ backgroundColor: item.color.hex }}
+                                      data-twe-toggle="tooltip"
+                                      title={stringOps.capitalizeFirstWord(item.color.name)}
+                                    />
+                                  </div>
                                 </div>
                               </div>
+                              <div className="text-right">
+                                <p
+                                  className={twMerge(
+                                    'font-semibold text-gray-800',
+                                    order.orderStatus === 'cancelled' && 'line-through',
+                                  )}
+                                >
+                                  <span>&#8377;</span>
+                                  {item.price}
+                                </p>
+                                <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p
-                                className={twMerge(
-                                  'font-semibold text-gray-800',
-                                  order.orderStatus === 'cancelled' && 'line-through',
-                                )}
-                              >
-                                <span>&#8377;</span>
-                                {item.price}
-                              </p>
-                              <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                            </div>
+                          ))
+                        ) : (
+                          <div>
+                            <p className="text-sm font-light">Ordered items are not available</p>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </Transition>
                   </div>

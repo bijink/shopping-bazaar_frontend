@@ -172,7 +172,7 @@ export default function ProductOverview({
 
         {/* Image gallery */}
         {!!product.images.length && (
-          <div className="mx-auto mt-6 h-[32rem] lg:grid lg:grid-cols-3 lg:gap-x-8">
+          <div className="mx-auto mt-6 h-[32rem] sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
             <div className="">
               <DisplayImageUI index={0} image={product.images[0]} height={32} />
             </div>
@@ -180,7 +180,7 @@ export default function ProductOverview({
               <DisplayImageUI index={1} image={product.images[1]} height={15} />
               <DisplayImageUI index={2} image={product.images[2]} height={15} />
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden sm:block">
               <DisplayImageUI index={3} image={product.images[3]} height={32} />
             </div>
           </div>

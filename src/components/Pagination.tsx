@@ -17,18 +17,41 @@ export default function Pagination({
   return (
     <div className="flex items-center justify-between border-t border-gray-200 pb-10 pt-3 sm:pb-10 sm:pt-0">
       <div className="flex flex-1 justify-between sm:hidden">
-        <a
-          href="#"
-          className="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        <button
+          className="relative inline-flex cursor-pointer items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-default disabled:text-gray-400 disabled:hover:bg-white"
+          onClick={() => {
+            navigate({
+              search: { page: isNaN(page) ? 1 : page - 1 },
+            }).then(async () => {
+              await queryClient.refetchQueries({
+                queryKey: ['products', 'customer'],
+                type: 'active',
+              });
+            });
+          }}
+          disabled={page <= 1}
         >
           Previous
-        </a>
-        <a
-          href="#"
-          className="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        </button>
+        <div>
+          <p className="flex h-9 items-end px-4 py-0 text-sm text-gray-700">{page}</p>
+        </div>
+        <button
+          className="relative inline-flex cursor-pointer items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-default disabled:text-gray-400 disabled:hover:bg-white"
+          onClick={() => {
+            navigate({
+              search: { page: isNaN(page) ? 1 : page + 1 },
+            }).then(async () => {
+              await queryClient.refetchQueries({
+                queryKey: ['products', 'customer'],
+                type: 'active',
+              });
+            });
+          }}
+          disabled={limit * page >= productsLength}
         >
           Next
-        </a>
+        </button>
       </div>
       <div className="hidden sm:flex sm:flex-1 sm:items-end sm:justify-between">
         <div>

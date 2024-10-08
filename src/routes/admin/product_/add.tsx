@@ -184,7 +184,7 @@ function ProductAddComponent() {
             }
           }
         } finally {
-          queryClient.invalidateQueries({ queryKey: ['products', 'admin'] });
+          queryClient.invalidateQueries({ queryKey: ['products'] });
           navigate({ to: '/admin' });
         }
       }
