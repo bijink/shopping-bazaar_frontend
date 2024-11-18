@@ -25,10 +25,10 @@ export default function Toast({
         </svg>
         <span className="sr-only">Check icon</span>
       </div>
-      <div className="ms-3 text-sm font-normal">{message}</div>
+      <div className="ms-3 text-sm font-normal dark:text-gray-300">{message}</div>
       <button
         type="button"
-        className="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
+        className="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-900 focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:hover:text-gray-100"
         data-dismiss-target="#toast-success"
         aria-label="Close"
         onClick={closeToast}

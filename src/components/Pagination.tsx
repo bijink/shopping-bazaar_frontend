@@ -15,10 +15,11 @@ export default function Pagination({
   const queryClient = useQueryClient();
 
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 pb-10 pt-3 sm:pb-10 sm:pt-0">
+    <div className="flex items-center justify-between border-t border-gray-200 pb-10 pt-3 sm:pb-10 sm:pt-0 dark:border-gray-600">
+      {/* mobile */}
       <div className="flex flex-1 justify-between sm:hidden">
         <button
-          className="relative inline-flex cursor-pointer items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-default disabled:text-gray-400 disabled:hover:bg-white"
+          className="relative inline-flex cursor-pointer items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-default disabled:text-gray-400 disabled:hover:bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 dark:disabled:text-gray-500 dark:disabled:hover:bg-gray-700"
           onClick={() => {
             navigate({
               search: { page: isNaN(page) ? 1 : page - 1 },
@@ -34,10 +35,12 @@ export default function Pagination({
           Previous
         </button>
         <div>
-          <p className="flex h-9 items-end px-4 py-0 text-sm text-gray-700">{page}</p>
+          <p className="flex h-9 items-end px-4 py-0 text-sm text-gray-700 dark:text-gray-100">
+            {page}
+          </p>
         </div>
         <button
-          className="relative inline-flex cursor-pointer items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-default disabled:text-gray-400 disabled:hover:bg-white"
+          className="relative inline-flex cursor-pointer items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-default disabled:text-gray-400 disabled:hover:bg-white dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600 dark:disabled:text-gray-500 dark:disabled:hover:bg-gray-700"
           onClick={() => {
             navigate({
               search: { page: isNaN(page) ? 1 : page + 1 },
@@ -53,10 +56,11 @@ export default function Pagination({
           Next
         </button>
       </div>
+      {/* non-mobile */}
       <div className="hidden sm:flex sm:flex-1 sm:items-end sm:justify-between">
         <div>
           <button
-            className="flex h-9 items-end border-t border-transparent pr-1 text-sm font-normal text-indigo-600 hover:border-t-gray-400 hover:text-indigo-800 disabled:text-gray-400 disabled:hover:border-transparent"
+            className="flex h-9 items-end border-t border-transparent pr-1 text-sm font-normal text-indigo-600 hover:border-t-gray-400 hover:text-indigo-800 disabled:text-gray-400 disabled:hover:border-transparent dark:text-indigo-400 dark:hover:border-t-gray-600 dark:hover:text-indigo-500 dark:disabled:text-gray-500"
             onClick={() => {
               navigate({
                 search: { page: isNaN(page) ? 1 : page - 1 },
@@ -74,11 +78,13 @@ export default function Pagination({
           </button>
         </div>
         <div>
-          <p className="flex h-9 items-end px-4 py-0 text-sm text-gray-700">{page}</p>
+          <p className="flex h-9 items-end px-4 py-0 text-sm text-gray-700 dark:text-gray-100">
+            {page}
+          </p>
         </div>
         <div className="">
           <button
-            className="flex h-9 items-end border-t border-transparent pl-1 text-sm font-normal text-indigo-600 hover:border-t-gray-400 hover:text-indigo-800 disabled:text-gray-400 disabled:hover:border-transparent"
+            className="flex h-9 items-end border-t border-transparent pl-1 text-sm font-normal text-indigo-600 hover:border-t-gray-400 hover:text-indigo-800 disabled:text-gray-400 disabled:hover:border-transparent dark:text-indigo-400 dark:hover:border-t-gray-600 dark:hover:text-indigo-500 dark:disabled:text-gray-500"
             onClick={() => {
               navigate({
                 search: { page: isNaN(page) ? 1 : page + 1 },

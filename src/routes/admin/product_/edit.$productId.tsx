@@ -267,11 +267,11 @@ function ProductEditComponent() {
             type="checkbox"
             checked={suitableForSelectedOptions.includes(value)}
             onChange={handleSuitableForCheckboxChange}
-            className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+            className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-500 dark:bg-gray-700"
           />
         </div>
         <div className="text-sm leading-6">
-          <label htmlFor={value} className="text-black">
+          <label htmlFor={value} className="text-black dark:text-gray-100">
             {stringOps.capitalizeFirstWord(value)}
           </label>
         </div>
@@ -289,11 +289,11 @@ function ProductEditComponent() {
             // eslint-disable-next-line  @typescript-eslint/no-explicit-any
             checked={(sizesSelectedOptions as any)[value]}
             onChange={handleSizeCheckboxChange}
-            className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+            className="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 dark:border-gray-500 dark:bg-gray-700"
           />
         </div>
         <div className="text-sm leading-6">
-          <label htmlFor={value} className="text-black">
+          <label htmlFor={value} className="text-black dark:text-gray-100">
             {stringOps.uppercase(value)}
           </label>
         </div>
@@ -304,7 +304,9 @@ function ProductEditComponent() {
   return (
     <div className="py-0">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-black">Edit Product</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-black dark:text-gray-100">
+          Edit Product
+        </h2>
       </div>
       <form
         onSubmit={(e) => {
@@ -323,7 +325,7 @@ function ProductEditComponent() {
                     <>
                       <label
                         htmlFor={field.name}
-                        className="block text-sm font-medium leading-6 text-black"
+                        className="block text-sm font-medium leading-6 text-black dark:text-gray-100"
                       >
                         Name
                         <span className="text-red-400"> *</span>
@@ -332,7 +334,7 @@ function ProductEditComponent() {
                         id={field.name}
                         name={field.name}
                         type="text"
-                        className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-500"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -349,7 +351,7 @@ function ProductEditComponent() {
                     <>
                       <label
                         htmlFor={field.name}
-                        className="block text-sm font-medium leading-6 text-black"
+                        className="block text-sm font-medium leading-6 text-black dark:text-gray-100"
                       >
                         Category
                         <span className="text-red-400"> *</span>
@@ -358,7 +360,7 @@ function ProductEditComponent() {
                         id={field.name}
                         name={field.name}
                         type="text"
-                        className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-500"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -369,7 +371,7 @@ function ProductEditComponent() {
               </div>
               {/* suitableFor */}
               <fieldset className="space-y-2">
-                <label className="text-sm font-medium leading-6 text-black">
+                <label className="text-sm font-medium leading-6 text-black dark:text-gray-100">
                   Suitable for
                   <span className="text-red-400"> *</span>
                 </label>
@@ -381,7 +383,7 @@ function ProductEditComponent() {
               </fieldset>
               {/* size */}
               <fieldset className="space-y-2">
-                <label className="text-sm font-medium leading-6 text-black">
+                <label className="text-sm font-medium leading-6 text-black dark:text-gray-100">
                   Size
                   <span className="text-red-400"> *</span>
                 </label>
@@ -398,7 +400,10 @@ function ProductEditComponent() {
               </fieldset>
               {/* colors */}
               <div className="space-y-2">
-                <label htmlFor="colors" className="block text-sm font-medium leading-6 text-black">
+                <label
+                  htmlFor="colors"
+                  className="block text-sm font-medium leading-6 text-black dark:text-gray-100"
+                >
                   Colors
                   <span className="text-red-400"> *</span>
                 </label>
@@ -433,7 +438,7 @@ function ProductEditComponent() {
                           </div>
                           <input
                             type="text"
-                            className="w-16 rounded-md border-0 py-0 text-[12px] text-black ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:leading-6"
+                            className="w-16 rounded-md border-0 py-0 text-[12px] text-black ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-indigo-600 sm:leading-6 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-500"
                             placeholder="Name"
                             value={color.name || ''}
                             onChange={(e) => handleColorInputName(e, index)}
@@ -454,7 +459,7 @@ function ProductEditComponent() {
                     <>
                       <label
                         htmlFor={field.name}
-                        className="block text-sm font-medium leading-6 text-black"
+                        className="block text-sm font-medium leading-6 text-black dark:text-gray-100"
                       >
                         Price
                         <span className="text-red-400"> *</span>
@@ -463,7 +468,7 @@ function ProductEditComponent() {
                         id={field.name}
                         name={field.name}
                         type="number"
-                        className="hide-number-input-arrow w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        className="hide-number-input-arrow w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-500"
                         value={field.state.value.toString().length > 0 ? field.state.value : ''}
                         onBlur={field.handleBlur}
                         onChange={(e) =>
@@ -484,7 +489,7 @@ function ProductEditComponent() {
                     <>
                       <label
                         htmlFor={field.name}
-                        className="block text-sm font-medium leading-6 text-black"
+                        className="block text-sm font-medium leading-6 text-black dark:text-gray-100"
                       >
                         Description
                         <span className="text-red-400"> *</span>
@@ -493,7 +498,7 @@ function ProductEditComponent() {
                         id={field.name}
                         name={field.name}
                         rows={3}
-                        className="min-h-[100px] w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        className="min-h-[100px] w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-500"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -510,7 +515,7 @@ function ProductEditComponent() {
                     <>
                       <label
                         htmlFor={field.name}
-                        className="block text-sm font-medium leading-6 text-black"
+                        className="block text-sm font-medium leading-6 text-black dark:text-gray-100"
                       >
                         Details
                         <span className="text-red-400"> *</span>
@@ -519,7 +524,7 @@ function ProductEditComponent() {
                         id={field.name}
                         name={field.name}
                         rows={3}
-                        className="min-h-[100px] w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                        className="min-h-[100px] w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-500"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
@@ -532,7 +537,7 @@ function ProductEditComponent() {
               <div className="space-y-2">
                 <label
                   htmlFor="highlights"
-                  className="block text-sm font-medium leading-6 text-black"
+                  className="block text-sm font-medium leading-6 text-black dark:text-gray-100"
                 >
                   Highlights
                 </label>
@@ -543,7 +548,7 @@ function ProductEditComponent() {
                   onChange={handleHighlightInputChange}
                   onKeyDown={handleHighlightInputKeyDown}
                   placeholder="Type and press Enter"
-                  className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-gray-100 dark:ring-gray-500"
                 />
                 <ul className="list-disc space-y-1 pl-5">
                   {highlights.map((item, index) => (
@@ -552,7 +557,7 @@ function ProductEditComponent() {
                         <span className="break-all">{item}</span>
                         <button
                           onClick={(e) => handleRemoveHighlightItem(e, index)}
-                          className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                          className="text-2xl text-gray-500 hover:text-gray-700 focus:outline-none dark:text-gray-300 dark:hover:text-gray-200"
                         >
                           &times;
                         </button>
@@ -566,7 +571,9 @@ function ProductEditComponent() {
           {/* images */}
           <div className="mt-6 space-y-2">
             <div className="flex flex-row space-x-2">
-              <label className="block text-sm font-medium leading-6 text-black">Images</label>
+              <label className="block text-sm font-medium leading-6 text-black dark:text-gray-100">
+                Images
+              </label>
               <label className="mb-5 inline cursor-pointer items-center">
                 <input
                   name="isImageEditOpen"
@@ -583,7 +590,7 @@ function ProductEditComponent() {
                 {selectedImageFiles.map((file, index) => (
                   <div
                     key={index}
-                    className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6"
+                    className="col-span-12 w-full rounded-lg border border-dashed border-gray-900/25 lg:col-span-6 dark:border-gray-100/25"
                   >
                     {!file && (
                       <div className="flex h-full w-full items-center justify-center px-6 py-10">

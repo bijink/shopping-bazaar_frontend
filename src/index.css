@@ -14,3 +14,9 @@
     @apply [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none;
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: #030712;
+  }
+}

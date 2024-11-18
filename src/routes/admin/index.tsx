@@ -66,7 +66,9 @@ function AdminHomeComponent() {
     <>
       <div className="flex justify-between pb-5">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-black">Products</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-black dark:text-gray-100">
+            Products
+          </h2>
         </div>
         <Link
           to="/admin/product/add"

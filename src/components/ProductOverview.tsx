@@ -104,7 +104,7 @@ export default function ProductOverview({
                   <span className="font-light text-gray-500">&#10098;</span>
                   {product.suitableFor.map((item, i) => (
                     <div key={i} className="flex flex-row items-center">
-                      <p className="mr-2 text-sm font-medium text-gray-900">
+                      <p className="mr-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                         {stringOps.capitalizeFirstWord(item)}
                       </p>
                       {i !== product.suitableFor.length - 1 && (
@@ -127,7 +127,7 @@ export default function ProductOverview({
               </li>
               <li>
                 <div className="flex items-center">
-                  <p className="mr-2 text-sm font-medium text-gray-900">
+                  <p className="mr-2 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {stringOps.capitalizeFirstWord(product.category)}
                   </p>
                   <svg
@@ -143,7 +143,7 @@ export default function ProductOverview({
                 </div>
               </li>
               <li className="text-sm">
-                <p className="font-medium text-gray-500">
+                <p className="font-medium text-gray-500 dark:text-gray-400">
                   {stringOps.capitalizeFirstWord(product.name)}
                 </p>
               </li>
@@ -188,8 +188,8 @@ export default function ProductOverview({
 
         {/* Product info */}
         <div className="mx-auto pb-16 pt-10 lg:grid lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:pb-24 lg:pt-16">
-          <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8">
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+          <div className="lg:col-span-2 lg:border-r lg:border-gray-200 lg:pr-8 dark:border-gray-600">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100">
               {stringOps.capitalizeFirstWord(product.name)}
             </h1>
           </div>
@@ -197,7 +197,7 @@ export default function ProductOverview({
           {/* Options */}
           <div className="mt-4 lg:row-span-3 lg:mt-0">
             <h2 className="sr-only">Product information</h2>
-            <p className="text-3xl tracking-tight text-gray-900">
+            <p className="text-3xl tracking-tight text-gray-900 dark:text-gray-100">
               <span>&#8377;</span>
               {product.price}
             </p>
@@ -205,7 +205,7 @@ export default function ProductOverview({
             <form className="mt-10" onSubmit={handleAddToCartSubmit}>
               {/* Colors */}
               <div>
-                <h3 className="text-sm font-medium text-gray-900">Color</h3>
+                <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Color</h3>
 
                 <fieldset aria-label="Choose a color" className="mt-4">
                   <RadioGroup
@@ -236,7 +236,7 @@ export default function ProductOverview({
               {/* Sizes */}
               <div className="mt-10">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-900">Size</h3>
+                  <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Size</h3>
                   {/* <a href="#" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                     Size guide
                   </a> */}
@@ -254,28 +254,28 @@ export default function ProductOverview({
                         value={size}
                         disabled={!inStock}
                         className={twMerge(
-                          'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6',
+                          'group relative flex items-center justify-center rounded-md border px-4 py-3 text-sm font-medium uppercase hover:bg-gray-50 focus:outline-none data-[focus]:ring-2 data-[focus]:ring-indigo-500 sm:flex-1 sm:py-6 dark:hover:bg-gray-700',
                           inStock
-                            ? 'cursor-pointer bg-white text-gray-900 shadow-sm'
-                            : 'cursor-not-allowed bg-gray-50 text-gray-200',
+                            ? 'cursor-pointer bg-white text-gray-900 shadow-sm dark:bg-gray-600 dark:text-gray-200'
+                            : 'cursor-not-allowed bg-gray-50 text-gray-200 dark:bg-gray-700 dark:text-gray-500',
                         )}
                       >
                         <span>{size}</span>
                         {inStock ? (
                           <span
                             aria-hidden="true"
-                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-indigo-500"
+                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-transparent group-data-[focus]:border group-data-[checked]:border-indigo-500 dark:border-gray-500"
                           />
                         ) : (
                           <span
                             aria-hidden="true"
-                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200"
+                            className="pointer-events-none absolute -inset-px rounded-md border-2 border-gray-200 dark:border-gray-500"
                           >
                             <svg
                               stroke="currentColor"
                               viewBox="0 0 100 100"
                               preserveAspectRatio="none"
-                              className="absolute inset-0 h-full w-full stroke-2 text-gray-200"
+                              className="absolute inset-0 h-full w-full stroke-2 text-gray-200 dark:text-gray-500"
                             >
                               <line
                                 x1={0}
@@ -297,7 +297,7 @@ export default function ProductOverview({
                 <button
                   type="submit"
                   disabled={!selectedColor || !selectedSize || user?.role !== 'customer'}
-                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-400"
+                  className="mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-400 dark:disabled:bg-indigo-900 dark:disabled:text-gray-500"
                 >
                   Add to cart
                 </button>
@@ -305,26 +305,24 @@ export default function ProductOverview({
             </form>
           </div>
 
-          <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6">
+          <div className="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-gray-200 lg:pb-16 lg:pr-8 lg:pt-6 dark:border-gray-600">
             {/* Description and details */}
             <div>
               <h3 className="sr-only">Description</h3>
 
               <div className="space-y-6">
-                <p className="text-base text-gray-900">{product.description}</p>
+                <p className="text-base text-gray-900 dark:text-gray-100">{product.description}</p>
               </div>
             </div>
 
             <div className="mt-10">
-              <h3 className="text-sm font-medium text-gray-900">Highlights</h3>
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Highlights</h3>
 
               <div className="mt-4">
                 <ul role="list" className="list-disc space-y-2 pl-4 text-sm">
                   {product.highlights.map((highlight) => (
-                    <li key={highlight} className="text-gray-400">
-                      <span className="text-gray-600">
-                        {stringOps.capitalizeFirstWord(highlight)}
-                      </span>
+                    <li key={highlight} className="text-gray-600 dark:text-gray-300">
+                      {stringOps.capitalizeFirstWord(highlight)}
                     </li>
                   ))}
                 </ul>
@@ -332,10 +330,9 @@ export default function ProductOverview({
             </div>
 
             <div className="mt-10">
-              <h2 className="text-sm font-medium text-gray-900">Details</h2>
-
+              <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">Details</h2>
               <div className="mt-4 space-y-6">
-                <p className="text-sm text-gray-600">{product.details}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{product.details}</p>
               </div>
             </div>
           </div>

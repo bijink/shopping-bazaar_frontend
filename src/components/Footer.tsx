@@ -2,7 +2,7 @@ import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-100 text-gray-700">
+    <footer className="bg-gray-100 text-gray-700 dark:bg-gray-950 dark:text-gray-300">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -83,7 +83,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t pt-6 text-center">
+        <div className="mt-10 border-t pt-6 text-center dark:border-gray-600">
           <p>&copy; 2024 Your Company. All rights reserved.</p>
         </div>
       </div>

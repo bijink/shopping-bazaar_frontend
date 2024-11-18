@@ -170,7 +170,9 @@ function PlaceOrderComponent() {
   if (user?.role !== 'customer') return <ForbiddenPage />;
   return (
     <div className="pt-4">
-      <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Place order</h3>
+      <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100">
+        Place order
+      </h3>
       <div className="pt-6 lg:pt-8">
         {!isCartItemsLoading && cartItems?.length ? (
           <>
@@ -189,7 +191,9 @@ function PlaceOrderComponent() {
                         <div className="w-1/2">
                           {userDetails?.address ? (
                             <div>
-                              <p>Address: </p>
+                              <p className="font-bold text-gray-500 dark:text-gray-400">
+                                ADDRESS:{' '}
+                              </p>
                               <div className="pl-3">
                                 <p className="font-bold">{userDetails?.address?.fullname}</p>
                                 <p className="">{userDetails?.address?.building},</p>
@@ -205,9 +209,11 @@ function PlaceOrderComponent() {
                                   <span className="">India</span>
                                 </p>
                               </div>
-                              <p className="">
-                                Phone number:{' '}
-                                <span className="font-bold">{userDetails?.mobile}</span>
+                              <p className="font-bold text-gray-500 dark:text-gray-400">
+                                PHONE NUMBER:{' '}
+                                <span className="text-gray-900 dark:text-gray-100">
+                                  {userDetails?.mobile}
+                                </span>
                               </p>
                             </div>
                           ) : (
@@ -226,12 +232,12 @@ function PlaceOrderComponent() {
                     </>
                   )}
                 </div>
-                <div className="col-span-5 flex h-fit flex-col space-y-4 rounded-lg border p-6 lg:col-span-2">
+                <div className="col-span-5 flex h-fit flex-col space-y-4 rounded-lg border p-6 lg:col-span-2 dark:border-gray-600">
                   <div>
                     <p className="">
                       Total amount: <span className="font-bold">&#8377;{cartTotalAmout}</span>
                     </p>
-                    <hr className="mt-4" />
+                    <hr className="mt-4 dark:border-gray-600" />
                   </div>
                   <div className="pb-6 pt-4">
                     <RadioGroup value={selectedPayMethod} onChange={setSelectedPayMethod}>
@@ -260,12 +266,17 @@ function PlaceOrderComponent() {
                                   <Label
                                     as="p"
                                     className={`text-sm font-medium ${
-                                      checked ? 'text-indigo-600' : 'text-gray-900'
+                                      checked
+                                        ? 'text-indigo-600 dark:text-indigo-500'
+                                        : 'text-gray-900 dark:text-gray-100'
                                     }`}
                                   >
                                     {paymentMethod.name}
                                   </Label>
-                                  <Description as="span" className={`text-sm font-thin text-black`}>
+                                  <Description
+                                    as="span"
+                                    className={`text-sm font-thin text-black dark:text-white`}
+                                  >
                                     {paymentMethod.description}
                                   </Description>
                                 </div>

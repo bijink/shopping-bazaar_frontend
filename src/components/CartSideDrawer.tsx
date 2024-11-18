@@ -52,17 +52,17 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                 transition
                 className="pointer-events-auto w-screen max-w-md transform transition duration-500 ease-in-out data-[closed]:translate-x-full sm:duration-700"
               >
-                <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl dark:bg-gray-900">
                   <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                     <div className="flex items-start justify-between">
-                      <DialogTitle className="text-lg font-medium text-gray-900">
+                      <DialogTitle className="text-lg font-medium text-gray-900 dark:text-gray-100">
                         Shopping cart
                       </DialogTitle>
                       <div className="ml-3 flex h-7 items-center">
                         <button
                           type="button"
                           onClick={() => setOpen(false)}
-                          className="relative -m-2 p-2 text-gray-400 hover:text-gray-500"
+                          className="relative -m-2 p-2 text-gray-400 hover:text-gray-500 dark:text-gray-100 dark:hover:dark:text-gray-300"
                         >
                           <span className="absolute -inset-0.5" />
                           <span className="sr-only">Close panel</span>
@@ -74,10 +74,13 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                     <div className="mt-8">
                       {items.length ? (
                         <div className="flow-root">
-                          <ul role="list" className="-my-6 divide-y divide-gray-200">
+                          <ul
+                            role="list"
+                            className="-my-6 divide-y divide-gray-200 dark:divide-gray-600"
+                          >
                             {items.map((item) => (
                               <li key={item._id} className="flex py-6">
-                                <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                                <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-500">
                                   <img
                                     src={`data:${item.image.mimeType};base64,${item.image.data}`}
                                     alt={`product-${item.name}`}
@@ -87,20 +90,20 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
 
                                 <div className="ml-4 flex flex-1 flex-col">
                                   <div>
-                                    <div className="flex justify-between text-base font-medium text-gray-900">
+                                    <div className="flex justify-between text-base font-medium text-gray-900 dark:text-gray-100">
                                       <h3>{item.name}</h3>
                                       <p className="ml-4">
                                         <span>&#8377;</span>
                                         {item.quantity * item.price}
                                       </p>
                                     </div>
-                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500">
+                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
                                       <p className="">Color:</p>
                                       <p className="font-semibold">
                                         {stringOps.capitalizeFirstWord(item.color.name)}
                                       </p>
                                     </div>
-                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500">
+                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
                                       <p className="">Size:</p>
                                       <p className="font-semibold">
                                         {stringOps.uppercase(item.size)}
@@ -108,7 +111,7 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                                     </div>
                                   </div>
                                   <div className="flex flex-1 items-end justify-between text-sm">
-                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500">
+                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
                                       <p className="">Qty:</p>
                                       <p className="font-semibold">{item.quantity}</p>
                                     </div>
@@ -128,19 +131,19 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                           </ul>
                         </div>
                       ) : (
-                        <p>Cart is empty</p>
+                        <p className="dark:text-gray-200">Cart is empty</p>
                       )}
                     </div>
                   </div>
 
-                  <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
-                    <div className="flex justify-between text-base font-medium text-gray-500">
+                  <div className="border-t border-gray-200 px-4 py-6 sm:px-6 dark:border-gray-600">
+                    <div className="flex justify-between text-base font-medium text-gray-500 dark:text-gray-400">
                       <p>Total no.of items</p>
                       <div className="flex flex-row">
                         <p>{items.length}</p>
                       </div>
                     </div>
-                    <div className="flex justify-between text-base font-medium text-gray-900">
+                    <div className="flex justify-between text-base font-medium text-gray-900 dark:text-gray-100">
                       <p>Total amount</p>
                       <div className="flex flex-row">
                         <span>&#8377;</span>
@@ -159,7 +162,7 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                         Place order
                       </Link>
                     </div>
-                    <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
+                    <div className="mt-6 flex justify-center text-center text-sm text-gray-500 dark:text-gray-300">
                       <p>
                         or{' '}
                         <Link

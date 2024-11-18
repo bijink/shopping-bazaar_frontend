@@ -38,13 +38,13 @@ const MobileMenuDialog = ({
     <div className="fixed inset-0 z-40 flex">
       <DialogPanel
         transition
-        className="relative flex w-full max-w-xs transform flex-col overflow-y-auto bg-white pb-12 shadow-xl transition duration-300 ease-in-out data-[closed]:-translate-x-full"
+        className="relative flex w-full max-w-xs transform flex-col overflow-y-auto bg-white pb-12 shadow-xl transition duration-300 ease-in-out data-[closed]:-translate-x-full dark:bg-gray-900"
       >
         <div className="flex px-4 pb-2 pt-5">
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400"
+            className="relative -m-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400 dark:text-gray-100"
           >
             <span className="absolute -inset-0.5" />
             <span className="sr-only">Close menu</span>
@@ -52,12 +52,12 @@ const MobileMenuDialog = ({
           </button>
         </div>
 
-        <div className="space-y-6 border-t border-gray-200 px-4 py-6">
+        <div className="space-y-6 border-t border-gray-200 px-4 py-6 dark:border-gray-600">
           {user?.role === 'admin' ? (
             <div className="flow-root">
               <Link
                 to="/admin"
-                className="-m-2 block p-2 font-medium text-gray-700"
+                className="-m-2 block p-2 font-medium text-gray-700 dark:text-gray-100 dark:hover:text-gray-300"
                 onClick={() => setOpen(false)}
               >
                 Admin
@@ -67,7 +67,7 @@ const MobileMenuDialog = ({
             <div className="flow-root">
               <Link
                 to="/"
-                className="-m-2 block p-2 font-medium text-gray-700"
+                className="-m-2 block p-2 font-medium text-gray-700 dark:text-gray-100 dark:hover:text-gray-300"
                 onClick={() => setOpen(false)}
               >
                 Home
@@ -80,8 +80,8 @@ const MobileMenuDialog = ({
                 key={page.name}
                 to={page.href}
                 className={twMerge(
-                  '-m-2 block p-2 font-medium text-gray-700',
-                  user?.role !== 'customer' && 'cursor-default text-gray-200',
+                  '-m-2 block p-2 font-medium text-gray-700 dark:text-gray-100',
+                  user?.role !== 'customer' && 'cursor-default text-gray-200 dark:text-gray-700',
                 )}
                 disabled={user?.role !== 'customer'}
                 onClick={() => setOpen(false)}
@@ -92,11 +92,11 @@ const MobileMenuDialog = ({
           ))}
         </div>
 
-        <div className="space-y-6 border-t border-gray-200 px-4 py-6">
+        <div className="space-y-6 border-t border-gray-200 px-4 py-6 dark:border-gray-600">
           {user ? (
             <div className="flow-root">
               <button
-                className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                className="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100"
                 onClick={() => {
                   setOpenSignoutDialog(true), setOpen(false);
                 }}
@@ -110,8 +110,9 @@ const MobileMenuDialog = ({
                 <Link
                   to="/signin"
                   className={tm(
-                    '-m-2 block p-2 font-medium text-gray-700 hover:text-gray-900',
-                    pathname === '/signin' && 'cursor-default text-gray-200 hover:text-gray-200',
+                    '-m-2 block p-2 font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-300',
+                    pathname === '/signin' &&
+                      'cursor-default text-gray-200 hover:text-gray-200 dark:dark:text-gray-700 dark:hover:text-gray-700',
                   )}
                   disabled={pathname === '/signin'}
                   onClick={() => setOpen(false)}
@@ -123,8 +124,9 @@ const MobileMenuDialog = ({
                 <Link
                   to="/signup"
                   className={tm(
-                    '-m-2 block p-2 font-medium text-gray-700 hover:text-gray-900',
-                    pathname === '/signup' && 'cursor-default text-gray-400 hover:text-gray-400',
+                    '-m-2 block p-2 font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-300',
+                    pathname === '/signup' &&
+                      'cursor-default text-gray-200 hover:text-gray-200 dark:dark:text-gray-700 dark:hover:text-gray-700',
                   )}
                   disabled={pathname === '/signup'}
                   onClick={() => setOpen(false)}
@@ -165,12 +167,12 @@ export default function Header({ cartCount }: { cartCount?: number }) {
       />
       <header className="relative">
         <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="border-b border-gray-200">
+          <div className="border-b border-gray-200 dark:border-gray-600">
             <div className="flex h-16 items-center">
               <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="relative rounded-md bg-white p-2 text-gray-400 lg:hidden"
+                className="relative rounded-md bg-white p-2 text-gray-400 lg:hidden dark:bg-gray-700 dark:text-gray-100"
               >
                 <span className="absolute -inset-0.5" />
                 <span className="sr-only">Open menu</span>
@@ -191,14 +193,14 @@ export default function Header({ cartCount }: { cartCount?: number }) {
                   {user?.role === 'admin' ? (
                     <Link
                       to="/admin"
-                      className="flex cursor-pointer items-center text-sm font-medium text-gray-700 hover:text-gray-900 [&.active]:text-indigo-600"
+                      className="flex cursor-pointer items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-300 [&.active]:text-indigo-600 dark:[&.active]:text-indigo-500"
                     >
                       Admin
                     </Link>
                   ) : (
                     <Link
                       to="/"
-                      className="flex cursor-pointer items-center text-sm font-medium text-gray-700 hover:text-gray-900 [&.active]:text-indigo-600"
+                      className="flex cursor-pointer items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-300 [&.active]:text-indigo-600 dark:[&.active]:text-indigo-500"
                     >
                       Home
                     </Link>
@@ -208,9 +210,9 @@ export default function Header({ cartCount }: { cartCount?: number }) {
                       key={page.name}
                       to={page.href}
                       className={twMerge(
-                        'flex cursor-pointer items-center text-sm font-medium text-gray-700 hover:text-gray-900 [&.active]:text-indigo-600',
+                        'flex cursor-pointer items-center text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-300 [&.active]:text-indigo-600 dark:[&.active]:text-indigo-500',
                         user?.role !== 'customer' &&
-                          'cursor-default text-gray-200 hover:text-gray-200 [&.active]:text-gray-200',
+                          'cursor-default text-gray-200 hover:text-gray-200 dark:text-gray-600 dark:hover:text-gray-600 [&.active]:text-gray-200 dark:[&.active]:text-gray-600',
                       )}
                       disabled={user?.role !== 'customer'}
                     >
@@ -225,7 +227,7 @@ export default function Header({ cartCount }: { cartCount?: number }) {
                   <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                     {user ? (
                       <button
-                        className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                        className="text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-300"
                         onClick={() => setOpenSignoutDialog(true)}
                       >
                         Sign out
@@ -235,21 +237,24 @@ export default function Header({ cartCount }: { cartCount?: number }) {
                         <Link
                           to="/signin"
                           className={tm(
-                            'text-sm font-medium text-gray-700 hover:text-gray-900',
+                            'text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-300',
                             pathname === '/signin' &&
-                              'cursor-default text-gray-200 hover:text-gray-200',
+                              'cursor-default text-gray-200 hover:text-gray-200 dark:text-gray-600 dark:hover:text-gray-600',
                           )}
                           disabled={pathname === '/signin'}
                         >
                           Sign in
                         </Link>
-                        <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
+                        <span
+                          aria-hidden="true"
+                          className="h-6 w-px bg-gray-200 dark:bg-gray-600"
+                        />
                         <Link
                           to="/signup"
                           className={tm(
-                            'text-sm font-medium text-gray-700 hover:text-gray-900',
+                            'text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-300',
                             pathname === '/signup' &&
-                              'cursor-default text-gray-200 hover:text-gray-200',
+                              'cursor-default text-gray-200 hover:text-gray-200 dark:text-gray-600 dark:hover:text-gray-600',
                           )}
                           disabled={pathname === '/signup'}
                         >
@@ -276,7 +281,7 @@ export default function Header({ cartCount }: { cartCount?: number }) {
                     <div className="ml-2 flow-root">
                       <button
                         onClick={() => cartSideDrawerSetOpen(true)}
-                        className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-500 disabled:text-gray-200"
+                        className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-500 disabled:text-gray-200 dark:text-gray-200 dark:hover:text-gray-300 dark:disabled:text-gray-700"
                         disabled={user?.role !== 'customer'}
                       >
                         <span className="sr-only">Cart</span>
@@ -294,7 +299,7 @@ export default function Header({ cartCount }: { cartCount?: number }) {
                     <div className="ml-2 flow-root">
                       <Link
                         to="/account"
-                        className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-500"
+                        className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-500 dark:text-gray-200 dark:hover:text-gray-300"
                       >
                         <span className="sr-only">User Account</span>
                         <UserCircleIcon aria-hidden="true" className="h-6 w-6 flex-shrink-0" />

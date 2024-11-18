@@ -92,7 +92,9 @@ function AccountComponent() {
       />
       <div className="pt-4">
         <div className="flex flex-row items-center space-x-4">
-          <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Account</h3>
+          <h3 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100">
+            Account
+          </h3>
         </div>
         <div className="mt-6">
           {!openAccountEdit ? (

@@ -87,18 +87,20 @@ function HomeComponent() {
                     </button>
                   </div>
                   <div className="mt-4 sm:hidden">
-                    <h3 className="text-md text-gray-700">{prod.name}</h3>
-                    <p className="mt-1 text-lg font-medium text-gray-900">
+                    <h3 className="text-md text-gray-700 dark:text-gray-100">{prod.name}</h3>
+                    <p className="mt-1 text-lg font-medium text-gray-900 dark:text-gray-300">
                       <span>&#8377;</span>
                       {prod.price}
                     </p>
                   </div>
                   <div className="mt-4 hidden justify-between sm:flex">
                     <div>
-                      <h3 className="text-sm text-gray-700">{prod.name}</h3>
-                      <p className="mt-1 text-sm text-gray-500">{prod.category}</p>
+                      <h3 className="text-sm text-gray-700 dark:text-gray-100">{prod.name}</h3>
+                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-50">
+                        {prod.category}
+                      </p>
                     </div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-300">
                       <span>&#8377;</span>
                       {prod.price}
                     </p>
