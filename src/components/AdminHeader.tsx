@@ -1,6 +1,5 @@
 import { Dialog, DialogBackdrop, DialogPanel, PopoverGroup } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { ShoppingBagIcon } from '@heroicons/react/24/solid';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import SignoutConfirmation from './SignoutConfirmation';
@@ -105,7 +104,11 @@ export default function AdminHeader() {
               <div className="logo ml-4 flex lg:ml-0">
                 <div className="flex space-x-1">
                   <Link to="/">
-                    <ShoppingBagIcon className="h-8 w-8 flex-shrink-0 text-indigo-600 group-hover:text-gray-500" />
+                    <img
+                      src="/icons/page-logo.png"
+                      alt="shopping-bazaar-logo"
+                      className="h-8 w-8"
+                    />
                     <span className="sr-only">Shopping Bazaar - Admin</span>
                   </Link>
                   <Link to="/admin">

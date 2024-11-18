@@ -1,6 +1,6 @@
 import { Dialog, DialogBackdrop, DialogPanel, PopoverGroup } from '@headlessui/react';
 import { Bars3Icon, ShoppingCartIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { ShoppingBagIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { Link, useLocation } from '@tanstack/react-router';
 import { useContext, useState } from 'react';
 import { twMerge as tm, twMerge } from 'tailwind-merge';
@@ -183,7 +183,7 @@ export default function Header({ cartCount }: { cartCount?: number }) {
               <div className="logo ml-4 flex lg:ml-0">
                 <Link to="/">
                   <span className="sr-only">Shopping Bazaar</span>
-                  <ShoppingBagIcon className="h-8 w-8 flex-shrink-0 text-indigo-600 group-hover:text-gray-500" />
+                  <img src="/icons/page-logo.png" alt="shopping-bazaar-logo" className="h-8 w-8" />
                 </Link>
               </div>
 
