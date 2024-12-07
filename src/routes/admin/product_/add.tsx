@@ -170,15 +170,15 @@ function ProductAddComponent() {
           });
           // #insert img reference in user data
           if (imageUploaded) {
-            const imgFileNames = imageUploaded.data.filenames;
-            if (imgFileNames.length) {
+            const imgFileKeys = imageUploaded.data.filekeys;
+            if (imgFileKeys.length) {
               try {
                 await axiosInstance.patch(`/admin/edit-product/${productId}`, {
-                  images: imgFileNames,
+                  images: imgFileKeys,
                 });
               } catch (err) {
                 await axiosInstance.delete('/delete-image', {
-                  data: imgFileNames,
+                  data: imgFileKeys,
                 });
               }
             }

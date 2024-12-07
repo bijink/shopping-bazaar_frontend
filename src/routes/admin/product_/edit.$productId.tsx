@@ -197,8 +197,8 @@ function ProductEditComponent() {
               timeout: 0,
             });
             // #insert img reference in product data
-            const imgFileNames = imageUploaded?.data?.filenames;
-            if (imgFileNames?.length) {
+            const imgFileKeys = imageUploaded?.data?.filekeys;
+            if (imgFileKeys?.length) {
               try {
                 const formSubmitted = await formSubmitMutation.mutateAsync({
                   ...value,
@@ -206,7 +206,7 @@ function ProductEditComponent() {
                   suitableFor: suitableForSelectedOptions.sort(),
                   sizes: sizesSelectedOptions,
                   highlights: highlights,
-                  images: imgFileNames,
+                  images: imgFileKeys,
                 });
                 // #updating queries with new product data and images
                 queryClient.invalidateQueries({ queryKey: ['product', productId] });
@@ -223,7 +223,7 @@ function ProductEditComponent() {
                 });
               } catch (err) {
                 await axiosInstance.delete('/delete-image', {
-                  data: imgFileNames,
+                  data: imgFileKeys,
                 });
               }
             }

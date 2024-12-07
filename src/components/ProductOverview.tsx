@@ -1,46 +1,84 @@
 import { Radio, RadioGroup } from '@headlessui/react';
-import { PhotoIcon } from '@heroicons/react/24/solid';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { PhotoIcon, SlashIcon } from '@heroicons/react/24/solid';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useContext, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { ToastContext } from '../contexts';
 import useLocalUser from '../hooks/useLocalUser';
-import { Base64Image, ProductWithBase64Image } from '../types/global.type';
+import { Product } from '../types/global.type';
 import { axiosInstance } from '../utils/axios';
 import stringOps from '../utils/stringOps';
 import ProductDeleteConfirmation from './ProductDeleteConfirmation';
 
 function DisplayImageUI({
-  index,
+  isLoading = false,
+  index = 0,
   image,
   height,
 }: {
-  index: number;
-  image: Base64Image;
+  isLoading?: boolean;
+  index?: number;
+  image?: string | null;
   height: number;
 }) {
+  const [loaded, setLoaded] = useState(false);
+
+  function ImageSkeletonUI({
+    animate = false,
+    noImage = false,
+    absolute = false,
+  }: {
+    animate?: boolean;
+    noImage?: boolean;
+    absolute?: boolean;
+  }) {
+    return (
+      <div
+        role="status"
+        className={twMerge(
+          'flex h-full w-full items-center justify-center rounded-lg',
+          `h-[${height}rem]`,
+          absolute ? 'absolute' : 'relative',
+          animate && 'animate-pulse',
+          noImage ? 'bg-gray-300 dark:bg-gray-700' : 'bg-gray-400 dark:bg-gray-600',
+        )}
+      >
+        <div className="relative flex items-center justify-center">
+          <PhotoIcon className="absolute h-10 w-10 text-gray-200 dark:text-gray-500" />
+          {noImage && (
+            <SlashIcon className="absolute h-[4rem] w-[4rem] -rotate-[75deg] text-gray-300 dark:text-gray-700" />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-lg">
-      {image ? (
-        <img
-          src={`data:${image.mimeType};base64,${image.data}`}
-          alt={`product-image-${index + 1}`}
-          className={twMerge(
-            'w-full rounded-lg border border-black border-opacity-10 object-cover object-center',
-            `h-[${height}rem]`,
-          )}
-        />
+      {isLoading ? (
+        <ImageSkeletonUI animate />
+      ) : image ? (
+        <>
+          <div className="relative">
+            {!loaded && <ImageSkeletonUI animate absolute />}
+            <img
+              src={image}
+              alt={`product-image-${index + 1}`}
+              className={twMerge(
+                'w-full rounded-lg border border-black border-opacity-10 object-cover object-center',
+                `h-[${height}rem]`,
+              )}
+              style={{
+                opacity: loaded ? 1 : 0,
+                transition: 'opacity 0.5s',
+              }}
+              onLoad={() => setLoaded(true)}
+            />
+          </div>
+        </>
       ) : (
-        <div
-          role="status"
-          className={twMerge(
-            'flex h-[15rem] items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700',
-            `h-[${height}rem]`,
-          )}
-        >
-          <PhotoIcon className="h-10 w-10 text-gray-200 dark:text-gray-600" />
-        </div>
+        <ImageSkeletonUI noImage />
       )}
     </div>
   );
@@ -50,11 +88,29 @@ export default function ProductOverview({
   product,
   isAdmin,
 }: {
-  product: ProductWithBase64Image;
+  product: Product;
   isAdmin?: boolean;
 }) {
   const user = useLocalUser();
   const queryClient = useQueryClient();
+
+  const { data: prodImgs, isLoading: isProdImgsFetchLoading } = useQuery({
+    queryKey: ['product', product._id, 'product-images', product.images],
+    queryFn: async () => {
+      if (product.images) {
+        const imgUrls: (string | null)[] = await Promise.all(
+          product.images.map(async (imgKey) => {
+            if (!imgKey) return null;
+            return await axiosInstance
+              .get(`/get-img-url?key=${imgKey}`, { timeout: 90000 })
+              .then((res) => res.data.imageUrl as string);
+          }),
+        );
+        return imgUrls;
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+  });
 
   const { setTriggerToast, toastCount, setToastCount, setToastMessage } = useContext(ToastContext)!;
 
@@ -171,19 +227,34 @@ export default function ProductOverview({
         </div>
 
         {/* Image gallery */}
-        {!!product.images.length && (
+        {isProdImgsFetchLoading ? (
           <div className="mx-auto mt-6 h-[32rem] sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
-            <div className="">
-              <DisplayImageUI index={0} image={product.images[0]} height={32} />
+            <div>
+              <DisplayImageUI height={32} isLoading />
             </div>
             <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-              <DisplayImageUI index={1} image={product.images[1]} height={15} />
-              <DisplayImageUI index={2} image={product.images[2]} height={15} />
+              <DisplayImageUI height={15} isLoading />
+              <DisplayImageUI height={15} isLoading />
             </div>
             <div className="hidden sm:block">
-              <DisplayImageUI index={3} image={product.images[3]} height={32} />
+              <DisplayImageUI height={32} isLoading />
             </div>
           </div>
+        ) : (
+          !!prodImgs && (
+            <div className="mx-auto mt-6 h-[32rem] sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
+              <div>
+                <DisplayImageUI index={0} image={prodImgs[0]} height={32} />
+              </div>
+              <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
+                <DisplayImageUI index={1} image={prodImgs[1]} height={15} />
+                <DisplayImageUI index={2} image={prodImgs[2]} height={15} />
+              </div>
+              <div className="hidden sm:block">
+                <DisplayImageUI index={3} image={prodImgs[3]} height={32} />
+              </div>
+            </div>
+          )
         )}
 
         {/* Product info */}
