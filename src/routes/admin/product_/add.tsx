@@ -172,17 +172,9 @@ function ProductAddComponent() {
           if (imageUploaded) {
             const imgFileKeys: string[] = imageUploaded.data.filekeys;
             if (imgFileKeys.length) {
-              try {
-                await axiosInstance.patch(`/admin/edit-product/${productId}`, {
-                  images: imgFileKeys,
-                });
-              } catch (err) {
-                await Promise.all(
-                  imgFileKeys.map(async (key) => {
-                    key && (await axiosInstance.delete(`/delete-image?key=${key}`));
-                  }),
-                );
-              }
+              await axiosInstance.patch(`/admin/edit-product/${productId}`, {
+                images: imgFileKeys,
+              });
             }
           }
         } finally {

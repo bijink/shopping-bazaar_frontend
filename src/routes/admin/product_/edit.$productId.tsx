@@ -180,62 +180,40 @@ function ProductEditComponent() {
           bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
         });
         try {
-          // #delete previous images in db
-          product.images &&
-            (await Promise.all(
-              product.images.map(async (key) => {
-                key && (await axiosInstance.delete(`/delete-image?key=${key}`));
-              }),
-            ));
-        } finally {
-          try {
-            // #upload new images to db
-            const imageUploaded = await axiosInstance({
-              method: 'post',
-              url: `/upload-file/image?for=product&id=${productId}`,
-              data: bodyFormData,
-              headers: {
-                'Content-Type': 'multipart/form-data',
-              },
-              timeout: 0,
+          // #upload new images to db
+          const imageUploaded = await axiosInstance({
+            method: 'post',
+            url: `/upload-file/image?for=product&id=${productId}`,
+            data: bodyFormData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+            timeout: 0,
+          });
+          // #insert img reference in product data
+          const imgFileKeys = imageUploaded?.data?.filekeys;
+          if (imgFileKeys?.length) {
+            const formSubmitted = await formSubmitMutation.mutateAsync({
+              ...value,
+              colors,
+              suitableFor: suitableForSelectedOptions.sort(),
+              sizes: sizesSelectedOptions,
+              highlights: highlights,
+              images: imgFileKeys,
             });
-            // #insert img reference in product data
-            const imgFileKeys = imageUploaded?.data?.filekeys;
-            if (imgFileKeys?.length) {
-              try {
-                const formSubmitted = await formSubmitMutation.mutateAsync({
-                  ...value,
-                  colors,
-                  suitableFor: suitableForSelectedOptions.sort(),
-                  sizes: sizesSelectedOptions,
-                  highlights: highlights,
-                  images: imgFileKeys,
-                });
-                // #updating queries with new product data and images
-                queryClient.invalidateQueries({ queryKey: ['product', productId] });
-                queryClient.setQueryData(['products', 'admin'], (oldData: Product[]) =>
-                  oldData?.map((prod) =>
-                    prod._id === productId ? formSubmitted.data.product : prod,
-                  ),
-                );
-
-                navigate({ to: '/admin/product/$productId' }).then(() => {
-                  queryClient.removeQueries({
-                    queryKey: ['product', 'edit'],
-                  });
-                });
-              } catch (err) {
-                product.images &&
-                  (await Promise.all(
-                    product.images.map(async (key) => {
-                      key && (await axiosInstance.delete(`/delete-image?key=${key}`));
-                    }),
-                  ));
-              }
-            }
-          } catch (err) {
-            setFormError('Submission failed. Please try again');
+            // #updating queries with new product data and images
+            queryClient.setQueryData(['product', productId], () => formSubmitted.data.product);
+            queryClient.setQueryData(['products', 'admin'], (oldData: Product[]) =>
+              oldData?.map((prod) => (prod._id === productId ? formSubmitted.data.product : prod)),
+            );
+            queryClient.invalidateQueries({ queryKey: ['products', 'customer'] });
+            queryClient.removeQueries({ queryKey: ['product', productId, 'product-images'] });
+            navigate({ to: '/admin/product/$productId' }).then(() => {
+              queryClient.removeQueries({ queryKey: ['product', productId, 'edit'] });
+            });
           }
+        } catch (err) {
+          setFormError('Submission failed. Please try again');
         }
       } else {
         const formSubmitted = await formSubmitMutation.mutateAsync({
@@ -246,18 +224,13 @@ function ProductEditComponent() {
           highlights: highlights,
         });
         // #updating queries with new product data
-        queryClient.setQueryData(['product', productId], (oldData: Product) => ({
-          ...formSubmitted.data.product,
-          images: oldData.images,
-        }));
+        queryClient.setQueryData(['product', productId], () => formSubmitted.data.product);
         queryClient.setQueryData(['products', 'admin'], (oldData: Product[]) =>
           oldData?.map((prod) => (prod._id === productId ? formSubmitted.data.product : prod)),
         );
-
+        queryClient.invalidateQueries({ queryKey: ['products', 'customer'] });
         navigate({ to: '/admin/product/$productId' }).then(() => {
-          queryClient.removeQueries({
-            queryKey: ['product', 'edit'],
-          });
+          queryClient.removeQueries({ queryKey: ['product', productId, 'edit'] });
         });
       }
     },
