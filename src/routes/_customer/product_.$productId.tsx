@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, Link, notFound } from '@tanstack/react-router';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import ProductOverview from '../../components/ProductOverview';
-import { Base64Image, Product, ProductWithBase64Image } from '../../types/global.type';
+import { Product } from '../../types/global.type';
 import { axiosInstance } from '../../utils/axios';
 
 export const Route = createFileRoute('/_customer/product/$productId')({
@@ -39,7 +39,7 @@ function ProductComponent() {
     queryKey: ['product', productId],
     queryFn: async () => {
       // #if ['products', 'customer'] exist and includes the product
-      const cachedAdminProducts: ProductWithBase64Image[] | undefined = queryClient.getQueryData([
+      const cachedAdminProducts: Product[] | undefined = queryClient.getQueryData([
         'products',
         'customer',
       ]);
@@ -49,11 +49,7 @@ function ProductComponent() {
       const product: Product = await axiosInstance
         .get(`/user/get-product?id=${productId}`)
         .then((res) => res.data);
-      const imagesForProduct: Base64Image[] = await axiosInstance
-        .post('/get-multi-images', { images: product.images }, { timeout: 90000 })
-        .then((res) => res.data.images);
-      const updatedProduct: ProductWithBase64Image = { ...product, images: imagesForProduct };
-      return updatedProduct;
+      return product;
     },
     staleTime: 1000 * 60 * 5,
   });

@@ -52,7 +52,7 @@ export interface CartItem {
   highlights: string[];
   size: string;
   color: { name: string; hex: string };
-  image: string;
+  images: string[];
   quantity: number;
 }
 export interface CartItemWithBase64Image extends Omit<CartItem, 'image'> {

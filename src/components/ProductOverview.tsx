@@ -2,7 +2,7 @@ import { Radio, RadioGroup } from '@headlessui/react';
 import { PhotoIcon, SlashIcon } from '@heroicons/react/24/solid';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { ToastContext } from '../contexts';
 import useLocalUser from '../hooks/useLocalUser';
@@ -13,13 +13,13 @@ import ProductDeleteConfirmation from './ProductDeleteConfirmation';
 
 function DisplayImageUI({
   isLoading = false,
-  index = 0,
-  image,
+  alt,
+  src,
   height,
 }: {
   isLoading?: boolean;
-  index?: number;
-  image?: string | null;
+  alt?: string;
+  src?: string | null;
   height: number;
 }) {
   const [loaded, setLoaded] = useState(false);
@@ -27,25 +27,21 @@ function DisplayImageUI({
   function ImageSkeletonUI({
     animate = false,
     noImage = false,
-    absolute = false,
   }: {
     animate?: boolean;
     noImage?: boolean;
-    absolute?: boolean;
   }) {
     return (
       <div
         role="status"
         className={twMerge(
-          'flex h-full w-full items-center justify-center rounded-lg',
-          `h-[${height}rem]`,
-          absolute ? 'absolute' : 'relative',
+          'flex h-full items-center justify-center rounded-lg',
           animate && 'animate-pulse',
           noImage ? 'bg-gray-300 dark:bg-gray-700' : 'bg-gray-400 dark:bg-gray-600',
         )}
       >
-        <div className="relative flex items-center justify-center">
-          <PhotoIcon className="absolute h-10 w-10 text-gray-200 dark:text-gray-500" />
+        <div className="flex items-center justify-center">
+          <PhotoIcon className="h-[2.5rem] w-[2.5rem] text-gray-200 dark:text-gray-500" />
           {noImage && (
             <SlashIcon className="absolute h-[4rem] w-[4rem] -rotate-[75deg] text-gray-300 dark:text-gray-700" />
           )}
@@ -55,28 +51,20 @@ function DisplayImageUI({
   }
 
   return (
-    <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-lg">
-      {isLoading ? (
+    <div className="aspect-h-4 aspect-w-3" style={{ height: `${height}rem` }}>
+      {isLoading || src === undefined ? (
         <ImageSkeletonUI animate />
-      ) : image ? (
-        <>
-          <div className="relative">
-            {!loaded && <ImageSkeletonUI animate absolute />}
-            <img
-              src={image}
-              alt={`product-image-${index + 1}`}
-              className={twMerge(
-                'w-full rounded-lg border border-black border-opacity-10 object-cover object-center',
-                `h-[${height}rem]`,
-              )}
-              style={{
-                opacity: loaded ? 1 : 0,
-                transition: 'opacity 0.5s',
-              }}
-              onLoad={() => setLoaded(true)}
-            />
-          </div>
-        </>
+      ) : src ? (
+        <div className="h-full">
+          {!loaded && <ImageSkeletonUI animate />}
+          <img
+            alt={alt}
+            src={src}
+            className="h-full w-full rounded-lg border border-black border-opacity-10 object-cover object-center"
+            style={{ opacity: loaded ? 1 : 0 }}
+            onLoad={() => setLoaded(true)}
+          />
+        </div>
       ) : (
         <ImageSkeletonUI noImage />
       )}
@@ -98,6 +86,23 @@ export default function ProductOverview({
     queryKey: ['product', product._id, 'product-images', product.images],
     queryFn: async () => {
       if (product.images) {
+        const cachedProdImgs: (string | null)[] | undefined = queryClient.getQueryData([
+          'product',
+          product._id,
+          'product-images',
+          product.images,
+        ]);
+        if (cachedProdImgs?.length === 1) {
+          const imgUrls: (string | null)[] = await Promise.all(
+            product.images.slice(1).map(async (imgKey) => {
+              if (!imgKey) return null;
+              return await axiosInstance
+                .get(`/get-img-url?key=${imgKey}`, { timeout: 90000 })
+                .then((res) => res.data.imageUrl as string);
+            }),
+          );
+          return [cachedProdImgs[0], ...imgUrls];
+        }
         const imgUrls: (string | null)[] = await Promise.all(
           product.images.map(async (imgKey) => {
             if (!imgKey) return null;
@@ -111,6 +116,14 @@ export default function ProductOverview({
     },
     staleTime: 1000 * 60 * 5,
   });
+
+  useEffect(() => {
+    if (prodImgs?.length === 1) {
+      queryClient.invalidateQueries({
+        queryKey: ['product', product._id, 'product-images', product.images],
+      });
+    }
+  }, [prodImgs, queryClient, product]);
 
   const { setTriggerToast, toastCount, setToastCount, setToastMessage } = useContext(ToastContext)!;
 
@@ -244,14 +257,30 @@ export default function ProductOverview({
           !!prodImgs && (
             <div className="mx-auto mt-6 h-[32rem] sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
               <div>
-                <DisplayImageUI index={0} image={prodImgs[0]} height={32} />
+                <DisplayImageUI
+                  alt={`product-${product.name}-image_1`}
+                  src={prodImgs[0]}
+                  height={32}
+                />
               </div>
               <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-                <DisplayImageUI index={1} image={prodImgs[1]} height={15} />
-                <DisplayImageUI index={2} image={prodImgs[2]} height={15} />
+                <DisplayImageUI
+                  alt={`product-${product.name}-image_2`}
+                  src={prodImgs[1]}
+                  height={15}
+                />
+                <DisplayImageUI
+                  alt={`product-${product.name}-image_3`}
+                  src={prodImgs[2]}
+                  height={15}
+                />
               </div>
               <div className="hidden sm:block">
-                <DisplayImageUI index={3} image={prodImgs[3]} height={32} />
+                <DisplayImageUI
+                  alt={`product-${product.name}-image_4`}
+                  src={prodImgs[3]}
+                  height={32}
+                />
               </div>
             </div>
           )
