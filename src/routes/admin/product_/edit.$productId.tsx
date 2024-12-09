@@ -28,7 +28,7 @@ const queryClient = new QueryClient({
 });
 const productsQueryOptions = (productId: string) => {
   return queryOptions({
-    queryKey: ['product', 'edit', productId],
+    queryKey: ['product', productId, 'edit'],
     queryFn: () =>
       axiosInstance.get(`/user/get-product?id=${productId}`).then((res) => res.data as Product),
     staleTime: 1000 * 60 * 2,
@@ -181,9 +181,12 @@ function ProductEditComponent() {
         });
         try {
           // #delete previous images in db
-          await axiosInstance.delete('/delete-image', {
-            data: product?.images,
-          });
+          product.images &&
+            (await Promise.all(
+              product.images.map(async (key) => {
+                key && (await axiosInstance.delete(`/delete-image?key=${key}`));
+              }),
+            ));
         } finally {
           try {
             // #upload new images to db
@@ -222,9 +225,12 @@ function ProductEditComponent() {
                   });
                 });
               } catch (err) {
-                await axiosInstance.delete('/delete-image', {
-                  data: imgFileKeys,
-                });
+                product.images &&
+                  (await Promise.all(
+                    product.images.map(async (key) => {
+                      key && (await axiosInstance.delete(`/delete-image?key=${key}`));
+                    }),
+                  ));
               }
             }
           } catch (err) {

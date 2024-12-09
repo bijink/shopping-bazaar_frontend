@@ -96,9 +96,14 @@ export default function ProductOverview({
           const imgUrls: (string | null)[] = await Promise.all(
             product.images.slice(1).map(async (imgKey) => {
               if (!imgKey) return null;
-              return await axiosInstance
-                .get(`/get-img-url?key=${imgKey}`, { timeout: 90000 })
-                .then((res) => res.data.imageUrl as string);
+              try {
+                const res = await axiosInstance.get(`/get-img-url?key=${imgKey}`, {
+                  timeout: 90000,
+                });
+                return res.data.imageUrl as string;
+              } catch (error) {
+                return null; // Skip the failed request and return null
+              }
             }),
           );
           return [cachedProdImgs[0], ...imgUrls];
@@ -106,9 +111,12 @@ export default function ProductOverview({
         const imgUrls: (string | null)[] = await Promise.all(
           product.images.map(async (imgKey) => {
             if (!imgKey) return null;
-            return await axiosInstance
-              .get(`/get-img-url?key=${imgKey}`, { timeout: 90000 })
-              .then((res) => res.data.imageUrl as string);
+            try {
+              const res = await axiosInstance.get(`/get-img-url?key=${imgKey}`, { timeout: 90000 });
+              return res.data.imageUrl as string;
+            } catch (error) {
+              return null; // Skip the failed request and return null
+            }
           }),
         );
         return imgUrls;

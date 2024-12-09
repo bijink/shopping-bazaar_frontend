@@ -2,6 +2,7 @@ import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/re
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
+import { Product } from '../types/global.type';
 import { axiosInstance } from '../utils/axios';
 
 export default function ProductDeleteConfirmation({
@@ -17,12 +18,18 @@ export default function ProductDeleteConfirmation({
   const navigate = useNavigate({ from: '/admin/product/$productId' });
 
   const handleProductDelete = async () => {
-    await axiosInstance.delete(`/admin/delete-product/${productId}`).then(() => {
+    await axiosInstance.delete(`/admin/delete-product/${productId}`).then(async (res) => {
+      const deleteProduct: Product = res.data.deletedProduct;
+      deleteProduct.images &&
+        (await Promise.all(
+          deleteProduct.images.map(async (key) => {
+            key && (await axiosInstance.delete(`/delete-image?key=${key}`));
+          }),
+        ));
+      await queryClient.invalidateQueries({ queryKey: ['products'] });
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ['products', 'admin'] });
       navigate({ to: '/admin' }).then(() => {
-        queryClient.removeQueries({ queryKey: ['product', productId], exact: true });
-        queryClient.removeQueries({ queryKey: ['product', 'edit', productId], exact: true });
+        queryClient.removeQueries({ queryKey: ['product', productId] });
       });
     });
   };

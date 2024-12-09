@@ -170,16 +170,18 @@ function ProductAddComponent() {
           });
           // #insert img reference in user data
           if (imageUploaded) {
-            const imgFileKeys = imageUploaded.data.filekeys;
+            const imgFileKeys: string[] = imageUploaded.data.filekeys;
             if (imgFileKeys.length) {
               try {
                 await axiosInstance.patch(`/admin/edit-product/${productId}`, {
                   images: imgFileKeys,
                 });
               } catch (err) {
-                await axiosInstance.delete('/delete-image', {
-                  data: imgFileKeys,
-                });
+                await Promise.all(
+                  imgFileKeys.map(async (key) => {
+                    key && (await axiosInstance.delete(`/delete-image?key=${key}`));
+                  }),
+                );
               }
             }
           }

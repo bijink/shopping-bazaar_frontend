@@ -85,16 +85,14 @@ function SignupComponent() {
           });
           // #insert img reference in user data
           if (imageUploaded) {
-            const imgFileNames = imageUploaded.data.filenames;
-            if (imgFileNames.length) {
+            const imgFileKeys = imageUploaded.data.filekeys;
+            if (imgFileKeys.length) {
               try {
                 await axiosInstance.patch(`/user/update-details/${userId}`, {
-                  image: imgFileNames[0],
+                  image: imgFileKeys[0],
                 });
               } catch (err) {
-                await axiosInstance.delete(`/delete-image`, {
-                  data: imgFileNames,
-                });
+                await axiosInstance.delete(`/delete-image?key=${imgFileKeys[0]}`);
               }
             }
           }
