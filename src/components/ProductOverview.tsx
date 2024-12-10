@@ -15,12 +15,10 @@ function DisplayImageUI({
   isLoading = false,
   alt,
   src,
-  height,
 }: {
   isLoading?: boolean;
   alt?: string;
   src?: string | null;
-  height: number;
 }) {
   const [loaded, setLoaded] = useState(false);
 
@@ -51,7 +49,7 @@ function DisplayImageUI({
   }
 
   return (
-    <div className="aspect-h-4 aspect-w-3" style={{ height: `${height}rem` }}>
+    <div className="h-full">
       {isLoading || src === undefined ? (
         <ImageSkeletonUI animate />
       ) : src ? (
@@ -251,44 +249,32 @@ export default function ProductOverview({
         {isProdImgsFetchLoading ? (
           <div className="mx-auto mt-6 h-[32rem] sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
             <div>
-              <DisplayImageUI height={32} isLoading />
+              <DisplayImageUI isLoading />
             </div>
             <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-              <DisplayImageUI height={15} isLoading />
-              <DisplayImageUI height={15} isLoading />
+              <DisplayImageUI isLoading />
+              <DisplayImageUI isLoading />
             </div>
             <div className="hidden sm:block">
-              <DisplayImageUI height={32} isLoading />
+              <DisplayImageUI isLoading />
             </div>
           </div>
         ) : (
           !!prodImgs && (
             <div className="mx-auto mt-6 h-[32rem] sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
-              <div>
-                <DisplayImageUI
-                  alt={`product-${product.name}-image_1`}
-                  src={prodImgs[0]}
-                  height={32}
-                />
+              <div className="h-[32rem]">
+                <DisplayImageUI src={prodImgs[0]} alt={`product-${product.name}-image_1`} />
               </div>
-              <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-                <DisplayImageUI
-                  alt={`product-${product.name}-image_2`}
-                  src={prodImgs[1]}
-                  height={15}
-                />
-                <DisplayImageUI
-                  alt={`product-${product.name}-image_3`}
-                  src={prodImgs[2]}
-                  height={15}
-                />
+              <div className="hidden h-[32rem] lg:grid lg:grid-cols-1 lg:gap-y-8">
+                <div className="h-[15rem]">
+                  <DisplayImageUI src={prodImgs[1]} alt={`product-${product.name}-image_2`} />
+                </div>
+                <div className="h-[15rem]">
+                  <DisplayImageUI src={prodImgs[2]} alt={`product-${product.name}-image_3`} />
+                </div>
               </div>
-              <div className="hidden sm:block">
-                <DisplayImageUI
-                  alt={`product-${product.name}-image_4`}
-                  src={prodImgs[3]}
-                  height={32}
-                />
+              <div className="hidden h-[32rem] sm:block">
+                <DisplayImageUI src={prodImgs[3]} alt={`product-${product.name}-image_4`} />
               </div>
             </div>
           )

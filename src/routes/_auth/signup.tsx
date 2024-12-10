@@ -92,7 +92,9 @@ function SignupComponent() {
                   image: imgFileKeys[0],
                 });
               } catch (err) {
-                await axiosInstance.delete(`/delete-image?key=${imgFileKeys[0]}`);
+                await axiosInstance.delete(`/delete-image?key=${imgFileKeys[0]}`, {
+                  timeout: 90000,
+                });
               }
             }
           }

@@ -25,6 +25,7 @@ export default function ProductDeleteConfirmation({
           deletedProduct.images.map(async (_, i) => {
             await axiosInstance.delete(
               `/delete-image?key=uploads/product-${deletedProduct._id}_${i}.webp`,
+              { timeout: 90000 },
             );
           }),
         ));

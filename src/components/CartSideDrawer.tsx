@@ -38,7 +38,7 @@ function DisplayImageUI({
   }
 
   return (
-    <div className="aspect-h-4 aspect-w-3 h-full">
+    <div className="h-full">
       {isLoading ? (
         <ImageSkeletonUI animate />
       ) : (
