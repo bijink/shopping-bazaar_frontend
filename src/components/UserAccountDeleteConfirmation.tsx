@@ -21,7 +21,10 @@ export default function UserAccountDeleteConfirmation({
   const handleUserAccountDelete = async () => {
     await axiosInstance.delete(`/user/delete/${user?._id}`).then(async (res) => {
       const deletedUser: User = res.data.deletedUser;
-      await axiosInstance.delete(`/delete-image?key=${deletedUser.image}`, { timeout: 90000 });
+      await axiosInstance.delete(`/user/delete-images`, {
+        data: { imageNames: [deletedUser.image] },
+        timeout: 90000,
+      });
       setOpen(false);
       queryClient.removeQueries({ queryKey: ['user'] });
       queryClient.removeQueries({ queryKey: ['cart'] });

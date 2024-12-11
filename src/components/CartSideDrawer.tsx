@@ -78,7 +78,7 @@ function CartSideDrawerItem({
         ]);
         if (cachedProdImgs) return cachedProdImgs;
         const firstImgUrl = await axiosInstance
-          .get(`/get-img-url?key=${item.images[0]}`, { timeout: 90000 })
+          .get(`/user/get-image-url/${item.images[0]}`, { timeout: 90000 })
           .then((res) => res.data.imageUrl as string);
         return [firstImgUrl];
       }

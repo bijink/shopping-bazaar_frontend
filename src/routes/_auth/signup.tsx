@@ -73,10 +73,10 @@ function SignupComponent() {
           const croppedImgFile = new File([blobFile], `image_${0}`, {
             type: blobFile.type,
           });
-          bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
+          bodyFormData.append('images', croppedImgFile); // Use the same key ('images') to append multiple images
           const imageUploaded = await axiosInstance({
             method: 'post',
-            url: `/upload-file/image?for=user&id=${userId}`,
+            url: `/user/upload-images?for=user&id=${userId}`,
             data: bodyFormData,
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -85,14 +85,15 @@ function SignupComponent() {
           });
           // #insert img reference in user data
           if (imageUploaded) {
-            const imgFileKeys = imageUploaded.data.filekeys;
-            if (imgFileKeys.length) {
+            const imgFileNames = imageUploaded.data.filenames;
+            if (imgFileNames.length) {
               try {
                 await axiosInstance.patch(`/user/update-details/${userId}`, {
-                  image: imgFileKeys[0],
+                  image: imgFileNames[0],
                 });
               } catch (err) {
-                await axiosInstance.delete(`/delete-image?key=${imgFileKeys[0]}`, {
+                await axiosInstance.delete(`/user/delete-images`, {
+                  data: { imageNames: imgFileNames },
                   timeout: 90000,
                 });
               }

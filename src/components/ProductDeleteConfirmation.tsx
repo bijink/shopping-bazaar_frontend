@@ -20,15 +20,10 @@ export default function ProductDeleteConfirmation({
   const handleProductDelete = async () => {
     await axiosInstance.delete(`/admin/delete-product/${productId}`).then(async (res) => {
       const deletedProduct: Product = res.data.deletedProduct;
-      deletedProduct.images &&
-        (await Promise.all(
-          deletedProduct.images.map(async (_, i) => {
-            await axiosInstance.delete(
-              `/delete-image?key=uploads/product-${deletedProduct._id}_${i}.webp`,
-              { timeout: 90000 },
-            );
-          }),
-        ));
+      await axiosInstance.delete(`/user/delete-images`, {
+        data: { imageNames: deletedProduct.images },
+        timeout: 90000,
+      });
       await queryClient.invalidateQueries({ queryKey: ['products'] });
       setOpen(false);
       navigate({ to: '/admin' }).then(() => {

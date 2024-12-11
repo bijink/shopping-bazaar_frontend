@@ -177,13 +177,17 @@ function ProductEditComponent() {
               type: blob.type,
             });
           } else croppedImgFile = new File([], 'no-image', { type: undefined });
-          bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
+          bodyFormData.append('images', croppedImgFile); // Use the same key ('images') to append multiple images
         });
         try {
+          await axiosInstance.delete(`/user/delete-images`, {
+            data: { imageNames: product.images },
+            timeout: 90000,
+          });
           // #upload new images to db
           const imageUploaded = await axiosInstance({
             method: 'post',
-            url: `/upload-file/image?for=product&id=${productId}`,
+            url: `/user/upload-images?for=product&id=${productId}`,
             data: bodyFormData,
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -191,15 +195,15 @@ function ProductEditComponent() {
             timeout: 0,
           });
           // #insert img reference in product data
-          const imgFileKeys = imageUploaded?.data?.filekeys;
-          if (imgFileKeys?.length) {
+          const imgFileNames = imageUploaded?.data?.filenames;
+          if (imgFileNames?.length) {
             const formSubmitted = await formSubmitMutation.mutateAsync({
               ...value,
               colors,
               suitableFor: suitableForSelectedOptions.sort(),
               sizes: sizesSelectedOptions,
               highlights: highlights,
-              images: imgFileKeys,
+              images: imgFileNames,
             });
             // #updating queries with new product data and images
             queryClient.setQueryData(['product', productId], () => formSubmitted.data.product);
@@ -208,7 +212,10 @@ function ProductEditComponent() {
             );
             queryClient.invalidateQueries({ queryKey: ['products', 'customer'] });
             queryClient.removeQueries({ queryKey: ['product', productId, 'product-images'] });
-            navigate({ to: '/admin/product/$productId' }).then(() => {
+            navigate({
+              to: '/admin/product/$productId',
+              params: { productId },
+            }).then(() => {
               queryClient.removeQueries({ queryKey: ['product', productId, 'edit'] });
             });
           }

@@ -95,7 +95,7 @@ export default function ProductOverview({
             product.images.slice(1).map(async (imgKey) => {
               if (!imgKey) return null;
               try {
-                const res = await axiosInstance.get(`/get-img-url?key=${imgKey}`, {
+                const res = await axiosInstance.get(`/user/get-image-url/${imgKey}`, {
                   timeout: 90000,
                 });
                 return res.data.imageUrl as string;
@@ -110,7 +110,9 @@ export default function ProductOverview({
           product.images.map(async (imgKey) => {
             if (!imgKey) return null;
             try {
-              const res = await axiosInstance.get(`/get-img-url?key=${imgKey}`, { timeout: 90000 });
+              const res = await axiosInstance.get(`/user/get-image-url/${imgKey}`, {
+                timeout: 90000,
+              });
               return res.data.imageUrl as string;
             } catch (error) {
               return null; // Skip the failed request and return null

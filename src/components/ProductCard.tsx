@@ -76,7 +76,7 @@ export default function ProductCard({
         ]);
         if (cachedProdImgs) return cachedProdImgs;
         const firstImgUrl = await axiosInstance
-          .get(`/get-img-url?key=${product.images[0]}`, { timeout: 90000 })
+          .get(`/user/get-image-url/${product.images[0]}`, { timeout: 90000 })
           .then((res) => res.data.imageUrl as string);
         return [firstImgUrl];
       }
@@ -92,7 +92,7 @@ export default function ProductCard({
             <DisplayImageUI isLoading />
           ) : (
             !!prodImgs && (
-              <div className="h-full group-hover:opacity-75">
+              <div className="h-full group-hover:opacity-60">
                 <DisplayImageUI src={prodImgs[0]} alt={`product-${product.name}`} />
               </div>
             )
@@ -103,7 +103,7 @@ export default function ProductCard({
               setQuickviewProduct({ ...product, images: prodImgs as string[] });
               setOpen(true);
             }}
-            className="absolute bottom-0 left-0 mb-[5%] ml-[10%] w-[80%] rounded-md bg-white bg-opacity-75 px-4 py-2 text-sm text-gray-800 opacity-0 group-hover:opacity-100"
+            className="absolute bottom-0 left-0 mb-[5%] ml-[10%] w-[80%] rounded-md bg-gray-300 bg-opacity-75 px-4 py-2 text-sm text-gray-800 opacity-0 group-hover:opacity-100"
           >
             Quick View
           </button>
