@@ -1,46 +1,70 @@
 import { Radio, RadioGroup } from '@headlessui/react';
-import { PhotoIcon } from '@heroicons/react/24/solid';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { PhotoIcon, SlashIcon } from '@heroicons/react/24/solid';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 import { ToastContext } from '../contexts';
 import useLocalUser from '../hooks/useLocalUser';
-import { Base64Image, ProductWithBase64Image } from '../types/global.type';
+import { Product } from '../types/global.type';
 import { axiosInstance } from '../utils/axios';
 import stringOps from '../utils/stringOps';
 import ProductDeleteConfirmation from './ProductDeleteConfirmation';
 
 function DisplayImageUI({
-  index,
-  image,
-  height,
+  isLoading = false,
+  alt,
+  src,
 }: {
-  index: number;
-  image: Base64Image;
-  height: number;
+  isLoading?: boolean;
+  alt?: string;
+  src?: string | null;
 }) {
-  return (
-    <div className="aspect-h-4 aspect-w-3 overflow-hidden rounded-lg">
-      {image ? (
-        <img
-          src={`data:${image.mimeType};base64,${image.data}`}
-          alt={`product-image-${index + 1}`}
-          className={twMerge(
-            'w-full rounded-lg border border-black border-opacity-10 object-cover object-center',
-            `h-[${height}rem]`,
+  const [loaded, setLoaded] = useState(false);
+
+  function ImageSkeletonUI({
+    animate = false,
+    noImage = false,
+  }: {
+    animate?: boolean;
+    noImage?: boolean;
+  }) {
+    return (
+      <div
+        role="status"
+        className={twMerge(
+          'flex h-full items-center justify-center rounded-lg',
+          animate && 'animate-pulse',
+          noImage ? 'bg-gray-300 dark:bg-gray-700' : 'bg-gray-400 dark:bg-gray-600',
+        )}
+      >
+        <div className="flex items-center justify-center">
+          <PhotoIcon className="h-[2.5rem] w-[2.5rem] text-gray-200 dark:text-gray-500" />
+          {noImage && (
+            <SlashIcon className="absolute h-[4rem] w-[4rem] -rotate-[75deg] text-gray-300 dark:text-gray-700" />
           )}
-        />
-      ) : (
-        <div
-          role="status"
-          className={twMerge(
-            'flex h-[15rem] items-center justify-center rounded-lg bg-gray-300 dark:bg-gray-700',
-            `h-[${height}rem]`,
-          )}
-        >
-          <PhotoIcon className="h-10 w-10 text-gray-200 dark:text-gray-600" />
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full">
+      {isLoading || src === undefined ? (
+        <ImageSkeletonUI animate />
+      ) : src ? (
+        <div className="h-full">
+          {!loaded && <ImageSkeletonUI animate />}
+          <img
+            alt={alt}
+            src={src}
+            className="h-full w-full rounded-lg border border-black border-opacity-10 object-cover object-center"
+            style={{ opacity: loaded ? 1 : 0 }}
+            onLoad={() => setLoaded(true)}
+          />
+        </div>
+      ) : (
+        <ImageSkeletonUI noImage />
       )}
     </div>
   );
@@ -50,11 +74,64 @@ export default function ProductOverview({
   product,
   isAdmin,
 }: {
-  product: ProductWithBase64Image;
+  product: Product;
   isAdmin?: boolean;
 }) {
   const user = useLocalUser();
   const queryClient = useQueryClient();
+
+  const { data: prodImgs, isLoading: isProdImgsFetchLoading } = useQuery({
+    queryKey: ['product', product._id, 'product-images', product.images],
+    queryFn: async () => {
+      if (product.images) {
+        const cachedProdImgs: (string | null)[] | undefined = queryClient.getQueryData([
+          'product',
+          product._id,
+          'product-images',
+          product.images,
+        ]);
+        if (cachedProdImgs?.length === 1) {
+          const imgUrls: (string | null)[] = await Promise.all(
+            product.images.slice(1).map(async (imgKey) => {
+              if (!imgKey) return null;
+              try {
+                const res = await axiosInstance.get(`/user/get-image-url/${imgKey}`, {
+                  timeout: 90000,
+                });
+                return res.data.imageUrl as string;
+              } catch (error) {
+                return null; // Skip the failed request and return null
+              }
+            }),
+          );
+          return [cachedProdImgs[0], ...imgUrls];
+        }
+        const imgUrls: (string | null)[] = await Promise.all(
+          product.images.map(async (imgKey) => {
+            if (!imgKey) return null;
+            try {
+              const res = await axiosInstance.get(`/user/get-image-url/${imgKey}`, {
+                timeout: 90000,
+              });
+              return res.data.imageUrl as string;
+            } catch (error) {
+              return null; // Skip the failed request and return null
+            }
+          }),
+        );
+        return imgUrls;
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  useEffect(() => {
+    if (prodImgs?.length === 1) {
+      queryClient.invalidateQueries({
+        queryKey: ['product', product._id, 'product-images', product.images],
+      });
+    }
+  }, [prodImgs, queryClient, product]);
 
   const { setTriggerToast, toastCount, setToastCount, setToastMessage } = useContext(ToastContext)!;
 
@@ -171,19 +248,38 @@ export default function ProductOverview({
         </div>
 
         {/* Image gallery */}
-        {!!product.images.length && (
+        {isProdImgsFetchLoading ? (
           <div className="mx-auto mt-6 h-[32rem] sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
-            <div className="">
-              <DisplayImageUI index={0} image={product.images[0]} height={32} />
+            <div>
+              <DisplayImageUI isLoading />
             </div>
             <div className="hidden lg:grid lg:grid-cols-1 lg:gap-y-8">
-              <DisplayImageUI index={1} image={product.images[1]} height={15} />
-              <DisplayImageUI index={2} image={product.images[2]} height={15} />
+              <DisplayImageUI isLoading />
+              <DisplayImageUI isLoading />
             </div>
             <div className="hidden sm:block">
-              <DisplayImageUI index={3} image={product.images[3]} height={32} />
+              <DisplayImageUI isLoading />
             </div>
           </div>
+        ) : (
+          !!prodImgs && (
+            <div className="mx-auto mt-6 h-[32rem] sm:grid sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3 lg:gap-x-8">
+              <div className="h-[32rem]">
+                <DisplayImageUI src={prodImgs[0]} alt={`product-${product.name}-image_1`} />
+              </div>
+              <div className="hidden h-[32rem] lg:grid lg:grid-cols-1 lg:gap-y-8">
+                <div className="h-[15rem]">
+                  <DisplayImageUI src={prodImgs[1]} alt={`product-${product.name}-image_2`} />
+                </div>
+                <div className="h-[15rem]">
+                  <DisplayImageUI src={prodImgs[2]} alt={`product-${product.name}-image_3`} />
+                </div>
+              </div>
+              <div className="hidden h-[32rem] sm:block">
+                <DisplayImageUI src={prodImgs[3]} alt={`product-${product.name}-image_4`} />
+              </div>
+            </div>
+          )
         )}
 
         {/* Product info */}

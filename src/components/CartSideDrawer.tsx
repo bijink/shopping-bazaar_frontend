@@ -1,16 +1,143 @@
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { useQuery } from '@tanstack/react-query';
+import { PhotoIcon } from '@heroicons/react/24/solid';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { useContext, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
 import { CartSideDrawerOpenContext } from '../contexts';
 import useLocalUser from '../hooks/useLocalUser';
-import { CartItemWithBase64Image } from '../types/global.type';
+import { CartItem } from '../types/global.type';
 import { axiosInstance } from '../utils/axios';
 import stringOps from '../utils/stringOps';
 import CartItemRemoveConfirmation from './CartItemRemoveConfirmation';
 
-export default function CartSideDrawer({ items }: { items: CartItemWithBase64Image[] }) {
+function DisplayImageUI({
+  isLoading = false,
+  src,
+  alt,
+}: {
+  isLoading?: boolean;
+  src?: string | null;
+  alt?: string;
+}) {
+  const [loaded, setLoaded] = useState(false);
+
+  function ImageSkeletonUI({ animate = false }: { animate?: boolean }) {
+    return (
+      <div
+        role="status"
+        className={twMerge(
+          'flex h-full w-full items-center justify-center rounded-md bg-gray-400 dark:bg-gray-600',
+          animate && 'animate-pulse',
+        )}
+      >
+        <PhotoIcon className="h-10 w-10 text-gray-200 dark:text-gray-500" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full">
+      {isLoading ? (
+        <ImageSkeletonUI animate />
+      ) : (
+        <div className="h-full rounded-md bg-gray-300 dark:bg-gray-700">
+          {!loaded && <ImageSkeletonUI animate />}
+          <img
+            src={src!}
+            alt={alt}
+            className="h-full w-full object-cover object-center"
+            style={{ opacity: loaded ? 1 : 0 }}
+            onLoad={() => setLoaded(true)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CartSideDrawerItem({
+  item,
+  handleRemoveItemFromCart,
+}: {
+  item: CartItem;
+  handleRemoveItemFromCart: (itemId: string) => Promise<void>;
+}) {
+  const queryClient = useQueryClient();
+
+  const { data: itemImgs, isLoading: isItemImgsFetchLoading } = useQuery({
+    queryKey: ['product', item.product_id, 'product-images', item.images],
+    queryFn: async () => {
+      if (item.images) {
+        const cachedProdImgs: (string | null)[] | undefined = queryClient.getQueryData([
+          'products',
+          item.product_id,
+          'product-images',
+          item.images,
+        ]);
+        if (cachedProdImgs) return cachedProdImgs;
+        const firstImgUrl = await axiosInstance
+          .get(`/user/get-image-url/${item.images[0]}`, { timeout: 90000 })
+          .then((res) => res.data.imageUrl as string);
+        return [firstImgUrl];
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  return (
+    <li key={item._id} className="flex py-6">
+      <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-500">
+        {isItemImgsFetchLoading ? (
+          <DisplayImageUI isLoading />
+        ) : (
+          !!itemImgs && (
+            <div className="h-full">
+              <DisplayImageUI src={itemImgs[0]} alt={`product-${item.name}`} />
+            </div>
+          )
+        )}
+      </div>
+
+      <div className="ml-4 flex flex-1 flex-col">
+        <div>
+          <div className="flex justify-between text-base font-medium text-gray-900 dark:text-gray-100">
+            <h3>{item.name}</h3>
+            <p className="ml-4">
+              <span>&#8377;</span>
+              {item.quantity * item.price}
+            </p>
+          </div>
+          <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
+            <p className="">Color:</p>
+            <p className="font-semibold">{stringOps.capitalizeFirstWord(item.color.name)}</p>
+          </div>
+          <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
+            <p className="">Size:</p>
+            <p className="font-semibold">{stringOps.uppercase(item.size)}</p>
+          </div>
+        </div>
+        <div className="flex flex-1 items-end justify-between text-sm">
+          <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
+            <p className="">Qty:</p>
+            <p className="font-semibold">{item.quantity}</p>
+          </div>
+          <div className="flex">
+            <button
+              type="button"
+              onClick={() => handleRemoveItemFromCart(item._id as string)}
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+    </li>
+  );
+}
+export default function CartSideDrawer({ items }: { items: CartItem[] }) {
   const user = useLocalUser();
   const { open, setOpen } = useContext(CartSideDrawerOpenContext)!;
 
@@ -79,54 +206,11 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                             className="-my-6 divide-y divide-gray-200 dark:divide-gray-600"
                           >
                             {items.map((item) => (
-                              <li key={item._id} className="flex py-6">
-                                <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-500">
-                                  <img
-                                    src={`data:${item.image.mimeType};base64,${item.image.data}`}
-                                    alt={`product-${item.name}`}
-                                    className="h-full w-full object-cover object-center"
-                                  />
-                                </div>
-
-                                <div className="ml-4 flex flex-1 flex-col">
-                                  <div>
-                                    <div className="flex justify-between text-base font-medium text-gray-900 dark:text-gray-100">
-                                      <h3>{item.name}</h3>
-                                      <p className="ml-4">
-                                        <span>&#8377;</span>
-                                        {item.quantity * item.price}
-                                      </p>
-                                    </div>
-                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
-                                      <p className="">Color:</p>
-                                      <p className="font-semibold">
-                                        {stringOps.capitalizeFirstWord(item.color.name)}
-                                      </p>
-                                    </div>
-                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
-                                      <p className="">Size:</p>
-                                      <p className="font-semibold">
-                                        {stringOps.uppercase(item.size)}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div className="flex flex-1 items-end justify-between text-sm">
-                                    <div className="mt-1 flex flex-row space-x-1 text-sm text-gray-500 dark:text-gray-400">
-                                      <p className="">Qty:</p>
-                                      <p className="font-semibold">{item.quantity}</p>
-                                    </div>
-                                    <div className="flex">
-                                      <button
-                                        type="button"
-                                        onClick={() => handleRemoveItemFromCart(item._id as string)}
-                                        className="font-medium text-indigo-600 hover:text-indigo-500"
-                                      >
-                                        Remove
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </li>
+                              <CartSideDrawerItem
+                                key={item._id}
+                                item={item}
+                                handleRemoveItemFromCart={handleRemoveItemFromCart}
+                              />
                             ))}
                           </ul>
                         </div>
@@ -151,8 +235,8 @@ export default function CartSideDrawer({ items }: { items: CartItemWithBase64Ima
                       </div>
                     </div>
                     {/* <p className="mt-0.5 text-sm text-gray-500">
-                    Shipping and taxes calculated at checkout.
-                  </p> */}
+                      Shipping and taxes calculated at checkout.
+                    </p> */}
                     <div className="mt-6">
                       <Link
                         to="/place-order"

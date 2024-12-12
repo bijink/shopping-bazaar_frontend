@@ -7,7 +7,7 @@ import ForbiddenPage from '../../components/ForbiddenPage';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { ToastContext } from '../../contexts';
 import useLocalUser from '../../hooks/useLocalUser';
-import { CartItem, CartItemWithBase64Image, User, UserAddress } from '../../types/global.type';
+import { CartItem, User, UserAddress } from '../../types/global.type';
 import { axiosInstance } from '../../utils/axios';
 import { loadScript } from '../../utils/loadScript';
 import stringOps from '../../utils/stringOps';
@@ -43,15 +43,7 @@ function PlaceOrderComponent() {
         .get(`/customer/get-cart-items/${user?._id}`)
         .then((res) => res.data.items);
       if (!cartItems) return null;
-      const updatedCartItems: CartItemWithBase64Image[] = await Promise.all(
-        cartItems.map(async (item) => {
-          const image = await axiosInstance
-            .get(`/get-image/${item.image}`, { timeout: 90000 })
-            .then((res) => res.data);
-          return { ...item, image };
-        }),
-      );
-      return updatedCartItems;
+      return cartItems;
     },
     staleTime: 1000 * 60 * 5,
     enabled: !!user && user.role === 'customer',

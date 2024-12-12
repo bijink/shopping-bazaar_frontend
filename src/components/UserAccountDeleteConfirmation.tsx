@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
 import useLocalUser from '../hooks/useLocalUser';
+import { User } from '../types/global.type';
 import { axiosInstance } from '../utils/axios';
 
 export default function UserAccountDeleteConfirmation({
@@ -18,11 +19,16 @@ export default function UserAccountDeleteConfirmation({
   const queryClient = useQueryClient();
 
   const handleUserAccountDelete = async () => {
-    await axiosInstance.delete(`/user/delete/${user?._id}`).then(() => {
+    await axiosInstance.delete(`/user/delete/${user?._id}`).then(async (res) => {
+      const deletedUser: User = res.data.deletedUser;
+      await axiosInstance.delete(`/user/delete-images`, {
+        data: { imageNames: [deletedUser.image] },
+        timeout: 90000,
+      });
       setOpen(false);
-      queryClient.removeQueries({ queryKey: ['user'], exact: false });
-      queryClient.removeQueries({ queryKey: ['cart'], exact: false });
-      queryClient.removeQueries({ queryKey: ['orders'], exact: false });
+      queryClient.removeQueries({ queryKey: ['user'] });
+      queryClient.removeQueries({ queryKey: ['cart'] });
+      queryClient.removeQueries({ queryKey: ['orders'] });
       navigate({ to: '/' }).then(() => {
         Cookies.remove('token');
         window.location.reload();

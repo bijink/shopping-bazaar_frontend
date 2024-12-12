@@ -7,7 +7,7 @@ import Header from '../components/Header';
 import Toast from '../components/Toast';
 import { ToastContext } from '../contexts';
 import useLocalUser from '../hooks/useLocalUser';
-import { CartItem, CartItemWithBase64Image } from '../types/global.type';
+import { CartItem } from '../types/global.type';
 import { axiosInstance } from '../utils/axios';
 
 export const Route = createFileRoute('/_customer')({
@@ -26,15 +26,7 @@ function CustomerRootComponent() {
         .get(`/customer/get-cart-items/${user?._id}`)
         .then((res) => res.data.items);
       if (!cartItems) return null;
-      const updatedCartItems: CartItemWithBase64Image[] = await Promise.all(
-        cartItems.map(async (item) => {
-          const image = await axiosInstance
-            .get(`/get-image/${item.image}`, { timeout: 90000 })
-            .then((res) => res.data);
-          return { ...item, image };
-        }),
-      );
-      return updatedCartItems;
+      return cartItems;
     },
     staleTime: 1000 * 60 * 5,
     enabled: !!user && user.role === 'customer',

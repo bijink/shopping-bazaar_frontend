@@ -157,11 +157,11 @@ function ProductAddComponent() {
                 type: blob.type,
               });
             } else croppedImgFile = new File([], 'no-image', { type: undefined });
-            bodyFormData.append('files', croppedImgFile); // Use the same key ('files') to append multiple files
+            bodyFormData.append('images', croppedImgFile); // Use the same key ('images') to append multiple images
           });
           const imageUploaded = await axiosInstance({
             method: 'post',
-            url: `/upload-file/image?for=product&id=${productId}`,
+            url: `/user/upload-images?for=product&id=${productId}`,
             data: bodyFormData,
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -170,22 +170,23 @@ function ProductAddComponent() {
           });
           // #insert img reference in user data
           if (imageUploaded) {
-            const imgFileNames = imageUploaded.data.filenames;
+            const imgFileNames: string[] = imageUploaded.data.filenames;
             if (imgFileNames.length) {
               try {
                 await axiosInstance.patch(`/admin/edit-product/${productId}`, {
                   images: imgFileNames,
                 });
-              } catch (err) {
-                await axiosInstance.delete('/delete-image', {
-                  data: imgFileNames,
+              } catch (error) {
+                await axiosInstance.delete(`/user/delete-images`, {
+                  data: { imageNames: imgFileNames },
+                  timeout: 90000,
                 });
               }
             }
           }
         } finally {
           queryClient.invalidateQueries({ queryKey: ['products'] });
-          navigate({ to: '/admin' });
+          navigate({ to: '/admin' }).then(() => window.scrollTo({ top: 0 }));
         }
       }
     },
