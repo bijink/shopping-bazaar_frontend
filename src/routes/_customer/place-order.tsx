@@ -1,7 +1,7 @@
 import { Description, Label, Radio, RadioGroup } from '@headlessui/react';
 import { useForm } from '@tanstack/react-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { useContext, useState } from 'react';
 import ForbiddenPage from '../../components/ForbiddenPage';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -211,12 +211,13 @@ function PlaceOrderComponent() {
                           ) : (
                             <div>
                               <p>No address is added</p>
-                              <button
+                              <Link
                                 className="mt-6 flex w-full justify-center rounded-md bg-red-600 px-5 py-1 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 lg:max-w-fit"
-                                onClick={() => navigate({ from: '/place-order', to: '/account' })}
+                                from="/place-order"
+                                to="/account"
                               >
                                 Add address
-                              </button>
+                              </Link>
                             </div>
                           )}
                         </div>
@@ -281,11 +282,14 @@ function PlaceOrderComponent() {
                   </div>
                   <button
                     type="submit"
-                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 disabled:bg-indigo-400"
+                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-indigo-400"
                     disabled={!userDetails?.address}
                   >
                     Checkout
                   </button>
+                  {!userDetails?.address && (
+                    <p className="!mt-2 text-sm text-red-500">Please add address to place order.</p>
+                  )}
                 </div>
               </div>
             </form>

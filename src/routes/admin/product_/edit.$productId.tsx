@@ -138,21 +138,24 @@ function ProductEditComponent() {
 
   const formSubmitMutation = useMutation({
     mutationFn: (formData: {
-      name?: Product['name'];
-      category?: Product['category'];
-      price?: Product['price'] | string;
-      description?: Product['description'];
-      details?: Product['details'];
-      colors?: Product['colors'];
-      suitableFor?: Product['suitableFor'];
-      sizes?: Product['sizes'];
-      highlights?: Product['highlights'];
+      name: Product['name'];
+      category: Product['category'];
+      price: Product['price'] | string;
+      description: Product['description'];
+      details: Product['details'];
+      colors: Product['colors'];
+      suitableFor: Product['suitableFor'];
+      sizes: Product['sizes'];
+      highlights: Product['highlights'];
       images?: Product['images'];
     }) => {
       return axiosInstance.patch(`/admin/edit-product/${productId}`, formData);
     },
     onError: (error) => {
-      error.message = error.response?.data?.message || error.message;
+      const errors: { path: string; msg: string }[] = error.response?.data?.errors;
+      const errPaths = errors.map((error) => stringOps.capitalize(error.path)).join(', ');
+      const errorMsg = `Please fill field ${errPaths}.`;
+      error.message = errorMsg || error.message;
     },
   });
 
@@ -212,10 +215,8 @@ function ProductEditComponent() {
             );
             queryClient.invalidateQueries({ queryKey: ['products', 'customer'] });
             queryClient.removeQueries({ queryKey: ['product', productId, 'product-images'] });
-            navigate({
-              to: '/admin/product/$productId',
-              params: { productId },
-            }).then(() => {
+            navigate({ to: '/admin/product/$productId', params: { productId } }).then(() => {
+              window.scrollTo({ top: 0 });
               queryClient.removeQueries({ queryKey: ['product', productId, 'edit'] });
             });
           }
@@ -236,7 +237,8 @@ function ProductEditComponent() {
           oldData?.map((prod) => (prod._id === productId ? formSubmitted.data.product : prod)),
         );
         queryClient.invalidateQueries({ queryKey: ['products', 'customer'] });
-        navigate({ to: '/admin/product/$productId' }).then(() => {
+        navigate({ to: '/admin/product/$productId', params: { productId } }).then(() => {
+          window.scrollTo({ top: 0 });
           queryClient.removeQueries({ queryKey: ['product', productId, 'edit'] });
         });
       }
@@ -653,7 +655,7 @@ function ProductEditComponent() {
           </div>
         </div>
         {/* submit button */}
-        <div className="mt-10 flex items-center justify-end gap-x-6">
+        <div className="mt-10 flex flex-col items-end gap-y-2">
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, isSubmitting]) => (

@@ -1,5 +1,5 @@
 import { useForm } from '@tanstack/react-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
 import { axiosInstance } from '../../utils/axios';
@@ -9,6 +9,7 @@ export const Route = createFileRoute('/_auth/signin')({
 });
 
 function SigninComponent() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/signin' });
 
   const mutation = useMutation({
@@ -20,15 +21,8 @@ function SigninComponent() {
     },
     onSuccess: (data) => {
       Cookies.set('token', data.data.token, { expires: 7, secure: true });
-      if (data.data.user.role === 'admin') {
-        navigate({ to: '/admin' }).then(() => {
-          window.location.reload();
-        });
-      } else {
-        navigate({ to: '/' }).then(() => {
-          window.location.reload();
-        });
-      }
+      queryClient.removeQueries({ queryKey: ['cart'] });
+      data.data.user.role === 'admin' ? navigate({ to: '/admin' }) : navigate({ to: '/' });
     },
   });
 

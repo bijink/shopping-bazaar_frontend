@@ -42,9 +42,7 @@ function DisplayImageUI({
           <img
             src={src!}
             alt={alt}
-            className={twMerge(
-              'h-full w-full rounded-lg border border-black border-opacity-10 object-cover object-center group-hover:opacity-75',
-            )}
+            className="h-full w-full rounded-lg border object-cover object-center"
             style={{ opacity: loaded ? 1 : 0 }}
             onLoad={() => setLoaded(true)}
           />
@@ -92,7 +90,7 @@ export default function ProductCard({
             <DisplayImageUI isLoading />
           ) : (
             !!prodImgs && (
-              <div className="h-full group-hover:opacity-60">
+              <div className="h-full group-hover:opacity-50">
                 <DisplayImageUI src={prodImgs[0]} alt={`product-${product.name}`} />
               </div>
             )
@@ -108,14 +106,14 @@ export default function ProductCard({
             Quick View
           </button>
         </div>
-        <div className="mt-4 sm:hidden">
+        <div className="mt-2 sm:hidden">
           <h3 className="text-md text-gray-700 dark:text-gray-100">{product.name}</h3>
           <p className="mt-1 text-lg font-medium text-gray-900 dark:text-gray-300">
             <span>&#8377;</span>
             {product.price}
           </p>
         </div>
-        <div className="mt-4 hidden justify-between sm:flex">
+        <div className="mt-3 hidden justify-between sm:flex">
           <div>
             <h3 className="text-sm text-gray-700 dark:text-gray-100">{product.name}</h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-50">{product.category}</p>

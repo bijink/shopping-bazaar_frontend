@@ -1,6 +1,6 @@
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useForm } from '@tanstack/react-form';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import Cookies from 'js-cookie';
 import { useRef, useState } from 'react';
@@ -13,6 +13,7 @@ export const Route = createFileRoute('/_auth/signup')({
 });
 
 function SignupComponent() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate({ from: '/signup' });
 
   const [emailInput, setEmailInput] = useState('');
@@ -101,9 +102,8 @@ function SignupComponent() {
           }
         } finally {
           Cookies.set('token', token, { expires: 1, secure: true });
-          navigate({ to: '/' }).then(() => {
-            window.location.reload();
-          });
+          queryClient.removeQueries({ queryKey: ['cart'] });
+          navigate({ to: '/' }).then(() => window.scrollTo({ top: 0 }));
         }
       }
     },

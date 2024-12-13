@@ -125,7 +125,10 @@ function ProductAddComponent() {
       return axiosInstance.post('/admin/add-product', formData);
     },
     onError: (error) => {
-      error.message = error.response?.data?.message || error.message;
+      const errors: { path: string; msg: string }[] = error.response?.data?.errors;
+      const errPaths = errors.map((error) => stringOps.capitalize(error.path)).join(', ');
+      const errorMsg = `Please fill field ${errPaths}.`;
+      error.message = errorMsg || error.message;
     },
   });
 
@@ -592,7 +595,7 @@ function ProductAddComponent() {
           </div>
         </div>
         {/* submit button */}
-        <div className="mt-10 flex items-center justify-end gap-x-6">
+        <div className="mt-10 flex flex-col items-end gap-y-2">
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, isSubmitting]) => (
