@@ -49,6 +49,7 @@ function ProductEditComponent() {
   const navigate = useNavigate({ from: '/admin/product/edit/$productId' });
 
   const { data: product } = useSuspenseQuery(productsQueryOptions(productId));
+  const oldProductImagesName = useRef(product.images).current;
 
   // #input images fn
   const [isImagesEditOpen, setIsImagesEditOpen] = useState(false);
@@ -149,13 +150,35 @@ function ProductEditComponent() {
       highlights: Product['highlights'];
       images?: Product['images'];
     }) => {
-      return axiosInstance.patch(`/admin/edit-product/${productId}`, formData);
+      if (!formData.images?.length) {
+        return axiosInstance.put(`/admin/edit-product/${productId}`, {
+          ...formData,
+          images: oldProductImagesName,
+        });
+      }
+      return axiosInstance.put(`/admin/edit-product/${productId}`, formData);
     },
-    onError: (error) => {
+    onError: async (error, variables) => {
       const errors: { path: string; msg: string }[] = error.response?.data?.errors;
       const errPaths = errors.map((error) => stringOps.capitalize(error.path)).join(', ');
       const errorMsg = `Please fill field ${errPaths}.`;
       error.message = errorMsg || error.message;
+      // #delete new images from db
+      if (variables.images?.length) {
+        await axiosInstance.delete(`/user/delete-images`, {
+          data: { imageNames: variables.images },
+          timeout: 90000,
+        });
+      }
+    },
+    onSuccess: async (_, variables) => {
+      // #delete previous images from db
+      if (variables.images?.length) {
+        await axiosInstance.delete(`/user/delete-images`, {
+          data: { imageNames: oldProductImagesName },
+          timeout: 90000,
+        });
+      }
     },
   });
 
@@ -183,10 +206,6 @@ function ProductEditComponent() {
           bodyFormData.append('images', croppedImgFile); // Use the same key ('images') to append multiple images
         });
         try {
-          await axiosInstance.delete(`/user/delete-images`, {
-            data: { imageNames: product.images },
-            timeout: 90000,
-          });
           // #upload new images to db
           const imageUploaded = await axiosInstance({
             method: 'post',
@@ -198,15 +217,15 @@ function ProductEditComponent() {
             timeout: 0,
           });
           // #insert img reference in product data
-          const imgFileNames = imageUploaded?.data?.filenames;
-          if (imgFileNames?.length) {
+          const newProductImagesName = imageUploaded?.data?.filenames;
+          if (newProductImagesName?.length) {
             const formSubmitted = await formSubmitMutation.mutateAsync({
               ...value,
               colors,
               suitableFor: suitableForSelectedOptions.sort(),
               sizes: sizesSelectedOptions,
               highlights: highlights,
-              images: imgFileNames,
+              images: newProductImagesName,
             });
             // #updating queries with new product data and images
             queryClient.setQueryData(['product', productId], () => formSubmitted.data.product);

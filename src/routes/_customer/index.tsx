@@ -21,7 +21,7 @@ const productsQueryOptions = (page = 1) => {
     queryKey: ['products', 'customer', page],
     queryFn: async () => {
       const productsData: { products: Product[]; length: number } = await axiosInstance
-        .get(`/user/get-all-product?sort=desc&skip=${page * limit - limit}&limit=${limit}`)
+        .get(`/user/get-all-products?sort=desc&skip=${page * limit - limit}&limit=${limit}`)
         .then((res) => res.data);
       return { products: productsData.products, length: productsData.length };
     },

@@ -21,7 +21,7 @@ const productsQueryOptions = queryOptions({
   queryKey: ['products', 'admin'],
   queryFn: () =>
     axiosInstance
-      .get('/user/get-all-product?sort=desc')
+      .get('/user/get-all-products?sort=desc')
       .then((res) => res.data.products as Product[]),
   staleTime: 1000 * 60 * 5,
 });
