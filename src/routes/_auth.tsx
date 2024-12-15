@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { useRef } from 'react';
 import ForbiddenPage from '../components/ForbiddenPage';
 import Header from '../components/Header';
 import NotFoundPage from '../components/NotFoundPage';
@@ -11,8 +12,10 @@ export const Route = createFileRoute('/_auth')({
 
 function AuthRootComponent() {
   const user = useLocalUser();
+  // to store the user value at componentDidMount
+  const userValueAtComponentDidMount = useRef(user).current;
 
-  if (user) return <ForbiddenPage />;
+  if (userValueAtComponentDidMount) return <ForbiddenPage />;
   return (
     <>
       <Header />
